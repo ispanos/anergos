@@ -5,10 +5,6 @@ Post_setup_configurations:
     Location: '/etc/makepkg.conf'
     Note: 'edit line MAKEFLAGS="-j$(nproc)"'
 
-  - Download_and_unpack_git_repo:
-    - 'sudo pacman -S git'
-    - 'git clone yar and anerogos'
-
   - Connect_HDD:
     - 'sudo mkdir -v /media/Data'
     - 'cp /etc/fstab /etc/fstab.default'
