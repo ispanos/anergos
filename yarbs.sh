@@ -206,7 +206,7 @@ dialog --infobox "Installing vim plugins..." 4 50
 sudo -u "$name" vim -E -c "PlugUpdate|visual|q|q" >/dev/null
 
 # Enable services here.
-serviceinit NetworkManager cronie
+serviceinit NetworkManager cronie numlock.service fstrim.timer
 
 # Most important command! Get rid of the beep!
 systembeepoff
@@ -217,6 +217,12 @@ newperms "%wheel ALL=(ALL) ALL\\n%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/u
 
 # Make pacman and yay colorful because why not.
 sed -i "s/^#Color/Color/g" /etc/pacman.conf
+
+# Add user to audio group
+gpasswd -a "$name" audio
+
+# Set Swappiness on Manjaro only
+echo "vm.swappiness=10" >> /etc/sysctl.d/100-manjaro.conf
 
 # Last message! Install complete!
 finalize
