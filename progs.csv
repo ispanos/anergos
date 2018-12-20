@@ -35,17 +35,17 @@ A,xkb-switch-git,is used by i3blocks to display what keyboard layout is being us
 ,wget,retrieves content from web servers.
 ,firefox,doesnt need a description.
 ,galculator,is a simple GUI calculator.
-,gcolor2,is a simple color picker.
-,gnome-disk-utility,description coming soon
-,gparted,description coming soon
-,gufw,description coming soon
-,libreoffice-fresh,description coming soon
+A,gcolor3-git,is a gtk3 color picker.
+,gnome-disk-utility,is a GUI disc manager.
+,gparted,is a GUI disc manager.
+,gufw,is a GUI firewall manager.
+,libreoffice-fresh,is an office suit.
 ,pamac,is a GUI package manager I use in Manjaro to search for packages.
 ,pamac-tray-appindicator,is the tray icon for pamac
 ,pcmanfm,is a simple GUI package manager.
-A,sublime-text-dev,description coming soon
+A,sublime-text-dev,is the text editor I use mainly. Its not free
 ,transmission-gtk,is a simple torrent client.
-A,cli-visualizer,description coming soon
+A,cli-visualizer,is a terminal audio visualizer.
 ,gthumb,is an image viewer I use for cropping images.
 ,guvcview,is the webcam app I use.
 ,mediainfo,shows audio and video information and is used by ranger as well.
@@ -57,34 +57,34 @@ A,cli-visualizer,description coming soon
 ,zathura-cb,gives zathura the ability to read comic books.
 ,zathura-djvu,gives zathura the ability to read .djvu files.
 ,zathura-pdf-mupdf,allows mupdf pdf compatibility in zathura.
-,zathura-pdf-poppler,description coming soon
+,zathura-pdf-poppler,is a PDF plugin for zathura based on Poppler.
 ,steam-manjaro,is steam…
-,adapta-maia-theme,description coming soon
-,breeze-icons,description coming soon
-,lxappearance-gtk3,description coming soon
-,ttf-font-awesome,description coming soon
-,ttf-dejavu,description coming soon
-,ttf-inconsolata,description coming soon
-A,ttf-ms-fonts,description coming soon
-,pulseaudio,description coming soon
-,pulseaudio-alsa,description coming soon
-,pulseaudio-ctl,description coming soon
-,pulseaudio-equalizer,description coming soon
-,pulsemixer,description coming soon
-,pavucontrol,description coming soon
-,volumeicon,description coming soon
-,btrfs-progs,description coming soon
-,exfat-utils,description coming soon
-,gvfs,description coming soon
-,ntfs-3g,description coming soon
-,xarchiver,description coming soon
-,bzip2 ,description coming soon
-,gzip,description coming soon
-,p7zip,description coming soon
-,tar,description coming soon
-,unrar,description coming soon
-,unzip,description coming soon
-,xz,description coming soon
+,adapta-maia-theme,is the theme Ill use untill I find something better.
+,breeze-icons,is the icon them I use.
+,lxappearance-gtk3,is used to set gtk themes.
+,ttf-font-awesome,are fonts.
+,ttf-dejavu,are fonts.
+,ttf-inconsolata,are fonts.
+A,ttf-ms-fonts,are Microsoft fonts I sometimes need.
+,pulseaudio,is the audio system.
+,pulseaudio-alsa,is an audio interface with ALSA.
+,pulseaudio-ctl,is used to control audio with commands.
+,pulseaudio-equalizer,is an equalizer for pulseaudio.
+,pulsemixer,is an audio controller.
+,pavucontrol,is a GUI audio controller.
+,volumeicon,is the tray icon for volume control.
+,btrfs-progs,needed for btrfs volumes.
+,exfat-utils,allows management of FAT drives.
+,gvfs,is for managing trash in pcmanfm
+,ntfs-3g,allows accessing NTFS partitions.
+,xarchiver,is a GUI archive manager.
+,bzip2 ,is a tool to (de-)compress archives.
+,gzip,is a tool to (de-)compress archives.
+,p7zip,is a tool to (de-)compress archives.
+,tar,is a tool to (de-)compress archives.
+,unrar,is a tool to (de-)compress archives.
+,unzip,is a tool to (de-)compress archives.
+,xz,is a tool to (de-)compress archives.
 ,networkmanager,does exactly what it sounds like.
 ,network-manager-applet,is the tray icon for networkmanager.
 ,openssh,is a suite of security-related network-level utilities based on the Secure Shell protocol.
