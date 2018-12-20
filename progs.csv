@@ -1,94 +1,95 @@
 TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
-,xorg-server,"description coming soon"
-,xorg-xdpyinfo,"description coming soon"
-,xorg-xinit,"description coming soon"
-,xorg-xrandr,"description coming soon"
-,xorg-xprop,"description coming soon"
-,xterm,"description coming soon"
-,i3-gaps,"description coming soon"
-,i3blocks,"description coming soon"
-,i3lock,"description coming soon"
-,dmenu,"description coming soon"
-A,j4-dmenu-desktop,"description coming soon"
-,dunst,"description coming soon"
-,feh,"description coming soon"
-,gnome-screenshot,"description coming soon"
-,playerctl,"description coming soon"
-,scrot,"description coming soon"
-A,xkb-switch-git,"description coming soon"
-,calcurse,"description coming soon"
-,findutils,"description coming soon"
-,glances,"description coming soon"
-,highlight,"description coming soon"
-,htop,"description coming soon"
-,lshw,"description coming soon"
-,mc,"description coming soon"
-,neofetch,"description coming soon"
-,python-pywal,"description coming soon"
-,python-yaml,"description coming soon"
-,ranger,"description coming soon"
-,samba,"description coming soon"
-,tmux,"description coming soon"
-,tree,"description coming soon"
-,vim,"description coming soon"
-,w3m,"description coming soon"
-,wget,"description coming soon"
-,firefox,"description coming soon"
-,galculator,"description coming soon"
-,gcolor2,"description coming soon"
-,gnome-disk-utility,"description coming soon"
-,gparted,"description coming soon"
-,gufw,"description coming soon"
-,libreoffice-fresh,"description coming soon"
-,pamac,"description coming soon"
-,pamac-tray-appindicator,"description coming soon"
-,pcmanfm,"description coming soon"
-A,sublime-text-dev,"description coming soon"
-,transmission-gtk,"description coming soon"
-A,cli-visualizer,"description coming soon"
-,gthumb,"description coming soon"
-,guvcview,"description coming soon"
-,mediainfo,"description coming soon"
-,mpv,"description coming soon"
-,viewnior,"description coming soon"
-,youtube-dl,"description coming soon"
-,poppler,"description coming soon"
-,zathura,"description coming soon"
-,zathura-cb,"description coming soon"
-,zathura-djvu,"description coming soon"
-,zathura-pdf-mupdf,"description coming soon"
-,zathura-pdf-poppler,"description coming soon"
-,steam-manjaro,"description coming soon"
-,adapta-maia-theme,"description coming soon"
-,breeze-icons,"description coming soon"
-,lxappearance-gtk3,"description coming soon"
-,ttf-font-awesome,"description coming soon"
-,ttf-dejavu,"description coming soon"
-,ttf-inconsolata,"description coming soon"
-A,ttf-ms-fonts,"description coming soon"
-,pulseaudio,"description coming soon"
-,pulseaudio-alsa,"description coming soon"
-,pulseaudio-ctl,"description coming soon"
-,pulseaudio-equalizer,"description coming soon"
-,pulsemixer,"description coming soon"
-,pavucontrol,"description coming soon"
-,volumeicon,"description coming soon"
-,btrfs-progs,"description coming soon"
-,exfat-utils,"description coming soon"
-,gvfs,"description coming soon"
-,ntfs-3g,"description coming soon"
-,xarchiver,"description coming soon"
-,bzip2 ,"description coming soon"
-,gzip,"description coming soon"
-,p7zip,"description coming soon"
-,tar,"description coming soon"
-,unrar,"description coming soon"
-,unzip,"description coming soon"
-,xz,"description coming soon"
-,network-manager-applet,"description coming soon"
-,openssh,"description coming soon"
-,systemd-numlockontty,"description coming soon"
-,numlockx,"description coming soon"
-,amd-ucode,"description coming soon"
-,gspell,"description coming soon"
-,gksu-polkit,"description coming soon"
+,xorg-server,is the graphical server.
+,xorg-xdpyinfo,displays information X
+,xorg-xinit,starts the graphical server.
+,xorg-xrandr,a cli tool for screen adjustments.
+,xorg-xprop,is a property displayer for X
+,xterm,is my terminal emulator for now.
+,i3-gaps,is the main graphical user interface and window manager.
+,i3blocks,is the status bar.
+,i3lock,is the screen lock.
+,dmenu,runs commands and provides a UI for selection.
+A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file"
+,dunst,runs commands and provides a UI for selection.
+,feh,is a minimalist image viewer.
+,gnome-screenshot,is a GUI tool for screenshots
+,playerctl,is used by i3blocks to display what song is playing.
+,scrot,can take quick screenshots at your request.
+A,xkb-switch-git,is used by i3blocks to display what keyboard layout is being used.
+,calcurse,is a lightweight terminal-based calendar.
+,findutils,offers basic file searching utilities to search directories and files.
+,glances,a simple task viewer.
+,highlight,can highlight code output.
+,htop,provides system usage information and displays processes.
+,lshw,lists all hardware on the system.
+,mc,is a suckless file manager.
+,neofetch,displays some information when you open the terminal.
+,python-pywal,is used to change X colors to match the wallpaper.
+,python-yaml,allows python scripts to read yaml files.
+,ranger,is another suckless file manager.
+,samba,allows file sharing with windows machines.
+,tmux,is a terminal multiplexer.
+,tree,prints directories in a tree from.
+,vim,is terminal text editor.
+,w3m,is a terminal browser which can also view images.
+,wget,retrieves content from web servers.
+,firefox,doesnt need a description.
+,galculator,is a simple GUI calculator.
+,gcolor2,is a simple color picker.
+,gnome-disk-utility,description coming soon
+,gparted,description coming soon
+,gufw,description coming soon
+,libreoffice-fresh,description coming soon
+,pamac,is a GUI package manager I use in Manjaro to search for packages.
+,pamac-tray-appindicator,is the tray icon for pamac
+,pcmanfm,is a simple GUI package manager.
+A,sublime-text-dev,description coming soon
+,transmission-gtk,is a simple torrent client.
+A,cli-visualizer,description coming soon
+,gthumb,is an image viewer I use for cropping images.
+,guvcview,is the webcam app I use.
+,mediainfo,shows audio and video information and is used by ranger as well.
+,mpv,is the patrician's choice video/gif player.
+,viewnior,is the image viewer I use.
+,youtube-dl,can download any YouTube video (or playlist or channel) when given the link.
+,poppler,manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions.
+,zathura,is a terminal browser which can also view images.
+,zathura-cb,gives zathura the ability to read comic books.
+,zathura-djvu,gives zathura the ability to read .djvu files.
+,zathura-pdf-mupdf,allows mupdf pdf compatibility in zathura.
+,zathura-pdf-poppler,description coming soon
+,steam-manjaro,is steam…
+,adapta-maia-theme,description coming soon
+,breeze-icons,description coming soon
+,lxappearance-gtk3,description coming soon
+,ttf-font-awesome,description coming soon
+,ttf-dejavu,description coming soon
+,ttf-inconsolata,description coming soon
+A,ttf-ms-fonts,description coming soon
+,pulseaudio,description coming soon
+,pulseaudio-alsa,description coming soon
+,pulseaudio-ctl,description coming soon
+,pulseaudio-equalizer,description coming soon
+,pulsemixer,description coming soon
+,pavucontrol,description coming soon
+,volumeicon,description coming soon
+,btrfs-progs,description coming soon
+,exfat-utils,description coming soon
+,gvfs,description coming soon
+,ntfs-3g,description coming soon
+,xarchiver,description coming soon
+,bzip2 ,description coming soon
+,gzip,description coming soon
+,p7zip,description coming soon
+,tar,description coming soon
+,unrar,description coming soon
+,unzip,description coming soon
+,xz,description coming soon
+,networkmanager,does exactly what it sounds like.
+,network-manager-applet,is the tray icon for networkmanager.
+,openssh,is a suite of security-related network-level utilities based on the Secure Shell protocol.
+,systemd-numlockontty,is a systemd service to turn on NumLock in the TTY.
+,numlockx,turns on NumLock when i3 starts.
+,amd-ucode,Is the microcode for amd cpus
+,gspell,s a spelling suggestion tool.
+,gksu-polkit,allows sublime to run as root.
