@@ -34,6 +34,10 @@ Post_setup_configurations:
 
   - Gufw: 'https://www.youtube.com/watch?v=BcDGVcO_tZU&'
 
+  - Check_for_errors:
+    - 'sudo systemctl --failed'
+    - 'sudo journalctl -p 3 -xb'
+  
 Sublime_text_dev_theme:
     #Prefs -> Pkg Settings -> Pkg Ctrl Install Pkg 
   - 'Adaptive Sublime Theme'
