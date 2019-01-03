@@ -72,10 +72,11 @@ A,cli-visualizer,is a terminal audio visualizer.
 ,breeze-icons,is the icon them I use.
 ,lxappearance-gtk3,is used to set gtk themes.
 #Fonts:,,
-,ttf-font-awesome,are fonts.
-,ttf-dejavu,are fonts.
-,ttf-inconsolata,are fonts.
-A,ttf-ms-fonts,are Microsoft fonts I sometimes need.
+A,ttf-emojione,"is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere."
+A,ttf-symbola,"provides unicode and emoji symbols."
+,ttf-inconsolata,"is the monospace font of YARBS."
+,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
+A,ttf-ms-fonts,are Microsoft's fonts.
 #Audio:,,
 ,pulseaudio,is the audio system.
 ,pulseaudio-alsa,is an audio interface with ALSA.
