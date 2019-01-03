@@ -63,14 +63,11 @@ A,cli-visualizer,is a terminal audio visualizer.
 ,zathura-cb,gives zathura the ability to read comic books.
 ,zathura-djvu,gives zathura the ability to read .djvu files.
 ,zathura-pdf-mupdf,allows mupdf pdf compatibility in zathura.
-<<<<<<< HEAD
 #Gaming:,,
 ,steam-manjaro,is just steam.
 #Theming:,,
-=======
 ,zathura-pdf-poppler,is a PDF plugin for zathura based on Poppler.
 ,steam-manjaro,is steam…
->>>>>>> a6adc1a2f521d7f16e3d6e1c6836aeded18eefa0
 ,adapta-maia-theme,is the theme Ill use untill I find something better.
 ,breeze-icons,is the icon them I use.
 ,lxappearance-gtk3,is used to set gtk themes.
