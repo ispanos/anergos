@@ -1,110 +1,102 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
 #X:,,
-,xorg-server,is the graphical server.
-,xorg-xdpyinfo,displays information X
-,xorg-xinit,starts the graphical server.
-,xorg-xrandr,a cli tool for screen adjustments.
-,xorg-xprop,is a property displayer for X
-,xterm,is my terminal emulator for now.
+,xorg-server,"is the graphical server."
+,xorg-xdpyinfo,"displays information X"
+,xorg-xinit,"starts the graphical server."
+,xorg-xrandr,"a cli tool for screen adjustments."
+,xorg-xprop,"is a property displayer for X"
+,xterm,"is my terminal emulator for now."
+,xclip,"allows for copying and pasting from the command line."
 #i3:,,
-,i3-gaps,is the main graphical user interface and window manager.
-,i3blocks,is the status bar.
-,i3lock,is the screen lock.
-,dmenu,runs commands and provides a UI for selection.
-A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file"
-,dunst,runs commands and provides a UI for selection.
-,feh,is a minimalist image viewer.
-,gnome-screenshot,is a GUI tool for screenshots
-,playerctl,is used by i3blocks to display what song is playing.
-,scrot,can take quick screenshots at your request.
-A,xkb-switch-git,is used by i3blocks to display what keyboard layout is being used.
-#Terminal_tools:,,
-,calcurse,is a lightweight terminal-based calendar.
-,findutils,offers basic file searching utilities to search directories and files.
-,glances,a simple task viewer.
-,highlight,can highlight code output.
-,htop,provides system usage information and displays processes.
-,lshw,lists all hardware on the system.
-,mc,is a suckless file manager.
-,neofetch,displays some information when you open the terminal.
-,python-pywal,is used to change X colors to match the wallpaper.
-,python-yaml,allows python scripts to read yaml files.
-,ranger,is another suckless file manager.
-,samba,allows file sharing with windows machines.
-,tmux,is a terminal multiplexer.
-,tree,prints directories in a tree from.
-,vim,is terminal text editor.
-,w3m,is a terminal browser which can also view images.
-,wget,retrieves content from web servers.
-,firefox,doesnt need a description.
-#Core_programs:,,
-,galculator,is a simple GUI calculator.
-A,gcolor3-git,is a gtk3 color picker.
-,gnome-disk-utility,is a GUI disc manager.
-,gparted,is a GUI disc manager.
-,gufw,is a GUI firewall manager.
-,libreoffice-fresh,is an office suit.
-,pamac,is a GUI package manager I use in Manjaro to search for packages.
-,pamac-tray-appindicator,is the tray icon for pamac
-,pcmanfm,is a simple GUI package manager.
-A,sublime-text-dev,is the text editor I use mainly. Its not free
-,transmission-gtk,is a simple torrent client.
-#Media:,,
-A,cli-visualizer,is a terminal audio visualizer.
-,gthumb,is an image viewer I use for cropping images.
-,guvcview,is the webcam app I use.
-,mediainfo,shows audio and video information and is used by ranger as well.
-,mpv,is the patrician's choice video/gif player.
-,viewnior,is the image viewer I use.
-,youtube-dl,can download any YouTube video (or playlist or channel) when given the link.
-#PDF_viewer:,,
-,poppler,manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions.
-,zathura,is a terminal browser which can also view images.
-,zathura-cb,gives zathura the ability to read comic books.
-,zathura-djvu,gives zathura the ability to read .djvu files.
-,zathura-pdf-mupdf,allows mupdf pdf compatibility in zathura.
-#Gaming:,,
-,steam-manjaro,is just steam.
-#Theming:,,
-,zathura-pdf-poppler,is a PDF plugin for zathura based on Poppler.
-,steam-manjaro,is steam…
-,adapta-maia-theme,is the theme Ill use untill I find something better.
-,breeze-icons,is the icon them I use.
-,lxappearance-gtk3,is used to set gtk themes.
+,i3-gaps,"is the main graphical user interface and window manager."
+,i3blocks,"is the status bar."
+,i3lock,"is the screen lock."
+,dmenu,"runs commands and provides a UI for selection."
+A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
+,dunst,"runs commands and provides a UI for selection."
+,feh,"is a minimalist image viewer."
+,python-pywal,"is used to change X colors to match the wallpaper."
+,gnome-screenshot,"is a GUI tool for screenshots"
+,playerctl,"is used by i3blocks to display what song is playing on spotify."
+,scrot,"can take quick screenshots at your request."
+,numlockx,"turns on NumLock when i3 starts."
+A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
 #Fonts:,,
-A,ttf-emojione,"is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere."
-A,ttf-symbola,"provides unicode and emoji symbols."
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
-A,ttf-ms-fonts,are Microsoft's fonts.
+A,ttf-emojione,"is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere."
+A,ttf-symbola,"provides unicode and emoji symbols."
+A,ttf-ms-fonts,"are Microsoft fonts."
+#Terminal_tools:,,
+,calcurse,"is a lightweight terminal-based calendar."
+,findutils,"offers basic file searching utilities to search directories and files."
+,glances,"a simple task viewer."
+,highlight,"can highlight code output."
+,htop,"provides system usage information and displays processes."
+,lshw,"lists all hardware on the system."
+,ranger,"is another suckless file manager."
+,tmux,"is a terminal multiplexer."
+,tree,"prints directories in a tree from."
+,vim,"is terminal text editor."
+,w3m,"is a terminal browser which can also view images."
+#Core_programs:,,
+,firefox,"doesnt need a description."
+,galculator,"is a simple GUI calculator."
+A,gcolor3-git,"is a gtk3 color picker."
+,gparted,"is a GUI disc manager."
+,gufw,"is a GUI firewall manager."
+,libreoffice-fresh,"is an office suit."
+,pamac,"is a GUI package manager mainly for Manjaro users."
+,pamac-tray-appindicator,"is the tray icon for pamac."
+,pcmanfm,"is a simple GUI file manager."
+A,sublime-text-dev,"is the text editor I use mainly. Its not free in any way."
+,transmission-gtk,"is a simple torrent client."
+#Media:,,
+A,cli-visualizer,"is a terminal audio visualizer."
+,guvcview,"is the webcam app I use."
+,mediainfo,"shows audio and video information and is used by ranger as well."
+,mpv,"is simple video/gif player."
+,youtube-dl,"can download any YouTube video (or playlist or channel) when given the link."
+#PDF_viewer:,,
+,poppler,"manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions."
+,zathura,"is a terminal browser which can also view images."
+,zathura-cb,"gives zathura the ability to read comic books."
+,zathura-djvu,"gives zathura the ability to read .djvu files."
+,zathura-pdf-mupdf,"allows mupdf pdf compatibility in zathura."
+#Gaming:,,
+,steam-manjaro,"is a game store."
+#Theming:,,
+,zathura-pdf-poppler,"is a PDF plugin for zathura based on Poppler."
+,adapta-maia-theme,"is the theme Ill use untill I find something better."
+,breeze-icons,"is the icon them I use."
+,lxappearance-gtk3,"is used to set gtk themes."
 #Audio:,,
-,pulseaudio,is the audio system.
-,pulseaudio-alsa,is an audio interface with ALSA.
-,pulseaudio-ctl,is used to control audio with commands.
-,pulseaudio-equalizer,is an equalizer for pulseaudio.
-,pulsemixer,is an audio controller.
-,pavucontrol,is a GUI audio controller.
-,volumeicon,is the tray icon for volume control.
+,pulseaudio,"is the audio system."
+,pulseaudio-alsa,"is an audio interface with ALSA."
+,pulseaudio-ctl,"is used to control audio with commands."
+,pulseaudio-equalizer,"is an equalizer for pulseaudio."
+,pulsemixer,"is an audio controller."
+,pavucontrol,"is a GUI audio controller."
+,volumeicon,"is the tray icon for volume control."
 #Filesystems:,,
-,btrfs-progs,needed for btrfs volumes.
-,exfat-utils,allows management of FAT drives.
-,gvfs,is for managing trash in pcmanfm
-,ntfs-3g,allows accessing NTFS partitions.
-,xarchiver,is a GUI archive manager.
-,bzip2 ,is a tool to (de-)compress archives.
-,gzip,is a tool to (de-)compress archives.
-,p7zip,is a tool to (de-)compress archives.
-,tar,is a tool to (de-)compress archives.
-,unrar,is a tool to (de-)compress archives.
-,unzip,is a tool to (de-)compress archives.
-,xz,is a tool to (de-)compress archives.
+,btrfs-progs,"needed for btrfs volumes."
+,exfat-utils,"allows management of FAT drives."
+,gvfs,"is for managing trash in pcmanfm."
+,ntfs-3g,"allows accessing NTFS partitions."
+,xarchiver,"is a GUI archive manager used by pcmanfm."
+,bzip2,"is a tool to (de-)compress archives."
+,gzip,"is a tool to (de-)compress archives."
+,p7zip,"is a tool to (de-)compress archives."
+,tar,"is a tool to (de-)compress archives."
+,unrar,"is a tool to (de-)compress archives."
+,unzip,"is a tool to (de-)compress archives."
+,xz,"is a tool to (de-)compress archives."
 #Networking:,,
-,networkmanager,does exactly what it sounds like.
-,network-manager-applet,is the tray icon for networkmanager.
-,openssh,is a suite of security-related network-level utilities based on the Secure Shell protocol.
+,networkmanager,"does exactly what it sounds like."
+,network-manager-applet,"is the tray icon for networkmanager."
+,openssh,"is a suite of security-related network-level utilities based on the Secure Shell protocol."
 #Misc:,,
-,systemd-numlockontty,is a systemd service to turn on NumLock in the TTY.
-,numlockx,turns on NumLock when i3 starts.
-,amd-ucode,Is the microcode for amd cpus
-,gspell,s a spelling suggestion tool.
-,gksu-polkit,allows sublime to run as root.
+,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
+,amd-ucode,"is the microcode for amd cpus"
+,gspell,"is a spelling suggestion tool."
+,gksu-polkit,"allows sublime to run as root."
