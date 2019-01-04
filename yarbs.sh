@@ -206,10 +206,6 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 # Pulseaudio, if/when initially installed, often needs a restart to work immediately.
 [[ -f /usr/bin/pulseaudio ]] && resetpulse
 
-# Install vim `plugged` plugins.
-dialog --infobox "Installing vim plugins..." 4 50
-sudo -u "$name" vim -E -c "PlugUpdate|visual|q|q" >/dev/null
-
 # Enable services here.
 serviceinit NetworkManager cronie numlock.service fstrim.timer
 
