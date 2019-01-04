@@ -1,43 +1,26 @@
 Post_setup_configurations:
-
   - Make-multicore: 
     Source: '[wiki] makepkg'
     Location: '/etc/makepkg.conf'
     Note: 'edit line MAKEFLAGS="-j$(nproc)"'
-
   - Connect_HDD:
     - 'sudo mkdir -v /media/Data'
     - 'cp /etc/fstab /etc/fstab.default'
     - 'add drive to fstab'
     - ext4_options: '/media/Data    ext4 rw,noatime,nofail,user,auto    0  2'
     - 'ln -sv /media/Data/* /home/yiannis/'
-
   - Infinality fonts: 'sudo nano /etc/profile.d/freetype2.sh'
-
   - Nvidia: '/etc/X11/mhwd.d/nvidia.conf'
-
-  - Audio: 
-    Source: 'https://wiki.archlinux.org/index.php/gaming#Tuning_PulseAudio'
-
+  - Audio: 'https://wiki.archlinux.org/index.php/gaming#Tuning_PulseAudio'
   - Fast_Grub: 
     Location: '/etc/default/grub'
     Note: 'set GRUB_TIMEOUT=0 then update-grub'
-
   - ACPI_events: '/etc/systemd/logind.conf'
-
-  - Clean_sleep:
-    - 'sudo cp /home/yiannis/anergos/clean_sleep/clean-n-sleep.sh /usr/local/sbin/clean-n-sleep.sh'
-    - 'sudo cp /home/yiannis/anergos/clean_sleep/clean-n-sleep.service /etc/systemd/system/clean-n-sleep.service'
-    - 'sudo systemctl enable clean-n-sleep.service'
-
-  - AMD zen states fix: 'https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533'
-
+  - AMD_fix: 'https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533'
   - Gufw: 'https://www.youtube.com/watch?v=BcDGVcO_tZU&'
-
   - Check_for_errors:
     - 'sudo systemctl --failed'
     - 'sudo journalctl -p 3 -xb'
-  
 Sublime_text_dev_theme:
     #Prefs -> Pkg Settings -> Pkg Ctrl Install Pkg 
   - 'Adaptive Sublime Theme'
@@ -45,14 +28,10 @@ Sublime_text_dev_theme:
   - 'sidebarenchantments'
   #- 'FTPSync'
   #- 'GitGutter'
-
 Rocket_league_startup_options:
-  - -DisableAquadome 
-  - -nomovie 
+  - -DisableAquadome -high -nomovie
   - -AllowBackgroundAudio 
-  - -high 
-  - -ResX=1920 
-  - -ResY=1080 
+  - -ResX=1920 -ResY=1080 
   - -malloc=system 
   - -USEALLAVAILABLECORES 
   - -nomansky
