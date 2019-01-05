@@ -15,6 +15,7 @@
 ,xterm,"is my terminal emulator for now."
 ,xclip,"allows for copying and pasting from the command line."
 #Word stuff:,,
+,terminus-font,"is the font I use in Xterm."
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
 A,ttf-emojione,"provides unicode symbols and emojis used in the status bar and elsewhere."
