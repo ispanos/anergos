@@ -25,7 +25,6 @@ A,ttf-ms-fonts,"are Microsoft fonts."
 #CLI:,,
 ,calcurse,"is a lightweight terminal-based calendar."
 ,findutils,"offers basic file searching utilities to search directories and files."
-,glances,"a simple task viewer."
 ,highlight,"can highlight code output."
 ,htop,"provides system usage information and displays processes."
 ,lshw,"lists all hardware on the system."
