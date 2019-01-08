@@ -61,7 +61,7 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 #Core_programs:,,
 ,firefox,"doesnt need a description."
 ,galculator,"is a simple GUI calculator."
-A,gcolor3-git,"is a gtk3 color picker."
+,gcolor3,"is a gtk3 color picker."
 ,gparted,"is a GUI disc manager."
 ,gufw,"is a GUI firewall manager."
 ,libreoffice-fresh,"is an office suit."
