@@ -23,13 +23,10 @@ A,ttf-ms-fonts,"are Microsoft fonts."
 ,gspell,"is a spelling suggestion tool."
 #CLI:,,
 ,calcurse,"is a lightweight terminal-based calendar."
-,findutils,"offers basic file searching utilities to search directories and files."
 ,highlight,"can highlight code output."
 ,htop,"provides system usage information and displays processes."
-,lshw,"lists all hardware on the system."
 ,ranger,"is another suckless file manager."
 ,tmux,"is a terminal multiplexer."
-,tree,"prints directories in a tree from."
 ,vim,"is terminal text editor."
 ,w3m,"is a terminal browser which can also view images."
 #i3:,,
