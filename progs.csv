@@ -53,7 +53,7 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 ,pulseaudio,"is the audio system."
 ,pulseaudio-alsa,"is an audio interface with ALSA."
 ,pulseaudio-ctl,"is used to control audio with commands."
-,pulseaudio-equalizer,"is an equalizer for pulseaudio."
+,pulseaudio-equalizer-ladspa,"is an equalizer for pulseaudio."
 ,pulsemixer,"is an audio controller."
 #Networking:,,
 ,networkmanager,"does exactly what it sounds like."
