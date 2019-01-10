@@ -63,7 +63,6 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 ,lxappearance-gtk3,"is used to set gtk themes."
 ,pcmanfm,"is a simple GUI file manager."
 A,sublime-text-dev,"is the text editor I use mainly. Its not free in any way."
-,gksu-polkit,"allows sublime to run as root."
 ,transmission-gtk,"is a simple torrent client."
 #Media:,,
 A,cli-visualizer,"is a terminal audio visualizer."
