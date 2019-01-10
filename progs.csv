@@ -1,6 +1,5 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
 ,i3-gaps,"is the main graphical user interface and window manager."
-,amd-ucode,"is the microcode for amd cpus"
 #X:,,
 ,xorg-server,"is the graphical server."
 ,xorg-xdpyinfo,"displays information X"
@@ -94,3 +93,4 @@ A,cli-visualizer,"is a terminal audio visualizer."
 ,p7zip,"is a tool to (de-)compress archives."
 ,unrar,"is a tool to (de-)compress archives."
 ,unzip,"is a tool to (de-)compress archives."
+,amd-ucode,"is the microcode for amd cpus"
