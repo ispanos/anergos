@@ -77,13 +77,15 @@ A,cli-visualizer,"is a terminal audio visualizer."
 ,zathura-pdf-mupdf,"allows mupdf pdf compatibility in zathura."
 #Gaming:,,
 ,steam-manjaro,"is a game store."
-#Misc:,,
+#Filesystems:,,
 ,dosfstools,"allows your computer to access dos-like filesystems."
 ,exfat-utils,"allows management of FAT drives."
 ,ntfs-3g,"allows accessing NTFS partitions."
 A,simple-mtpfs,"enables the mounting of cell phones."
+#Archives:,,
 ,xarchiver,"is a GUI archive manager used by pcmanfm."
 ,p7zip,"is a tool to (de-)compress archives."
 ,unrar,"is a tool to (de-)compress archives."
 ,unzip,"is a tool to (de-)compress archives."
+#Misc:,,
 ,amd-ucode,"is the microcode for amd cpus"
