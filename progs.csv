@@ -7,7 +7,6 @@
 ,xorg-xrandr,"a cli tool for screen adjustments."
 ,xorg-xprop,"is a property displayer for X"
 ,xf86-input-libinput,"are drivers for imput devices."
-,xf86-input-mouse,"are drivers for imput devices."
 ,xf86-input-void,"is something."
 ,xf86-input-evdev,
 ,xterm,"is my terminal emulator for now."
