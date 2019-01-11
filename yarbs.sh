@@ -207,7 +207,7 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 [[ -f /usr/bin/pulseaudio ]] && resetpulse
 
 # Enable services here.
-serviceinit NetworkManager cronie numlock.service fstrim.timer
+serviceinit NetworkManager cronie numLockOnTty.service fstrim.timer
 
 # Most important command! Get rid of the beep!
 systembeepoff
