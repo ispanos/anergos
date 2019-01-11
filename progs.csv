@@ -42,7 +42,7 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 ,dunst,"runs commands and provides a UI for selection."
 ,libnotify,"allows desktop notifications."
 ,feh,"is a minimalist image viewer."
-,python-pywal,"is used to change X colors to match the wallpaper."
+,imagemagick,"supports more file formats for feh."
 ,scrot,"can take quick screenshots at your request."
 A,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
 ,numlockx,"turns on NumLock when i3 starts."
