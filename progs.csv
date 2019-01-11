@@ -80,7 +80,6 @@ A,cli-visualizer,"is a terminal audio visualizer."
 #Misc:,,
 ,dosfstools,"allows your computer to access dos-like filesystems."
 ,exfat-utils,"allows management of FAT drives."
-,gvfs,"is for managing trash in pcmanfm."
 ,ntfs-3g,"allows accessing NTFS partitions."
 A,simple-mtpfs,"enables the mounting of cell phones."
 ,xarchiver,"is a GUI archive manager used by pcmanfm."
