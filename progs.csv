@@ -22,6 +22,7 @@ A,ttf-symbola,"provides unicode and emoji symbols."
 A,ttf-ms-fonts,"are Microsoft fonts."
 ,gspell,"is a spelling suggestion tool."
 #CLI:,,
+,inxi,"is a CLI system information tool."
 ,calcurse,"is a lightweight terminal-based calendar."
 ,highlight,"can highlight code output."
 ,htop,"provides system usage information and displays processes."
