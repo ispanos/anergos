@@ -18,7 +18,6 @@
 ,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
 A,ttf-emojione,"provides unicode symbols and emojis used in the status bar and elsewhere."
 A,ttf-symbola,"provides unicode and emoji symbols."
-A,ttf-ms-fonts,"are Microsoft fonts."
 ,gspell,"is a spelling suggestion tool."
 #CLI:,,
 ,inxi,"is a CLI system information tool."
