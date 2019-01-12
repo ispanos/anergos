@@ -11,6 +11,7 @@
 ,xwallpaper,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
 ,sxiv,"is a simple X image viewer."
+,maim,"can take quick screenshots at your request."
 #Word stuff:,,
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
@@ -38,8 +39,6 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
 ,dunst,"runs commands and provides a UI for selection."
 ,libnotify,"allows desktop notifications."
-#,imagemagick,"supports more file formats for feh."
-,maim,"can take quick screenshots at your request."
 A,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
 ,numlockx,"turns on NumLock when i3 starts."
 #Audio:,,
