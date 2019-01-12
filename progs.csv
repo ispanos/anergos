@@ -10,7 +10,7 @@
 ,xclip,"allows for copying and pasting from the command line."
 ,xwallpaper,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
-,sxiv,"is simple X image viewer."
+,sxiv,"is a simple X image viewer."
 #Word stuff:,,
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
