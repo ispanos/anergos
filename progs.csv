@@ -37,7 +37,7 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 ,i3lock,"is the screen lock."
 ,dmenu,"runs commands and provides a UI for selection."
 A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
-,dunst,"runs commands and provides a UI for selection."
+,dunst,"is a suckless notification system."
 ,libnotify,"allows desktop notifications."
 A,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
 ,numlockx,"turns on NumLock when i3 starts."
