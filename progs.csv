@@ -82,3 +82,4 @@ A,simple-mtpfs,"enables the mounting of cell phones."
 ,unzip,"is a tool to (de-)compress archives."
 #Misc:,,
 ,amd-ucode,"is the microcode for amd cpus"
+,cpupower,"configures CPU frequency scaling."
