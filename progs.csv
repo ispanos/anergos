@@ -10,7 +10,6 @@
 ,xclip,"allows for copying and pasting from the command line."
 ,xwallpaper,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
-,sxiv,"is a simple X image viewer."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
 #Word stuff:,,
@@ -59,6 +58,7 @@ A,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
 A,sublime-text-dev,"is the text editor I use mainly. Its not free in any way."
 ,transmission-gtk,"is a simple torrent client."
 #Media:,,
+,imv,"is an image viewer for Wayland and X11."
 A,cli-visualizer,"is a terminal audio visualizer."
 ,guvcview,"is the webcam app I use."
 ,mediainfo,"shows audio and video information and is used by ranger as well."
