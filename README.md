@@ -10,3 +10,5 @@ your own.
 
 If I don't completely destroy the script, I will try to add some of the
 original documentation.
+
+## [Bloat Archive](https://gist.github.com/ispanos/cd64a41bfb01aa4e645099bc11908303)
