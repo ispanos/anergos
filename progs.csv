@@ -26,7 +26,7 @@ A,termite-nocsd,"is the terminal I use right now."
 ,htop,"provides system usage information and displays processes."
 ,ranger,"is another suckless file manager."
 ,tmux,"is a terminal multiplexer."
-,vim,"is terminal text editor."
+,gvim,"is terminal text editor."
 ,w3m,"is a terminal browser which can also view images."
 # Theme:,,
 A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
