@@ -6,8 +6,6 @@
 ,xorg-xinit,"starts the graphical server."
 ,xorg-xrandr,"a cli tool for screen adjustments."
 ,xorg-xprop,"is a property displayer for X"
-,xterm,"is my terminal emulator for now."
-,xclip,"allows for copying and pasting from the command line."
 ,xwallpaper,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
 ,maim,"can take quick screenshots at your request."
@@ -19,6 +17,7 @@ A,ttf-emojione,"provides unicode symbols and emojis used in the status bar and e
 A,ttf-symbola,"provides unicode and emoji symbols."
 ,gspell,"is a spelling suggestion tool."
 # CLI:,,
+A,termite-nocsd,"is the terminal I use right now."
 ,expac,"is a pacman database extraction utility."
 ,inxi,"is a CLI system information tool."
 ,calcurse,"is a lightweight terminal-based calendar."
