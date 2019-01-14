@@ -6,6 +6,7 @@
 ,xorg-xinit,"starts the graphical server."
 ,xorg-xrandr,"a cli tool for screen adjustments."
 ,xorg-xprop,"is a property displayer for X"
+,xssstate,"times out the screen if locked. (used in the lockscreen script)"
 ,xwallpaper,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
 ,xclip,"allows for copying and pasting from the command line (used with mpv)."
