@@ -11,12 +11,11 @@
 ,xclip,"allows for copying and pasting from the command line (used with mpv)."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
-# Word stuff:,,
+# Fonts:,,
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
 A,ttf-emojione,"provides unicode symbols and emojis used in the status bar and elsewhere."
 A,ttf-symbola,"provides unicode and emoji symbols."
-,gspell,"is a spelling suggestion tool."
 # CLI:,,
 A,termite-nocsd,"is the terminal I use right now."
 ,expac,"is a pacman database extraction utility."
