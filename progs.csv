@@ -31,6 +31,8 @@ A,termite-nocsd,"is the terminal I use right now."
 # Theme:,,
 A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
 ,breeze-icons,"is the icon them I use."
+,gcolor3,"is a gtk3 color picker."
+,lxappearance-gtk3,"is used to set gtk themes."
 # i3:,,
 ,i3blocks,"is the status bar."
 ,libnotify,"allows desktop notifications."
@@ -51,9 +53,7 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 # Core_programs:,,
 ,firefox,"doesnt need a description."
 ,galculator,"is a simple GUI calculator."
-,gcolor3,"is a gtk3 color picker."
 ,libreoffice-fresh,"is an office suit."
-,lxappearance-gtk3,"is used to set gtk themes."
 ,pcmanfm,"is a simple GUI file manager."
 A,sublime-text-dev,"is the text editor I use mainly. Its not free in any way."
 ,transmission-gtk,"is a simple torrent client."
