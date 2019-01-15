@@ -40,7 +40,6 @@ A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
 A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
 ,i3lock,"is the screen lock."
 A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
-,socat,"is a socket utility. (used in pauseallmpv script)"
 # Audio:,,
 ,pulseaudio,"is the audio system."
 ,pulseaudio-alsa,"is an audio interface with ALSA."
