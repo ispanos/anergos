@@ -1,8 +1,4 @@
 Post_setup_configurations:
-  - Make-multicore: 
-    Source: '[wiki] makepkg'
-    Location: '/etc/makepkg.conf'
-    Note: 'edit line MAKEFLAGS="-j$(nproc)"'
   - Connect_HDD:
     - 'sudo mkdir -v /media/Data'
     - 'cp /etc/fstab /etc/fstab.default'
