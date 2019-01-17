@@ -21,13 +21,6 @@ Post_setup_configurations:
   - Check_for_errors:
     - 'sudo systemctl --failed'
     - 'sudo journalctl -p 3 -xb'
-Sublime_text_dev_theme:
-    #Prefs -> Pkg Settings -> Pkg Ctrl Install Pkg 
-  - 'Adaptive Sublime Theme'
-  - 'Agila Cobalt Corol scheme'
-  - 'sidebarenchantments'
-  #- 'FTPSync'
-  #- 'GitGutter'
 Rocket_league_startup_options:
   - -DisableAquadome -high -nomovie
   - -AllowBackgroundAudio 
