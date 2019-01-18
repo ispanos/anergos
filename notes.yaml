@@ -11,7 +11,7 @@ Post_setup_configurations:
   - Fast_Grub: 
     Location: '/etc/default/grub'
     Note: 'set GRUB_TIMEOUT=0 then update-grub'
-  - ACPI_events: '/etc/systemd/logind.conf'
+  - ACPI_events: sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
   - AMD_fix: 'https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533'
   - Check_for_errors:
     - 'sudo systemctl --failed'
