@@ -24,7 +24,7 @@ A,termite-nocsd,"is the terminal I use right now."
 ,calcurse,"is a lightweight terminal-based calendar."
 ,highlight,"can highlight code output."
 ,htop,"provides system usage information and displays processes."
-,tmux,"is a terminal multiplexer."
+,vifm,"is an extensive terminal file manager."
 ,neovim,"is terminal text editor."
 ,w3m,"is a terminal browser which can also view images."
 # Theme:,,
