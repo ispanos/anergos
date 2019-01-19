@@ -29,7 +29,6 @@ A,termite-nocsd,"is the terminal I use right now."
 ,w3m,"is a terminal browser which can also view images."
 # Theme:,,
 A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
-,breeze-icons,"is the icon them I use."
 ,gcolor3,"is a gtk3 color picker."
 ,lxappearance-gtk3,"is used to set gtk themes."
 # i3:,,
@@ -51,6 +50,7 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 # Core_programs:,,
 ,firefox,"doesnt need a description."
 ,galculator,"is a simple GUI calculator."
+,hexchat,"is an IRC client."
 ,libreoffice-fresh,"is an office suit."
 ,pcmanfm,"is a simple GUI file manager."
 A,sublime-text-dev,"is the text editor I use mainly. Its not free in any way."
