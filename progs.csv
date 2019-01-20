@@ -1,6 +1,6 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
-,i3-gaps,"is the main graphical user interface and window manager."
-# X:,,
+,i3-wm,"is the main graphical user interface and window manager."
+# X:,,"those programs dont work on wayland."
 ,xorg-server,"is the graphical server."
 ,xorg-xdpyinfo,"displays information X"
 ,xorg-xinit,"starts the graphical server."
@@ -18,7 +18,17 @@
 ,ttf-linux-libertine,"provides the sans and serif fonts for YARBS."
 A,ttf-emojione,"provides unicode symbols and emojis used in the status bar and elsewhere."
 A,ttf-symbola,"provides unicode and emoji symbols."
-# CLI:,,
+# Filesystems:,,
+,dosfstools,"allows your computer to access dos-like filesystems."
+,exfat-utils,"allows management of FAT drives."
+,ntfs-3g,"allows accessing NTFS partitions."
+A,simple-mtpfs,"enables the mounting of cell phones."
+# Archives:,,
+,p7zip,"is a tool to (de-)compress archives."
+,unrar,"is a tool to (de-)compress archives."
+,unzip,"is a tool to (de-)compress archives."
+# TUI:,,
+#,tmux,"is a terminal multiplexer."
 A,termite-nocsd,"is the terminal I use right now."
 ,expac,"is a pacman database extraction utility."
 ,inxi,"is a CLI system information tool."
@@ -28,11 +38,9 @@ A,termite-nocsd,"is the terminal I use right now."
 ,vifm,"is an extensive terminal file manager."
 ,neovim,"is terminal text editor."
 ,w3m,"is a terminal browser which can also view images."
-# Theme:,,
-A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
-,gcolor3,"is a gtk3 color picker."
-,lxappearance-gtk3,"is used to set gtk themes."
+,openssh,"is a suite of security-related network utilities based on the ssh."
 # i3:,,
+A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
 ,i3blocks,"is the status bar."
 ,libnotify,"allows desktop notifications."
 #,playerctl,"is used by i3blocks to display what song is playing on spotify."
@@ -42,20 +50,9 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 # Audio:,,
 ,pulseaudio,"is the audio system."
 ,pulseaudio-alsa,"is an audio interface with ALSA."
-,pulseaudio-ctl,"is used to control audio with commands."
+,pulseaudio-ctl,"is used to control audio with commands (only in aur on arch)."
 ,pulseaudio-equalizer-ladspa,"is an equalizer for pulseaudio."
 ,pulsemixer,"is an audio controller."
-# Networking:,,
-,networkmanager,"does exactly what it sounds like."
-,openssh,"is a suite of security-related network utilities based on the ssh."
-# Core_programs:,,
-,firefox,"doesnt need a description."
-,galculator,"is a simple GUI calculator."
-,hexchat,"is an IRC client."
-,libreoffice-fresh,"is an office suit."
-,pcmanfm,"is a simple GUI file manager."
-A,sublime-text-dev,"is the text editor I use mainly. Its not free in any way."
-,transmission-gtk,"is a simple torrent client."
 # Media:,,
 ,imv,"is an image viewer for Wayland and X11."
 A,cli-visualizer,"is a terminal audio visualizer."
@@ -66,22 +63,22 @@ A,cli-visualizer,"is a terminal audio visualizer."
 # PDF_viewer:,,
 ,poppler,"manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions."
 ,zathura,"is a terminal browser which can also view images."
-,zathura-pdf-mupdf,"allows mupdf pdf compatibility in zathura."
-# Gaming:,,
-,steam-manjaro,"is a game store."
-# Filesystems:,,
-,dosfstools,"allows your computer to access dos-like filesystems."
-,exfat-utils,"allows management of FAT drives."
-,ntfs-3g,"allows accessing NTFS partitions."
-A,simple-mtpfs,"enables the mounting of cell phones."
-# Archives:,,
+,zathura-pdf-poppler,"is a PDF plugin based on poppler."
+# GUI_programs:,,
+,firefox,"doesnt need a description."
+,galculator,"is a simple GUI calculator."
+,hexchat,"is an IRC client."
+,libreoffice-fresh,"is an office suit."
+,pcmanfm,"is a simple GUI file manager."
 ,xarchiver,"is a GUI archive manager used by pcmanfm."
-,p7zip,"is a tool to (de-)compress archives."
-,unrar,"is a tool to (de-)compress archives."
-,unzip,"is a tool to (de-)compress archives."
-# Misc:,,
+A,sublime-text-dev,"is the text editor I use mainly. Its not free in any way."
+,transmission-gtk,"is a simple torrent client."
+,gcolor3,"is a gtk3 color picker."
+,lxappearance-gtk3,"is used to set gtk themes."
+,networkmanager,"does exactly what it sounds like."
+,steam-manjaro,"is a game store."
+# System-specific,,
 ,amd-ucode,"is the microcode for amd cpus"
+A,it87-dkms-git,"is a driver for my motherboards temp sensors."
 ,cpupower,"configures CPU frequency scaling."
 A,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
-,numlockx,"turns on NumLock when i3 starts."
-A,it87-dkms-git,"is a driver for my motherboard."
