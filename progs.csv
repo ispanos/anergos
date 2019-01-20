@@ -48,7 +48,6 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 ,i3lock,"is the screen lock."
 A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
 # Audio:,,
-,pulseaudio,"is the audio system."
 ,pulseaudio-alsa,"is an audio interface with ALSA."
 ,pulseaudio-ctl,"is used to control audio with commands (only in aur on arch)."
 ,pulseaudio-equalizer-ladspa,"is an equalizer for pulseaudio."
@@ -62,8 +61,7 @@ A,cli-visualizer,"is a terminal audio visualizer."
 ,youtube-dl,"can download any YouTube video (or playlist or channel) when given the link."
 # PDF_viewer:,,
 ,poppler,"manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions."
-,zathura,"is a terminal browser which can also view images."
-,zathura-pdf-poppler,"is a PDF plugin based on poppler."
+,zathura-pdf-poppler,"is a PDF plugin for zathura based on poppler."
 # GUI_programs:,,
 ,firefox,"doesnt need a description."
 ,galculator,"is a simple GUI calculator."
