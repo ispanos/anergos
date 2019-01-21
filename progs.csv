@@ -11,6 +11,7 @@
 ,xdotool,"provides window action utilities on the command line (maim)."
 ,xclip,"allows for copying and pasting from the command line (used with mpv)."
 ,xcompmgr,"is for transparency and removing screen-tearing."
+A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
 # Fonts:,,
@@ -44,7 +45,6 @@ A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
 ,i3blocks,"is the status bar."
 ,libnotify,"allows desktop notifications."
 #,playerctl,"is used by i3blocks to display what song is playing on spotify."
-A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
 ,i3lock,"is the screen lock."
 A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
 # Audio:,,
