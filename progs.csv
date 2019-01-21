@@ -41,7 +41,7 @@ A,termite-nocsd,"is the terminal I use right now."
 ,w3m,"is a terminal browser which can also view images."
 ,openssh,"is a suite of security-related network utilities based on the ssh."
 # i3:,,
-A,gtk-theme-arc-gruvbox-git,"gives the dark GTK theme used in LARBS."
+,gtk-theme-e17gtk,"gives the dark GTK theme with sharp corners."
 ,i3blocks,"is the status bar."
 ,libnotify,"allows desktop notifications."
 #,playerctl,"is used by i3blocks to display what song is playing on spotify."
