@@ -16,6 +16,7 @@ Post_setup_configurations:
   - Check_for_errors:
     - 'sudo systemctl --failed'
     - 'sudo journalctl -p 3 -xb'
+  - " /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & "
 Rocket_league_startup_options:
   - -DisableAquadome -high -nomovie
   - -AllowBackgroundAudio 
