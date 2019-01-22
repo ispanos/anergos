@@ -48,7 +48,6 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 #,playerctl,"is used by i3blocks to display what song is playing on spotify."
 # Audio:,,
 ,pulseaudio-alsa,"is an audio interface with ALSA."
-,pulseaudio-ctl,"is used to control audio with commands (only in aur on arch)."
 ,pulsemixer,"is an audio controller."
 # Media:,,
 ,imv,"is an image viewer for Wayland and X11."
