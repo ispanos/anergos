@@ -31,7 +31,6 @@ A,simple-mtpfs,"enables the mounting of cell phones."
 ,unrar,"is a tool to (de-)compress archives."
 ,unzip,"is a tool to (de-)compress archives."
 # TUI:,,
-#,tmux,"is a terminal multiplexer."
 ,expac,"is a pacman database extraction utility."
 ,inxi,"is a CLI system information tool."
 ,calcurse,"is a lightweight terminal-based calendar."
