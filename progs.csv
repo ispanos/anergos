@@ -41,17 +41,14 @@ A,simple-mtpfs,"enables the mounting of cell phones."
 ,neovim,"is terminal text editor."
 ,w3m,"is a terminal browser which can also view images."
 ,openssh,"is a suite of security-related network utilities based on the ssh."
-# Audio:,,
 ,pulseaudio-alsa,"is an audio interface with ALSA."
 ,pulsemixer,"is an audio controller."
-# Media:,,
 ,imv,"is an image viewer for Wayland and X11."
 A,cli-visualizer,"is a terminal audio visualizer."
 ,mediainfo,"shows audio and video information and is used by ranger as well."
 ,mpv,"is simple video/gif player."
 #,playerctl,"is used by i3blocks to display what song is playing (on some players)."
 ,youtube-dl,"can download any YouTube video (or playlist or channel) when given the link."
-# PDF_viewer:,,
 ,poppler,"manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions."
 ,zathura-pdf-poppler,"is a PDF plugin for zathura based on poppler."
 # gtk-only-progs:,,
