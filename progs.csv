@@ -1,6 +1,9 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
 ,i3-wm,"is the main graphical user interface and window manager."
+,i3blocks,"is the status bar."
+A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
 # X:,,"those programs dont work on wayland."
+,i3lock,"is the screen lock."
 ,xorg-server,"is the graphical server."
 ,xorg-xdpyinfo,"displays information X"
 ,xorg-xinit,"starts the graphical server."
@@ -52,11 +55,6 @@ A,cli-visualizer,"is a terminal audio visualizer."
 # PDF_viewer:,,
 ,poppler,"manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions."
 ,zathura-pdf-poppler,"is a PDF plugin for zathura based on poppler."
-# i3:,,
-,i3blocks,"is the status bar."
-,i3lock,"is the screen lock."
-A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
-,libnotify,"allows desktop notifications."
 # gtk-only-progs:,,
 ,gtk-theme-e17gtk,"gives the dark GTK theme with sharp corners."
 ,firefox,"doesnt need a description."
