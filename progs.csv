@@ -46,7 +46,6 @@ A,cli-visualizer,"is a terminal audio visualizer."
 ,mpv,"is simple video/gif player."
 #,playerctl,"is used by i3blocks to display what song is playing (on some players)."
 ,youtube-dl,"can download any YouTube video (or playlist or channel) when given the link."
-,poppler,"manipulates .pdfs and gives .pdf previews in ranger and other .pdf functions."
 # gtk-only-progs:,,
 ,gtk-theme-e17gtk,"gives the dark GTK theme with sharp corners."
 ,firefox,"doesnt need a description."
