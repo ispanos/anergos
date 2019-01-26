@@ -44,7 +44,6 @@ A,simple-mtpfs,"enables the mounting of cell phones."
 A,cli-visualizer,"is a terminal audio visualizer."
 ,mediainfo,"shows audio and video information and is used by ranger as well."
 ,mpv,"is simple video/gif player."
-#,playerctl,"is used by i3blocks to display what song is playing (on some players)."
 ,youtube-dl,"can download any YouTube video (or playlist or channel) when given the link."
 # gtk-only-progs:,,
 ,gtk-theme-e17gtk,"gives the dark GTK theme with sharp corners."
