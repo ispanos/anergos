@@ -1,4 +1,5 @@
 Post_setup_configurations:
+# networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4"}' > /etc/systemd/network/20-wired.network
   - Connect_HDD:
     - 'sudo mkdir -v /media/Data'
     - 'cp /etc/fstab /etc/fstab.default'
