@@ -2,7 +2,6 @@
 ,i3-wm,"is the main graphical user interface and window manager."
 ,i3blocks,"is the status bar."
 A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop file."
-# X:,,"those programs dont work on wayland."
 ,i3lock,"is the screen lock."
 ,xorg-server,"is the graphical server."
 ,xorg-xdpyinfo,"displays information X"
