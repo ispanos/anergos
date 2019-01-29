@@ -1,6 +1,6 @@
 Post_setup_configurations:
 # networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' > /etc/systemd/network/20-wired.network
-- Sensors: - "modprobe it87 && echo 'it87' > /etc/modules-load.d/it87.conf"
+- Sensors_Asus_X370_Prime_pro: - "modprobe it87 && echo 'it87' > /etc/modules-load.d/it87.conf"
 - Connect_HDD:
     - 'sudo mkdir -v /media/Data'
     - 'cp /etc/fstab /etc/fstab.default'
