@@ -1,24 +1,23 @@
 Post_setup_configurations:
-# networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' > /etc/systemd/network/20-wired.network
+- networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' > /etc/systemd/network/20-wired.network
 - Sensors_Asus_X370_Prime_pro: - "modprobe it87 && echo 'it87' > /etc/modules-load.d/it87.conf"
 - Connect_HDD:
-    - 'sudo mkdir -v /media/Data'
     - 'cp /etc/fstab /etc/fstab.default'
-    - 'add drive to fstab'
-    - ext4_options: '/media/Data    ext4 rw,noatime,nofail,user,auto    0  2'
+    - 'sudo mkdir -pv /media/Data'
+    - blkid -o list | awk '/data/ {print $5"   /media/Data    ext4 rw,noatime,nofail,user,auto    0  2"}' >> /etc/fstab
     - 'ln -sv /media/Data/* /home/yiannis/'
-  - Infinality fonts: 'sudo nano /etc/profile.d/freetype2.sh'
-  - Nvidia: '/etc/X11/mhwd.d/nvidia.conf'
-  - Audio: 'https://wiki.archlinux.org/index.php/gaming#Tuning_PulseAudio'
-  - Fast_Grub: 
+- Infinality fonts: 'sudo nano /etc/profile.d/freetype2.sh'
+- Nvidia: '/etc/X11/mhwd.d/nvidia.conf'
+- Audio: 'https://wiki.archlinux.org/index.php/gaming#Tuning_PulseAudio'
+- Fast_Grub: 
     Location: '/etc/default/grub'
     Note: 'set GRUB_TIMEOUT=0 then update-grub'
-  - ACPI_events: sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
-  - AMD_fix: 'https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533'
-  - Check_for_errors:
+- ACPI_events: sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
+- AMD_fix: 'https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533'
+- Check_for_errors:
     - 'sudo systemctl --failed'
     - 'sudo journalctl -p 3 -xb'
-  - -Authentication-Agent: " /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & "
+- -Authentication-Agent: " /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & "
 Rocket_league_startup_options:
   - -DisableAquadome -high -nomovie -USEALLAVAILABLECORES -nomansky -malloc=system 
   - -AllowBackgroundAudio 
