@@ -1,6 +1,7 @@
-Post_setup_configurations:
+System specific configs:
 - networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' > /etc/systemd/network/20-wired.network
 - Sensors_Asus_X370_Prime_pro: - "modprobe it87 && echo 'it87' > /etc/modules-load.d/it87.conf"
+- echo "vm.swappiness=10" >> /etc/sysctl.d/100-manjaro.conf
 - Connect_HDD:
     - 'cp /etc/fstab /etc/fstab.default'
     - 'sudo mkdir -pv /media/Data'
@@ -18,8 +19,14 @@ Post_setup_configurations:
     - 'sudo systemctl --failed'
     - 'sudo journalctl -p 3 -xb'
 - -Authentication-Agent: " /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 & "
+Other:
 Rocket_league_startup_options:
   - -DisableAquadome -high -nomovie -USEALLAVAILABLECORES -nomansky -malloc=system 
   - -AllowBackgroundAudio 
   - -ResX=1920 -ResY=1080 
   #- -AutoDetectDesktopResolution=false
+
+audioadd(){ \
+	dialog --infobox "Adding user to audio group..." 4 50
+	gpasswd -a "$name" audio
+}
