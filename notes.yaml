@@ -15,12 +15,6 @@ Manual configs:
     - Append 'idle=nomwait' in 'GRUB_CMDLINE_LINUX_DEFAULT' /etc/default/grub
 - Infinality fonts: 'sudo nano /etc/profile.d/freetype2.sh'
 
-Actual_notes:
-- Nvidia-Manjaro: '/etc/X11/mhwd.d/nvidia.conf'
-- Audio: 'https://wiki.archlinux.org/index.php/gaming#Tuning_PulseAudio'
-- Check_for_errors:
-    - 'sudo systemctl --failed'
-    - 'sudo journalctl -p 3 -xb'
 Rocket_league_startup_options:
   - -DisableAquadome -high -nomovie -USEALLAVAILABLECORES -nomansky -malloc=system 
   - -AllowBackgroundAudio 
