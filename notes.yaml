@@ -12,7 +12,7 @@ System specific configs:
 
 Manual configs:
 - AMD_fix: #'https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533'
-	- Append 'idle=nomwait' in 'GRUB_CMDLINE_LINUX_DEFAULT' /etc/default/grub
+    - Append 'idle=nomwait' in 'GRUB_CMDLINE_LINUX_DEFAULT' /etc/default/grub
 - Infinality fonts: 'sudo nano /etc/profile.d/freetype2.sh'
 
 Actual_notes:
