@@ -5,7 +5,7 @@ System specific configs:
 - Connect_HDD:
     - 'cp /etc/fstab /etc/fstab.default'
     - 'sudo mkdir -pv /media/Data'
-    - blkid -o list | awk '/data/ {print $5"   /media/Data    ext4 rw,noatime,nofail,user,auto    0  2"}' >> /etc/fstab
+    - blkid -o list | awk '/data/ {print "UUID="$5"   /media/Data    ext4 rw,noatime,nofail,user,auto    0  2"}' >> /etc/fstab
     - 'ln -sv /media/Data/* /home/yiannis/'
 - Fast_Grub_Manjaro: 'sed -i "s/GRUB_TIMEOUT=*.$/GRUB_TIMEOUT=0/g" /etc/default/grub && update-grub'
 - ACPI_events: sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
