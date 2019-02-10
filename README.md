@@ -3,8 +3,8 @@
 For a detailed description see [Luke's repo](https://github.com/LukeSmithxyz/LARBS).
 This is a fork created on December 20, 2018.
 
-This script installs most of [the programs I use](https://github.com/namesyiannis/YARBS/blob/master/progs.csv) and deploys my config files on my
-other repo [dotfiles](https://github.com/namesyiannis/dotfiles) - Short for Yiannis' Arch Rice.
+This script installs most of [the programs I use](https://github.com/ispanos/YARBS/blob/master/progs.csv) and deploys my config files on my
+other repo [dotfiles](https://github.com/ispanos/dotfiles) - Short for Yiannis' Arch Rice.
 If you like it I suggest you use the original script, which has better documentation, or fork it and make 
 your own.
 
