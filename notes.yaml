@@ -9,6 +9,7 @@ System specific configs:
 - Fast_Grub_Manjaro: 'sed -i "s/GRUB_TIMEOUT=*.$/GRUB_TIMEOUT=0/g" /etc/default/grub && update-grub'
 - Power_button: sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 - Add_user_to_audio_group: 'gpasswd -a "$name" audio'
+- LibreOffice_Disable_logo: sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
 Manual configs:
 - AMD_fix: #'https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533'
