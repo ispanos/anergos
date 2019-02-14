@@ -26,6 +26,7 @@ A,ttf-symbola,"provides unicode and emoji symbols."
 ,ntfs-3g,"allows accessing NTFS partitions."
 A,simple-mtpfs,"enables the mounting of cell phones."
 # TUI:,,
+#,pacman-contrib,"provides scripts for pacman on Archlinux."
 ,p7zip,"is a tool to (de-)compress archives."
 ,unrar,"is a tool to (de-)compress archives."
 ,unzip,"is a tool to (de-)compress archives."
