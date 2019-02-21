@@ -17,7 +17,7 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 ,dunst,"is a suckless notification system."
 # Fonts:,,
 ,ttf-inconsolata,"is the monospace font of YARBS."
-,ttf-liberation,"provides the sans and serif fonts for YARBS."
+,noto-fonts,"provides the sans and serif fonts for YARBS."
 A,ttf-emojione,"provides unicode symbols and emojis used in the status bar and elsewhere."
 A,ttf-symbola,"provides unicode and emoji symbols."
 # Filesystems:,,
