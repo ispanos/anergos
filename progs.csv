@@ -63,7 +63,7 @@ A,sublime-text-dev,"is a gtk2 text editor I use. Its not free."
 ,hunspell-el,"is a Gerek dicttianery for liberofice"
 # qt-progs,,
 ,qt5ct,"is used for theming qt programs."
-,kvantum-qt5,"is my qt theme."
+#,kvantum-qt5,"is my qt theme."
 ,guvcview-qt,"is the webcam app I use."
 ,pcmanfm-qt,"is a simple GUI file manager."
 ,pulseaudio-equalizer,"is an equalizer for pulseaudio."
