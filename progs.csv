@@ -18,9 +18,7 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 # Fonts:,,
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,noto-fonts,"provides the sans and serif fonts for YARBS."
-#,noto-fonts-emoji,"provides unicode symbols and emojis."
-A,ttf-emojione,"provides unicode symbols and emojis used in the status bar and elsewhere."
-A,ttf-symbola,"provides unicode and emoji symbols."
+,noto-fonts-emoji,"provides unicode symbols and emojis."
 # Filesystems:,,
 ,dosfstools,"allows your computer to access dos-like filesystems."
 ,exfat-utils,"allows management of FAT drives."
@@ -63,9 +61,7 @@ A,sublime-text-dev,"is a gtk3 text editor I use. Its not free."
 ,hunspell-el,"is a Gerek dicttianery for liberofice"
 # qt-progs,,
 ,qt5ct,"is used for theming qt programs."
-#,kvantum-qt5,"is my qt theme."
 ,guvcview-qt,"is the webcam app I use."
-#,pcmanfm-qt,"is a simple GUI file manager."
 ,pulseaudio-equalizer,"is an equalizer for pulseaudio."
 ,transmission-qt,"is a simple torrent client."
 # System-specific,,
