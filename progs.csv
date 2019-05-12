@@ -64,6 +64,3 @@ A,sublime-text-dev,"is a gtk3 text editor I use. Its not free."
 ,guvcview-qt,"is the webcam app I use."
 ,pulseaudio-equalizer,"is an equalizer for pulseaudio."
 ,transmission-qt,"is a simple torrent client."
-# System-specific,,
-,amd-ucode,"is the microcode for amd cpus"
-A,it87-dkms-git,"is a driver for my motherboards temp sensors."
