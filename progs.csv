@@ -64,3 +64,6 @@ A,sublime-text-dev,"is a gtk3 text editor I use. Its not free."
 ,guvcview-qt,"is the webcam app I use."
 ,pulseaudio-equalizer,"is an equalizer for pulseaudio."
 ,transmission-qt,"is a simple torrent client."
+# New:,,
+,gnome-keyring,"takes care of the user's security credentials"
+,libsecret,"is a library for storing and retrieving passwords and other secrets."
