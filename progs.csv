@@ -26,6 +26,7 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 A,simple-mtpfs,"enables the mounting of cell phones."
 # TUI:,,
 #,pacman-contrib,"provides scripts for pacman on Archlinux."
+,ufw,"is a netfilter firewall."
 ,lsd,"is the modern ls."
 ,p7zip,"is a tool to (de-)compress archives."
 ,unrar,"is a tool to (de-)compress archives."
