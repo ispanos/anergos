@@ -15,6 +15,7 @@ A,j4-dmenu-desktop,"is like dmenu, but only displays programs with a .desktop fi
 A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
+,libnotify,"allows desktop notifications."
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,noto-fonts,"provides the sans and serif fonts for YARBS."
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
