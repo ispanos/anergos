@@ -154,7 +154,7 @@ multilib() { \
     sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
     pacman --noconfirm --needed -Sy
     pacman -Fy
-    # pacman -S lib32-nvidia-utils
+    pacman -S lib32-nvidia-utils
 }
 
 microcodegrub() { \
@@ -253,6 +253,8 @@ newperms "%wheel ALL=(ALL) ALL #YARBS
 
 ## Personal Extras ##
 
+multilib
+
 progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
 installationloop
 
@@ -269,8 +271,6 @@ echo "vm.swappiness=10" >> /etc/sysctl.d/100-sysctl.conf
 networkdset
 
 killua
-
-multilib
 
 microcodegrub
 
