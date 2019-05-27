@@ -13,7 +13,7 @@ esac done
 
 # DEFAULTS:
 [ -z ${dotfilesrepo+x} ] && dotfilesrepo="https://github.com/ispanos/Yar.git"
-[ -z ${progsfile+x} ] && progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv"
+[ -z ${progsfile+x} ] && progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv"
 [ -z ${aurhelper+x} ] && aurhelper="yay"
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
@@ -224,6 +224,11 @@ manualinstall $aurhelper || error "Failed to install AUR helper."
 
 # Installs packages in $progsfile
 installationloop
+multilib
+progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv"
+installationloop
+progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
+installationloop
 
 # Install the dotfiles in the user's home directory
 putgitrepo "$dotfilesrepo" "/home/$name"
@@ -253,11 +258,6 @@ newperms "%wheel ALL=(ALL) ALL #YARBS
 
 ## Personal Extras ##
 
-multilib
-
-progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
-installationloop
-
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
@@ -272,7 +272,7 @@ networkdset
 
 killua
 
-microcodegrub
+# microcodegrub
 
 paccleanhook
 
