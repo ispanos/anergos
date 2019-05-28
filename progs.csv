@@ -2,6 +2,7 @@
 ,arch-audit," is a CVE monitoring utility."
 ,expac,"is a pacman database extraction utility."
 ,pacman-contrib,"provides scripts for pacman on Archlinux."
+,bash-completion,"is what it sounds like."
 ,inxi,"is a CLI system information tool."
 ,net-tools,", configuration tools for Linux networking."
 ,ufw,"is a netfilter firewall."
