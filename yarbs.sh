@@ -3,18 +3,11 @@
 # Arch Bootstraping script
 # License: GNU GPLv3
 
-while getopts ":a:r:p:h" o; do case "${o}" in
-    h) printf "Optional arguments for custom use:\\n  -r: Dotfiles repository (local file or url)\\n  -p: Dependencies and programs csv (local file or url)\\n  -a: AUR helper (must have pacman-like syntax)\\n  -h: Show this message\\n" && exit ;;
-    r) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
-    p) progsfile=${OPTARG} ;;
-    a) aurhelper=${OPTARG} ;;
-    *) printf "Invalid option: -%s\\n" "$OPTARG" && exit ;;
-esac done
-
-# DEFAULTS:
-[ -z ${dotfilesrepo+x} ] && dotfilesrepo="https://github.com/ispanos/Yar.git"
-[ -z ${progsfile+x} ] && progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv"
-[ -z ${aurhelper+x} ] && aurhelper="yay"
+dotfilesrepo="https://github.com/ispanos/Yar.git"
+progsfile1="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv"
+progsfile2="https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv"
+progsfile3="https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
+aurhelper="yay"
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
@@ -68,11 +61,6 @@ resetpulse() { dialog --infobox "Reseting Pulseaudio..." 4 50
     killall pulseaudio
     sudo -n "$name" pulseaudio --start ;}
 
-finalize(){ \
-    dialog --infobox "Preparing welcome message..." 4 50
-    dialog --title "All done!" --msgbox "Congrats! Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place.\\n\\nTo run the new graphical environment, log out and log back in as your new user.\\n\\n.t Yiannis" 12 80
-    }
-
 putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
     dialog --infobox "Downloading and installing config files..." 4 60
     dir=$(mktemp -d)
@@ -119,8 +107,13 @@ pipinstall() { \
     yes | pip install "$1"
     }
 
+mergeprogsfiles() { \
+    rm /tmp/progs.csv
+    for list in "$@"; do
+    ([ -f "$list" ] && cp "$list" /tmp/progs.csv) || curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv 
+    done ;}
+
 installationloop() { \
-    ([ -f "$progsfile" ] && cp "$progsfile" /tmp/progs.csv) || curl -Ls "$progsfile" | sed '/^#/d' > /tmp/progs.csv
     total=$(wc -l < /tmp/progs.csv)
     aurinstalled=$(pacman -Qm | awk '{print $1}')
     while IFS=, read -r tag program comment; do
@@ -137,32 +130,47 @@ installationloop() { \
 
 ## Personal Extras ##
 
+sethostname() { \
+    # Prompts user for hostname.
+    local hostname
+    hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+    while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
+        hostname=$(dialog --no-cancel --inputbox "Hostname not valid. Give a hostname beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
+    done
+    hostnamectl set-hostname $hostname ;}
+
 networkdset(){ \
     # Starts networkd as a network manager and configures ethernet.
-    serviceinit systemd-networkd
+    serviceinit systemd-networkd systemd-resolved
+    # Sets up ethernet config
     networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' > /etc/systemd/network/20-wired.network
+    # Setus up wireless config
+    networkctl | awk '/wlan/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=20"}' > /etc/systemd/network/25-wireless.network
+
+    # To do:
+    # serviceinit wpa_supplicant@"$(networkctl | awk '/wlan/ {print $2}')"
     }
 
-killua(){ \
+killuaset(){ \
     # Temp_Asus_X370_Prime_pro
-    sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git
-    [ -f /usr/lib/depmod.d/it87.conf ] && modprobe it87 && echo "it87" > /etc/modules-load.d/it87.conf
+    sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
+    [ -f /usr/lib/depmod.d/it87.conf ] && modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
     [ -f /etc/systemd/logind.conf ] && sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 }
 
 multilib() { \
     sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
-    pacman --noconfirm --needed -Sy
-    pacman -Fy
-    pacman -S lib32-nvidia-utils
+    pacman --noconfirm --needed -Sy >/dev/null 2>&1
+    pacman -Fy >/dev/null 2>&1
+    pacman --noconfirm -S lib32-nvidia-utils >/dev/null 2>&1
 }
 
-microcodegrub() { \
-    # use grub with amd microcode
-    pacman -S amd-ucode
-    # Sets Grub timer to zero
-    sed -i "s/GRUB_TIMEOUT=*.$/GRUB_TIMEOUT=0/g" /etc/default/grub && update-grub
-    grub-mkconfig -o /boot/grub/grub.cfg ;}
+# microcodegrub() { \
+#     # use grub with amd microcode
+#     pacman --noconfirm --needed -S amd-ucode >/dev/null 2>&1
+#     # Sets Grub timer to zero
+#     sed -i "s/GRUB_TIMEOUT=*.$/GRUB_TIMEOUT=0/g" /etc/default/grub && update-grub >/dev/null 2>&1
+#     grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1 ;}
 
 paccleanhook() {\
 # keep only latest 3 versions of packages
@@ -185,98 +193,102 @@ EOF
 
 
 # Check if user is root on Arch distro. Install dialog.
-pacman -Syu --noconfirm --needed dialog ||  error "Are you sure you're running this as the root user? Are you sure you're using an Arch-based distro? Are you sure you have an internet connection? Are you sure your Arch keyring is updated?"
+    pacman -Syu --noconfirm --needed dialog ||  error "Are you sure you're running this as the root user? Are you sure you're using an Arch-based distro? Are you sure you have an internet connection? Are you sure your Arch keyring is updated?"
 
 # Wellcome
-dialog --title "Hello" --msgbox "Welcome to my Bootstrapping Script!\\n\\nThis script will automatically install a minimal i3wm Arch Linux desktop, which I use as my main machine.\\n\\n-Yiannis" 13 65 || error "User exited."
+    dialog --title "Hello" --msgbox "Welcome to my Bootstrapping Script.\\n\\nThis script will automatically install a minimal i3wm Arch Linux desktop, which I use as my main machine.\\n\\n-Yiannis" 13 65 || error "User exited."
 
 # Get and verify username and password.
-getuserandpass || error "User exited."
+    getuserandpass || error "User exited."
+
+# Get and set computers' hostname.
+    sethostname || error "User exited"
 
 # Give warning if user already exists.
-usercheck || error "User exited."
+    usercheck || error "User exited."
 
 # Last chance for user to back out before install.
-dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
+    dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
 
 # The beginning
-adduserandpass || error "Error adding username and/or password."
+    adduserandpass || error "Error adding username and/or password."
 
 # Refresh Arch keyrings.
-refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
+    refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
 
-dialog --title "YARBS Installation" --infobox "Installing \`basedevel\` and \`git\` for installing other software." 5 70
-pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
-[ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers # Just in case
+#Installs basedevel and git
+    dialog --title "YARBS Installation" --infobox "Installing \`basedevel\` and \`git\` for installing other software." 5 70
+    pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
+    [ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers # Just in case
 
 # Allow user to run sudo without password. Since AUR programs must be installed
 # in a fakeroot environment, this is required for all builds with AUR.
-newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
+    newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 
 # Make pacman and yay colorful and adds eye candy on the progress bar because why not.
-grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
-grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
+    grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
+    grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
 
 # Use all cores for compilation.
-sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+    sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
-manualinstall $aurhelper || error "Failed to install AUR helper."
+#Installs aurhelper
+    manualinstall $aurhelper || error "Failed to install AUR helper."
 
-# Installs packages in $progsfile
-installationloop
-multilib
-progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv"
-installationloop
-progsfile="https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
-installationloop
+# Merges program lists, if more than one.
+    mergeprogsfiles $progsfile1 $progsfile2 $progsfile3
+
+# Adds multilib repo and installs nvidia 32bit driver.
+    multilib
+    
+# Installs packages in the newly created /tmp/progs.csv file.
+    installationloop
 
 # Install the dotfiles in the user's home directory
-putgitrepo "$dotfilesrepo" "/home/$name"
-# rm -f "/home/$name/README.md" "/home/$name/LICENSE"
+    putgitrepo "$dotfilesrepo" "/home/$name"
+    # rm -f "/home/$name/README.md" "/home/$name/LICENSE"
 
 # Pulseaudio, if/when initially installed, often needs a restart to work immediately.
-[ -f /usr/bin/pulseaudio ] && resetpulse
+    [ -f /usr/bin/pulseaudio ] && resetpulse
 
 # Install vim `plugged` plugins.
-sudo -u "$name" mkdir -p "/home/$name/.config/nvim/autoload"
-curl "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" > "/home/$name/.config/nvim/autoload/plug.vim"
-dialog --infobox "Installing (neo)vim plugins..." 4 50
-(sleep 30 && killall nvim) &
-sudo -u "$name" nvim -E -c "PlugUpdate|visual|q|q" >/dev/null 2>&1
+    sudo -u "$name" mkdir -p "/home/$name/.config/nvim/autoload"
+    curl "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" > "/home/$name/.config/nvim/autoload/plug.vim"
+    dialog --infobox "Installing (neo)vim plugins..." 4 50
+    (sleep 30 && killall nvim) &
+    sudo -u "$name" nvim -E -c "PlugUpdate|visual|q|q" >/dev/null 2>&1
 
-# Enable NetworkManager if its installed.
-[ -f usr/bin/NetworkManager ] && serviceinit NetworkManager
-
-# Most important command! Get rid of the beep!
-systembeepoff
-
-# This line, overwriting the `newperms` command above will allow the user to run
-# serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
-newperms "%wheel ALL=(ALL) ALL #YARBS
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm"
-
-
-## Personal Extras ##
+# Get rid of the beep!
+    systembeepoff
 
 # Disable Libreoffice start-up logo
-[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+    [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
 # serviceinit fstrim.timer numLockOnTty.service
 
-echo "vm.swappiness=10" >> /etc/sysctl.d/100-sysctl.conf
+# Sets swappiness
+    echo "vm.swappiness=10" >> /etc/sysctl.d/99-sysctl.conf
 
 # Enable infinality fonts
-[ -f /etc/profile.d/freetype2.sh ] && sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh > /etc/profile.d/freetype2.sh
+    [ -f /etc/profile.d/freetype2.sh ] && sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh > /etc/profile.d/freetype2.sh
+# Enable sub-pixel RGB rendering
+    sudo -u "$name" mkdir -p "/home/$name/.config/fontconfig/conf.d"
+    ln -s /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /home/$name/.config/fontconfig/conf.d
 
-networkdset
+# Starts and sets-up networkd
+    networkdset
 
-killua
+# Killua config, if hostname is killua.
+    [ "$(hostnamectl status | awk '/hostname/ {print $3}')" = "killua" ] && killuaset
 
-# microcodegrub
+# Pacman hook for cleaning paccache
+    paccleanhook
 
-paccleanhook
-
+# This line, overwriting the `newperms` command above will allow the user to run
+# serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
+    newperms "%wheel ALL=(ALL) ALL #YARBS
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
 # Last message! Install complete!
-finalize
+    dialog --title "DONE" --msgbox "Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place.\\n\\nTo run the new graphical environment, log out and log back in as your new user.\\n\\n.t Yiannis" 12 80
 clear
