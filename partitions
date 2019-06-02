@@ -1,0 +1,87 @@
+#!/bin/sh
+
+# Asks user for CPU type and creates $cpu variable, to install the proper  later.
+getcpu() {
+
+	# Asks user to choose between "inte" abd "amd" cpu, to install microcode. 
+	# <Cancel> doen't install any microcode
+	local -i answer
+	answer=$(dialog --title "Microcode" --menu "Warning: Press cancel if your cpu is not a x86-64bit architecture to skip microcode installation.\\n\\nChoose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
+	
+	# Sets the $cpu variable according to the anwser
+	cpu="NoMicroCode"
+	[ $answer -eq 1 ] && cpu="amd"
+	[ $answer -eq 2 ] && cpu="intel"
+
+	# Asks user to confirm answer.
+	[ $cpu = "NoMicroCode" ] && dialog --title "Please Confirm" --yesno "Are you sure you don't want to install any microcode?" 0 0 || \
+	dialog --title "Please Confirm" --yesno "Are you sure you want to install $cpu-ucode?" 0 0
+}
+
+# Installs microcode if cpu is AMD or Intel.
+instmicrocode() {
+	( [ $cpu = "amd" ] || [ $cpu = "intel" ]  )  && \
+	pacman --noconfirm --needed -S ${cpu}-ucode   >/dev/null 2>&1
+}
+
+# All mounted partitions in one line, separated by a space.
+partitions=$(blkid -o list | awk '{print $1}'| grep "^/")
+
+# Adds a number infornt of every partition to make the menu list for dialog ( all in one line)
+listpartnumb(){
+	for i in $partitions ; do
+		declare -i n+=1
+		printf " $n $i"
+	done
+}
+
+chooseesppart() {
+	# Outputs the number assigned to selected partition
+	declare -i esppartnumber
+	esppartnumber=$(dialog --title "Please select your ESP partition to be formated and mounted at /boot:" --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
+	
+	# This is the desired partition.
+	esppart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${esppartnumber}p)
+	
+	# Ask user for confirmation.
+	dialog --title "Please Confirm" --yesno "Are you sure you want to format partition \"$esppart\"?" 0 0
+}
+
+
+
+getcpu
+while [ $? -eq 1 ] ; do
+	getcpu	
+done
+
+chooseesppart
+while [ $? -eq 1 ] ; do
+	chooseesppart
+done
+
+clear
+echo $esppart
+echo $cpu
+
+# Mounts the selected esp partition to /mnt/boot
+#mount $esppart /mnt/boot || mkdir /mnt/boot && mount $esppart /mnt/boot
+
+# Installs cpu's microcode if the cpu is either intel or amd.
+#instmicrocode
+
+# Installs systemd-boot to the eps partition
+#bootctl --path=/boot install
+
+# Creates pacman hook to update systemd-boot after package upgrade.
+#mkdir -p /etc/pacman.d/hooks
+#cat > /etc/pacman.d/hooks/systemd-boot-ctl-update.hook << EOF
+#[Trigger]
+#Type = Package
+#Operation = Upgrade
+#Target = systemd
+#
+#[Action]
+#Description = Updating systemd-boot
+#When = PostTransaction
+#Exec = /usr/bin/bootctl update
+#EOF
