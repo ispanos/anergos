@@ -11,7 +11,7 @@ aurhelper="yay"
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
-getuserandpass() { \
+getuserandpass() {
     # Prompts user for new username an password.
     name=$(dialog --inputbox "First, please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
@@ -23,54 +23,73 @@ getuserandpass() { \
         unset pass2
         pass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nEnter password again." 10 60 3>&1 1>&2 2>&3 3>&1)
         pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
-    done ;}
+    done
+}
 
-usercheck() { \
+usercheck() {
     ! (id -u "$name" >/dev/null) 2>&1 ||
     dialog --colors --title "WARNING" --yesno "The user \`$name\` already exists on this system. Some of the configurations are only meant for fresh Archlinux installations (or Manjaro unconfigured). YARBS can install for a user already existing, but it will \\Zboverwrite\\Zn any conflicting settings/dotfiles on the user account.\\n\\nYARBS will \\Zbnot\\Zn overwrite your user files, documents, videos, etc., so don't worry about that, but only click <Yes> if you don't mind your settings being overwritten.\\n\\nUse it at your onwn risk.\\n\\nNote also that YARBS will change $name's password to the one you just gave." 17 80
-    }
+}
 
-adduserandpass() { \
+adduserandpass() {
     # Adds user `$name` with password $pass1.
     dialog --infobox "Adding user \"$name\"..." 4 50
     useradd -m -g wheel -s /bin/bash "$name" >/dev/null 2>&1 ||
     usermod -a -G wheel "$name" && mkdir -p /home/"$name" && chown "$name":wheel /home/"$name"
     echo "$name:$pass1" | chpasswd
-    unset pass1 pass2 ;}
+    unset pass1 pass2
+}
 
-refreshkeys() { \
+gethostname() {
+    # Prompts user for hostname.
+    hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+    while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
+        hostname=$(dialog --no-cancel --inputbox "Hostname not valid. Give a hostname beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
+    done
+}
+
+refreshkeys() {
     dialog --infobox "Refreshing Arch Keyring..." 4 40
     pacman --noconfirm -Sy archlinux-keyring >/dev/null 2>&1
-    }
+}
 
 newperms() { # Set special sudoers settings for install (or after).
     echo "$* " > /etc/sudoers.d/yarbs
-    chmod 440 /etc/sudoers.d/yarbs ;}
+    chmod 440 /etc/sudoers.d/yarbs
+}
 
-serviceinit() { for service in "$@"; do
+serviceinit() { 
+    for service in "$@"; do
     dialog --infobox "Enabling \"$service\"..." 4 40
     systemctl enable "$service"
     systemctl start "$service"
-    done ;}
+    done
+}
 
-systembeepoff() { dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
+systembeepoff() { 
+    dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
     rmmod pcspkr
-    echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf ;}
+    echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+}
 
-resetpulse() { dialog --infobox "Reseting Pulseaudio..." 4 50
+resetpulse() { 
+    dialog --infobox "Reseting Pulseaudio..." 4 50
     killall pulseaudio
-    sudo -n "$name" pulseaudio --start ;}
+    sudo -n "$name" pulseaudio --start
+}
 
-putgitrepo() { # Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
+putgitrepo() {
+    # Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
     dialog --infobox "Downloading and installing config files..." 4 60
     dir=$(mktemp -d)
     [ ! -d "$2" ] && mkdir -p "$2" && chown -R "$name:wheel" "$2"
     chown -R "$name:wheel" "$dir"
     sudo -u "$name" git clone --depth 1 "$1" "$dir/gitrepo" >/dev/null 2>&1 &&
     sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
-    }
+}
 
-manualinstall() { # Installs $1 manually if not installed. Used only for AUR helper here.
+manualinstall() { 
+    # Installs $1 manually if not installed. Used only for AUR helper here.
     [ -f "/usr/bin/$1" ] || (
     dialog --infobox "Installing \"$1\", an AUR helper..." 4 50
     cd /tmp || exit
@@ -79,12 +98,13 @@ manualinstall() { # Installs $1 manually if not installed. Used only for AUR hel
     sudo -u "$name" tar -xvf "$1".tar.gz >/dev/null 2>&1 &&
     cd "$1" &&
     sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
-    cd /tmp || return) ;}
+    cd /tmp || return)
+}
 
 maininstall() { # Installs all needed programs from main repo.
     dialog --title "YARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
     pacman --noconfirm --needed -S "$1" >/dev/null 2>&1
-    }
+}
 
 gitmakeinstall() {
     dir=$(mktemp -d)
@@ -93,27 +113,29 @@ gitmakeinstall() {
     cd "$dir" || exit
     make >/dev/null 2>&1
     make install >/dev/null 2>&1
-    cd /tmp || return ;}
+    cd /tmp || return
+}
 
-aurinstall() { \
+aurinstall() {
     dialog --title "YARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
     echo "$aurinstalled" | grep "^$1$" >/dev/null 2>&1 && return
     sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
-    }
+}
 
-pipinstall() { \
+pipinstall() {
     dialog --title "YARBS Installation" --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
     command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
     yes | pip install "$1"
-    }
+}
 
-mergeprogsfiles() { \
+mergeprogsfiles() {
     rm /tmp/progs.csv
     for list in "$@"; do
     ([ -f "$list" ] && cp "$list" /tmp/progs.csv) || curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv 
-    done ;}
+    done
+}
 
-installationloop() { \
+installationloop() {
     total=$(wc -l < /tmp/progs.csv)
     aurinstalled=$(pacman -Qm | awk '{print $1}')
     while IFS=, read -r tag program comment; do
@@ -125,21 +147,10 @@ installationloop() { \
             "G") gitmakeinstall "$program" "$comment" ;;
             "P") pipinstall "$program" "$comment" ;;
         esac
-    done < /tmp/progs.csv ;}
+    done < /tmp/progs.csv
+}
 
-
-## Personal Extras ##
-
-sethostname() { \
-    # Prompts user for hostname.
-    local hostname
-    hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-    while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-        hostname=$(dialog --no-cancel --inputbox "Hostname not valid. Give a hostname beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
-    done
-    hostnamectl set-hostname $hostname ;}
-
-networkdset(){ \
+networkdset() {
     # Starts networkd as a network manager and configures ethernet.
     serviceinit systemd-networkd systemd-resolved
     # Sets up ethernet config
@@ -149,30 +160,31 @@ networkdset(){ \
 
     # To do:
     # serviceinit wpa_supplicant@"$(networkctl | awk '/wlan/ {print $2}')"
-    }
+}
 
-killuaset(){ \
+killuaset() {
     # Temp_Asus_X370_Prime_pro
     sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
     [ -f /usr/lib/depmod.d/it87.conf ] && modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
     [ -f /etc/systemd/logind.conf ] && sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 }
 
-multilib() { \
+multilib() {
     sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
     pacman --noconfirm --needed -Sy >/dev/null 2>&1
     pacman -Fy >/dev/null 2>&1
     pacman --noconfirm -S lib32-nvidia-utils >/dev/null 2>&1
 }
 
-# microcodegrub() { \
+# microcodegrub() {
 #     # use grub with amd microcode
 #     pacman --noconfirm --needed -S amd-ucode >/dev/null 2>&1
 #     # Sets Grub timer to zero
 #     sed -i "s/GRUB_TIMEOUT=*.$/GRUB_TIMEOUT=0/g" /etc/default/grub && update-grub >/dev/null 2>&1
-#     grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1 ;}
+#     grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1
+}
 
-paccleanhook() {\
+paccleanhook() {
 # keep only latest 3 versions of packages
 mkdir -p /etc/pacman.d/hooks
 cat > /etc/pacman.d/hooks/cleanup.hook << EOF
@@ -202,7 +214,7 @@ EOF
     getuserandpass || error "User exited."
 
 # Get and set computers' hostname.
-    sethostname || error "User exited"
+    gethostname || error "User exited"
 
 # Give warning if user already exists.
     usercheck || error "User exited."
@@ -212,6 +224,9 @@ EOF
 
 # The beginning
     adduserandpass || error "Error adding username and/or password."
+
+# Set the hostname
+    hostnamectl set-hostname $hostname
 
 # Refresh Arch keyrings.
     refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
@@ -246,7 +261,7 @@ EOF
 
 # Install the dotfiles in the user's home directory
     putgitrepo "$dotfilesrepo" "/home/$name"
-    # rm -f "/home/$name/README.md" "/home/$name/LICENSE"
+    # rm -f "/home/$name/README.md"
 
 # Pulseaudio, if/when initially installed, often needs a restart to work immediately.
     [ -f /usr/bin/pulseaudio ] && resetpulse
@@ -266,11 +281,15 @@ EOF
 
 # serviceinit fstrim.timer numLockOnTty.service
 
-# Sets swappiness
-    echo "vm.swappiness=10" >> /etc/sysctl.d/99-sysctl.conf
+# Sets swappiness and cache pressure for better performance.
+cat > /etc/sysctl.d/99-sysctl.conf << EOF
+vm.swappiness=10
+vm.vfs_cache_pressure = 50
+EOF
 
 # Enable infinality fonts
-    [ -f /etc/profile.d/freetype2.sh ] && sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh > /etc/profile.d/freetype2.sh
+    [ -f /etc/profile.d/freetype2.sh ] && \
+    sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh
 # Enable sub-pixel RGB rendering
     sudo -u "$name" mkdir -p "/home/$name/.config/fontconfig/conf.d"
     ln -s /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /home/$name/.config/fontconfig/conf.d
@@ -278,15 +297,18 @@ EOF
 # Starts and sets-up networkd
     networkdset
 
+####### Alternatively enable NetworkManager if its installed.
+#######[ -f usr/bin/NetworkManager ] && serviceinit NetworkManager
+
 # Killua config, if hostname is killua.
-    [ "$(hostnamectl status | awk '/hostname/ {print $3}')" = "killua" ] && killuaset
+    [ "$hostname" = "killua" ] && killuaset
 
 # Pacman hook for cleaning paccache
     paccleanhook
 
 # This line, overwriting the `newperms` command above will allow the user to run
 # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.
-    newperms "%wheel ALL=(ALL) ALL #YARBS
+newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
 # Last message! Install complete!
