@@ -63,25 +63,19 @@ clear
 echo $esppart
 echo $cpu
 
-# Mounts the selected esp partition to /mnt/boot
+
+## Formats selected esp partition.
+#mkfs.fat -n "ESP" -F32 $esppart
+
+## Mounts the selected esp partition to /mnt/boot
 #mount $esppart /mnt/boot || mkdir /mnt/boot && mount $esppart /mnt/boot
 
-# Installs cpu's microcode if the cpu is either intel or amd.
+## Installs cpu's microcode if the cpu is either intel or amd.
 #instmicrocode
 
-# Installs systemd-boot to the eps partition
+## Installs systemd-boot to the eps partition
 #bootctl --path=/boot install
 
-# Creates pacman hook to update systemd-boot after package upgrade.
+## Creates pacman hook to update systemd-boot after package upgrade.
 #mkdir -p /etc/pacman.d/hooks
-#cat > /etc/pacman.d/hooks/systemd-boot-ctl-update.hook << EOF
-#[Trigger]
-#Type = Package
-#Operation = Upgrade
-#Target = systemd
-#
-#[Action]
-#Description = Updating systemd-boot
-#When = PostTransaction
-#Exec = /usr/bin/bootctl update
-#EOF
+#curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook > /etc/pacman.d/hooks/bootctl-update.hook
