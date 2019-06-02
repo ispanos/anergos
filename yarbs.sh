@@ -185,7 +185,7 @@ multilib() {
 }
 
 paccleanhook() {
-    # keep only latest 3 versions of packages
+    # Creates pacman hook to keep only the 3 latest versions of packages. Stored in files/ folder on repo.
     mkdir -p /etc/pacman.d/hooks
     curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/cleanup.hook > /etc/pacman.d/hooks/cleanup.hook
 }
@@ -270,7 +270,7 @@ paccleanhook() {
 
 # serviceinit fstrim.timer numLockOnTty.service
 
-# Sets swappiness and cache pressure for better performance.
+# Sets swappiness and cache pressure for better performance. Stored in files/ folder on repo.
     curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/99-sysctl.conf > /etc/sysctl.d/99-sysctl.conf
 
 # Enable infinality fonts
