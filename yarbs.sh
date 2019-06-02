@@ -185,20 +185,9 @@ multilib() {
 }
 
 paccleanhook() {
-# keep only latest 3 versions of packages
-mkdir -p /etc/pacman.d/hooks
-cat > /etc/pacman.d/hooks/cleanup.hook << EOF
-[Trigger]
-Type = Package
-Operation = Remove
-Operation = Install
-Operation = Upgrade
-Target = *
-[Action]
-Description = Keeps only the latest 3 versions of packages
-When = PostTransaction
-Exec = /usr/bin/paccache -rk3
-EOF
+    # keep only latest 3 versions of packages
+    mkdir -p /etc/pacman.d/hooks
+    curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/cleanup.hook > /etc/pacman.d/hooks/cleanup.hook
 }
 
 ###############################################################
@@ -282,10 +271,7 @@ EOF
 # serviceinit fstrim.timer numLockOnTty.service
 
 # Sets swappiness and cache pressure for better performance.
-cat > /etc/sysctl.d/99-sysctl.conf << EOF
-vm.swappiness=10
-vm.vfs_cache_pressure = 50
-EOF
+    curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/99-sysctl.conf > /etc/sysctl.d/99-sysctl.conf
 
 # Enable infinality fonts
     [ -f /etc/profile.d/freetype2.sh ] && \
