@@ -17,7 +17,7 @@ getcpu() {
 
 	# Asks user to confirm answer.
 	[ $cpu = "NoMicroCode" ] && dialog --title "Please Confirm" --yesno "Are you sure you don't want to install any microcode?" 0 0 || \
-	dialog --title "Please Confirm" --yesno "Are you sure you want to install $cpu-ucode?" 0 0
+	dialog --title "Please Confirm" --yesno "Are you sure you want to install $cpu-ucode? (after final confirmation)" 0 0
 }
 
 # Installs microcode if cpu is AMD or Intel.
@@ -49,9 +49,24 @@ chooseesppart() {
 	esppart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${esppartnumber}p)
 	
 	# Ask user for confirmation.
-	dialog --title "Please Confirm" --yesno "Are you sure you want to format partition \"$esppart\"?" 0 0
+	dialog --title "Please Confirm" --yesno "Are you sure you want to format partition \"$esppart\" (after final confirmation)?" 0 0
 }
 
+chooserootpart() {
+	# Outputs the number assigned to selected partition
+	declare -i rootpartnumber
+	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
+	
+	# Exit the process if the user selects <cancel> instead of a partition.
+	[ $? -eq 1 ] && error "You didn't select any partition. Exiting..."
+
+	# This is the desired partition.
+	rootpart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${rootpartnumber}p)
+	rootuuid=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
+	
+	# Ask user for confirmation.
+	dialog --title "Please Confirm" --yesno "Are you sure this \"$rootpart - $rootuuid\" is your roor partition UUID?" 0 0
+}
 
 
 getcpu
@@ -63,12 +78,31 @@ chooseesppart
 while [ $? -eq 1 ] ; do
 	chooseesppart
 done
-	#clear
-	#echo $esppart
-	#echo $cpu
+
+chooserootpart
+while [ $? -eq 1 ] ; do
+	chooserootpart
+done
+		# For TESTING ONLY
+		#	rm ~/tmp
+		#cat > ~/tmp <<EOF
+		#title   Arch Linux
+		#linux   /vmlinuz-linux
+		#initrd  /$cpu-ucode.img
+		#initrd  /initramfs-linux.img
+		#options root=${rootuuid} rw
+		#EOF
+		#clear
+		#echo $esppart
+		#echo $rootpart
+		#echo $rootuuid
+		#echo $cpu
+		#echo
+		#cat ~/tmp
+
 
 # Formats selected esp partition.
-mkfs.fat -n "ESP" -F32 $esppart
+mkfs.fat -F 32 $esppart
 
 # Mounts the selected esp partition to /mnt/boot
 mount $esppart /mnt/boot || mkdir /mnt/boot && mount $esppart /mnt/boot
@@ -78,11 +112,19 @@ instmicrocode
 
 # Installs systemd-boot to the eps partition
 bootctl --path=/boot install
-
+ 
 # Creates pacman hook to update systemd-boot after package upgrade.
 mkdir -p /etc/pacman.d/hooks
 curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook > /etc/pacman.d/hooks/bootctl-update.hook
-
+ 
 # Creates loader.conf. Stored in files/ folder on repo.
 curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf > /boot/loader/loader.conf
 
+# Creates loader entry for root partition, using linux kernel
+cat > /boot/loader/entries/arch.conf <<EOF
+title   Arch Linux
+linux   /vmlinuz-linux
+initrd  /$cpu-ucode.img
+initrd  /initramfs-linux.img
+options root=${rootuuid} rw
+EOF
