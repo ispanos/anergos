@@ -97,22 +97,23 @@ chooserootpart
 while [ $? -eq 1 ] ; do
 	chooserootpart
 done
-		# For TESTING ONLY
-		#	rm ~/tmp
-		#cat > ~/tmp <<EOF
-		#title   Arch Linux
-		#linux   /vmlinuz-linux
-		#initrd  /$cpu-ucode.img
-		#initrd  /initramfs-linux.img
-		#options root=${rootuuid} rw
-		#EOF
-		#clear
-		#echo $esppart
-		#echo $rootpart
-		#echo $rootuuid
-		#echo $cpu
-		#echo
-		#cat ~/tmp
+
+#	# For TESTING ONLY
+#		rm ~/tmp
+#	cat > ~/tmp <<EOF
+#	title   Arch Linux
+#	linux   /vmlinuz-linux
+#	initrd  /$cpu-ucode.img
+#	initrd  /initramfs-linux.img
+#	options root=${rootuuid} rw
+#	EOF
+#	clear
+#	echo $esppart
+#	echo $rootpart
+#	echo $rootuuid
+#	echo $cpu
+#	echo
+#	cat ~/tmp
 
 
 # Formats selected esp partition.
@@ -129,10 +130,12 @@ bootctl --path=/boot install
  
 # Creates pacman hook to update systemd-boot after package upgrade.
 mkdir -p /etc/pacman.d/hooks
-curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook > /etc/pacman.d/hooks/bootctl-update.hook
+curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook \
+											> /etc/pacman.d/hooks/bootctl-update.hook
  
 # Creates loader.conf. Stored in files/ folder on repo.
-curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf > /boot/loader/loader.conf
+curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf \
+													> /boot/loader/loader.conf
 
 
 ########### To do:
@@ -149,4 +152,5 @@ options root=${rootuuid} rw
 EOF
 
 # If $cpu="NoMicroCode", removes the line for ucode.
-[ $cpu = "NoMicroCode" ] && cat /boot/loader/entries/arch.conf | grep -v "ucode.img" > /boot/loader/entries/arch.conf
+[ $cpu = "NoMicroCode" ] && cat /boot/loader/entries/arch.conf | grep -v "ucode.img" \
+								> /boot/loader/entries/arch.conf
