@@ -4,9 +4,7 @@
 # License: GNU GPLv3
 
 dotfilesrepo="https://github.com/ispanos/Yar.git"
-progsfile1="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv"
-progsfile2="https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv"
-progsfile3="https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
+progsfiles="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
 aurhelper="yay"
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
@@ -15,7 +13,8 @@ getuserandpass() {
     # Prompts user for new username an password.
     name=$(dialog --inputbox "First, please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-        name=$(dialog --no-cancel --inputbox "Username not valid. Give a username beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
+        name=$(dialog --no-cancel \
+                --inputbox "Username not valid. Give a username beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
     done
     pass1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
     pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
@@ -28,7 +27,9 @@ getuserandpass() {
 
 usercheck() {
     ! (id -u "$name" >/dev/null) 2>&1 ||
-    dialog --colors --title "WARNING" --yesno "The user \`$name\` already exists on this system. Some of the configurations are only meant for fresh Archlinux installations (or Manjaro unconfigured). YARBS can install for a user already existing, but it will \\Zboverwrite\\Zn any conflicting settings/dotfiles on the user account.\\n\\nYARBS will \\Zbnot\\Zn overwrite your user files, documents, videos, etc., so don't worry about that, but only click <Yes> if you don't mind your settings being overwritten.\\n\\nUse it at your onwn risk.\\n\\nNote also that YARBS will change $name's password to the one you just gave." 17 80
+    dialog --colors --title "WARNING" \
+            --yesno "The user \`$name\` already exists on this system.
+                        Abort (<No>) if you don't know what you're doing." 0 0
 }
 
 adduserandpass() {
@@ -44,7 +45,8 @@ gethostname() {
     # Prompts user for hostname.
     hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
     while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-        hostname=$(dialog --no-cancel --inputbox "Hostname not valid. Give a hostname beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
+        hostname=$(dialog --no-cancel \
+                --inputbox "Hostname not valid. Give a hostname beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
     done
 }
 
@@ -108,7 +110,8 @@ maininstall() { # Installs all needed programs from main repo.
 
 gitmakeinstall() {
     dir=$(mktemp -d)
-    dialog --title "YARBS Installation" --infobox "Installing \`$(basename "$1")\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
+    dialog --title "YARBS Installation" \
+    --infobox "Installing \`$(basename "$1")\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
     git clone --depth 1 "$1" "$dir" >/dev/null 2>&1
     cd "$dir" || exit
     make >/dev/null 2>&1
@@ -117,7 +120,8 @@ gitmakeinstall() {
 }
 
 aurinstall() {
-    dialog --title "YARBS Installation" --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
+    dialog --title "YARBS Installation" \
+            --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
     echo "$aurinstalled" | grep "^$1$" >/dev/null 2>&1 && return
     sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
 }
@@ -154,19 +158,26 @@ networkdset() {
     # Starts networkd as a network manager and configures ethernet.
     serviceinit systemd-networkd systemd-resolved
     # Sets up ethernet config
-    networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' > /etc/systemd/network/20-wired.network
+    networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
+                                                                    > /etc/systemd/network/20-wired.network
     # Setus up wireless config
-    networkctl | awk '/wlan/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=20"}' > /etc/systemd/network/25-wireless.network
+    networkctl | awk '/wlan/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=20"}' \
+                                                                    > /etc/systemd/network/25-wireless.network
 
     # To do:
     # serviceinit wpa_supplicant@"$(networkctl | awk '/wlan/ {print $2}')"
 }
 
 killuaset() {
+
     # Temp_Asus_X370_Prime_pro
     sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
-    [ -f /usr/lib/depmod.d/it87.conf ] && modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
-    [ -f /etc/systemd/logind.conf ] && sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
+
+    [ -f /usr/lib/depmod.d/it87.conf ] && \
+    modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
+
+    [ -f /etc/systemd/logind.conf ] && \
+    sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 }
 
 multilib() {
@@ -174,14 +185,6 @@ multilib() {
     pacman --noconfirm --needed -Sy >/dev/null 2>&1
     pacman -Fy >/dev/null 2>&1
     pacman --noconfirm -S lib32-nvidia-utils >/dev/null 2>&1
-}
-
-# microcodegrub() {
-#     # use grub with amd microcode
-#     pacman --noconfirm --needed -S amd-ucode >/dev/null 2>&1
-#     # Sets Grub timer to zero
-#     sed -i "s/GRUB_TIMEOUT=*.$/GRUB_TIMEOUT=0/g" /etc/default/grub && update-grub >/dev/null 2>&1
-#     grub-mkconfig -o /boot/grub/grub.cfg >/dev/null 2>&1
 }
 
 paccleanhook() {
@@ -194,10 +197,12 @@ paccleanhook() {
 
 
 # Check if user is root on Arch distro. Install dialog.
-    pacman -Syu --noconfirm --needed dialog ||  error "Are you sure you're running this as the root user? Are you sure you're using an Arch-based distro? Are you sure you have an internet connection? Are you sure your Arch keyring is updated?"
+    pacman -Syu --noconfirm --needed dialog || \
+    pacman --noconfirm -Sy archlinux-keyring &&  pacman -Syu --noconfirm --needed dialog || \
+    error "Are you sure you are root and have an internet connection? "
 
 # Wellcome
-    dialog --title "Hello" --msgbox "Welcome to my Bootstrapping Script.\\n\\nThis script will automatically install a minimal i3wm Arch Linux desktop, which I use as my main machine.\\n\\n-Yiannis" 13 65 || error "User exited."
+    dialog --title "Hello" --msgbox "Welcome to my Bootstrapping Script.\\n\\n-Yiannis" 13 65 || error "User exited."
 
 # Get and verify username and password.
     getuserandpass || error "User exited."
@@ -240,7 +245,7 @@ paccleanhook() {
     manualinstall $aurhelper || error "Failed to install AUR helper."
 
 # Merges program lists, if more than one.
-    mergeprogsfiles $progsfile1 $progsfile2 $progsfile3
+    mergeprogsfiles $progsfiles
 
 # Adds multilib repo and installs nvidia 32bit driver.
     multilib
@@ -298,5 +303,5 @@ newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,/usr/bin/packer -Syu,/usr/bin/packer -Syyu,/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay,/usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
 # Last message! Install complete!
-    dialog --title "DONE" --msgbox "Provided there were no hidden errors, the script completed successfully and all the programs and configuration files should be in place.\\n\\nTo run the new graphical environment, log out and log back in as your new user.\\n\\n.t Yiannis" 12 80
+    dialog --title "DONE" --msgbox "Cross your fingers and hope it worked." 12 80
 clear
