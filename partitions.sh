@@ -8,7 +8,9 @@ getcpu() {
 	# Asks user to choose between "inte" abd "amd" cpu, to install microcode. 
 	# <Cancel> doen't install any microcode
 	local -i answer
-	answer=$(dialog --title "Microcode" --menu "Warning: Press cancel if your cpu is not a x86-64bit architecture to skip microcode installation.\\n\\nChoose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
+	answer=$(dialog --title "Microcode" \
+					--menu "Warning: Cancel to skip microcode installation.\\n\\n\
+							Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
 	
 	# Sets the $cpu variable according to the anwser
 	cpu="NoMicroCode"
@@ -16,8 +18,11 @@ getcpu() {
 	[ $answer -eq 2 ] && cpu="intel"
 
 	# Asks user to confirm answer.
-	[ $cpu = "NoMicroCode" ] && dialog --title "Please Confirm" --yesno "Are you sure you don't want to install any microcode?" 0 0 || \
-	dialog --title "Please Confirm" --yesno "Are you sure you want to install $cpu-ucode? (after final confirmation)" 0 0
+	[ $cpu = "NoMicroCode" ] && \
+	dialog 	--title "Please Confirm" \
+			--yesno "Are you sure you don't want to install any microcode?" 0 0 || \
+	dialog 	--title "Please Confirm" \
+			--yesno "Are you sure you want to install $cpu-ucode? (after final confirmation)" 0 0
 }
 
 # Installs microcode if cpu is AMD or Intel.
@@ -41,7 +46,8 @@ chooseesppart() {
 
 	# Outputs the number assigned to selected partition
 	declare -i esppartnumber
-	esppartnumber=$(dialog --title "Please select your ESP partition to be formated and mounted at /boot:" --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
+	esppartnumber=$(dialog 	--title "Please select your ESP partition to be formated and mounted at /boot:" \
+							--menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
 	
 	# Exit the process if the user selects <cancel> instead of a partition.
 	[ $? -eq 1 ] && error "You didn't select any partition. Exiting..."
@@ -50,7 +56,8 @@ chooseesppart() {
 	esppart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${esppartnumber}p)
 	
 	# Ask user for confirmation.
-	dialog --title "Please Confirm" --yesno "Are you sure you want to format partition \"$esppart\" (after final confirmation)?" 0 0
+	dialog --title "Please Confirm" \
+	--yesno "Are you sure you want to format partition \"$esppart\" (after final confirmation)?" 0 0
 }
 
 #
@@ -58,7 +65,8 @@ chooserootpart() {
 
 	# Outputs the number assigned to selected partition
 	declare -i rootpartnumber
-	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
+	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" \
+							--menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
 	
 	# Exit the process if the user selects <cancel> instead of a partition.
 	[ $? -eq 1 ] && error "You didn't select any partition. Exiting..."
@@ -70,7 +78,8 @@ chooserootpart() {
 	rootuuid=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
 	
 	# Ask user for confirmation.
-	dialog --title "Please Confirm" --yesno "Are you sure this \"$rootpart - $rootuuid\" is your roor partition UUID?" 0 0
+	dialog --title "Please Confirm" \
+			--yesno "Are you sure this \"$rootpart - $rootuuid\" is your roor partition UUID?" 0 0
 }
 
 
