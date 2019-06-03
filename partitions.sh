@@ -2,7 +2,7 @@
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
-# Asks user for CPU type and creates $cpu variable, to install the proper  later.
+# Asks user for CPU type and creates $cpu variable, to install the proper microcode later.
 getcpu() {
 
 	# Asks user to choose between "inte" abd "amd" cpu, to install microcode. 
@@ -38,6 +38,7 @@ listpartnumb(){
 }
 
 chooseesppart() {
+
 	# Outputs the number assigned to selected partition
 	declare -i esppartnumber
 	esppartnumber=$(dialog --title "Please select your ESP partition to be formated and mounted at /boot:" --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
@@ -52,7 +53,9 @@ chooseesppart() {
 	dialog --title "Please Confirm" --yesno "Are you sure you want to format partition \"$esppart\" (after final confirmation)?" 0 0
 }
 
+#
 chooserootpart() {
+
 	# Outputs the number assigned to selected partition
 	declare -i rootpartnumber
 	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
@@ -62,6 +65,8 @@ chooserootpart() {
 
 	# This is the desired partition.
 	rootpart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${rootpartnumber}p)
+
+	# This is the UUID=<number>, neeeded for the systemd-boot entry.
 	rootuuid=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
 	
 	# Ask user for confirmation.
@@ -120,11 +125,19 @@ curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update
 # Creates loader.conf. Stored in files/ folder on repo.
 curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf > /boot/loader/loader.conf
 
+
+########### To do:
+# Add linux-lts entry (for loop?)
+
 # Creates loader entry for root partition, using linux kernel
+mkdir -p /boot/loader/entries/
 cat > /boot/loader/entries/arch.conf <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
-initrd  /$cpu-ucode.img
+initrd  /${cpu-ucode}.img
 initrd  /initramfs-linux.img
 options root=${rootuuid} rw
 EOF
+
+# If $cpu="NoMicroCode", removes the line for ucode.
+[ $cpu = "NoMicroCode" ] && cat /boot/loader/entries/arch.conf | grep -v "ucode.img" > /boot/loader/entries/arch.conf
