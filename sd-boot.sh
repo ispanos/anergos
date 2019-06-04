@@ -136,7 +136,7 @@ mkdir -p /boot/loader/entries/
 cat > /boot/loader/entries/arch.conf <<EOF
 title   Arch Linux
 linux   /vmlinuz-linux
-initrd  /${cpu-ucode}.img
+initrd  /${cpu}-ucode.img
 initrd  /initramfs-linux.img
 options root=${rootuuid} rw
 EOF
