@@ -1,5 +1,14 @@
 #!/bin/sh
 
+# This script installs systemd-boot as a boot loader and creates the necessary config files
+# during Archlinux installation, so that the system can boot after a restart.
+# Also installs cpu microcode if specified by user.
+
+# `/etc/pacman.d/hooks/bootctl-update.hook` file
+bootupthook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook"
+# `/boot/loader/loader.conf` file
+btloaderconf="https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf"
+
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 # Asks user for CPU type and creates $cpu variable, to install the proper microcode later.
@@ -42,29 +51,13 @@ listpartnumb(){
 	done
 }
 
-chooseesppart() {
 
-	# Outputs the number assigned to selected partition
-	declare -i esppartnumber
-	esppartnumber=$(dialog 	--title "Please select your ESP partition to be formated and mounted at /boot:" \
-							--menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
-	
-	# Exit the process if the user selects <cancel> instead of a partition.
-	[ $? -eq 1 ] && error "You didn't select any partition. Exiting..."
-
-	# This is the desired partition.
-	esppart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${esppartnumber}p)
-	
-	# Ask user for confirmation.
-	dialog --title "Please Confirm" \
-	--yesno "Are you sure you want to format partition \"$esppart\" (after final confirmation)?" 0 0
-}
-
-#
+# Creates variable `rootuuid`, needed for loader's entry. Only tested non-encrypted partitions.
 chooserootpart() {
+	local -i rootpartnumber
+	local rootpart
 
 	# Outputs the number assigned to selected partition
-	declare -i rootpartnumber
 	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" \
 							--menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
 	
@@ -88,10 +81,20 @@ while [ $? -eq 1 ] ; do
 	getcpu	
 done
 
-chooseesppart
-while [ $? -eq 1 ] ; do
-	chooseesppart
-done
+# Temporary solution incase of LUKS/LVM
+dialog --title "LVM/LUKS" \
+		--yesno "Is your root partition encrypted?" 0 0
+
+# Replace this part with an LUKS/LVM solution.
+[ $? -eq 0 ] && dialog --infobox \
+"Tough luck. This script cant handle it. You should probalby select <Yes> if 
+your "/" partition is encrypted, but feel free to select\ <No> if you are 
+willing to risk it. You will need to edit the options of the created enties 
+in "/boot/loader/enties"\ to make this work." 6 80 && \
+sleep 10 && \
+dialog --title "LUKS/LVM" \
+		--yesno "Are you sure you want to try?" 0 0 && \
+[ $? -eq 1 ] && echo "error 'User exited'"
 
 chooserootpart
 while [ $? -eq 1 ] ; do
@@ -99,7 +102,6 @@ while [ $? -eq 1 ] ; do
 done
 
 #	# For TESTING ONLY
-#		rm ~/tmp
 #	cat > ~/tmp <<EOF
 #	title   Arch Linux
 #	linux   /vmlinuz-linux
@@ -108,19 +110,12 @@ done
 #	options root=${rootuuid} rw
 #	EOF
 #	clear
-#	echo $esppart
-#	echo $rootpart
+
 #	echo $rootuuid
 #	echo $cpu
 #	echo
 #	cat ~/tmp
 
-
-# Formats selected esp partition.
-mkfs.fat -F 32 $esppart
-
-# Mounts the selected esp partition to /mnt/boot
-mount $esppart /mnt/boot || mkdir /mnt/boot && mount $esppart /mnt/boot
 
 # Installs cpu's microcode if the cpu is either intel or amd.
 instmicrocode
@@ -130,16 +125,11 @@ bootctl --path=/boot install
  
 # Creates pacman hook to update systemd-boot after package upgrade.
 mkdir -p /etc/pacman.d/hooks
-curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook \
-											> /etc/pacman.d/hooks/bootctl-update.hook
+curl $bootupthook > /etc/pacman.d/hooks/bootctl-update.hook
  
 # Creates loader.conf. Stored in files/ folder on repo.
-curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf \
-													> /boot/loader/loader.conf
+curl $btloaderconf > /boot/loader/loader.conf
 
-
-########### To do:
-# Add linux-lts entry (for loop?)
 
 # Creates loader entry for root partition, using linux kernel
 mkdir -p /boot/loader/entries/
@@ -154,3 +144,7 @@ EOF
 # If $cpu="NoMicroCode", removes the line for ucode.
 [ $cpu = "NoMicroCode" ] && cat /boot/loader/entries/arch.conf | grep -v "ucode.img" \
 								> /boot/loader/entries/arch.conf
+
+########### To do:
+# Add linux-lts entry (for loop for all `/vmlinuz-*` kernels or a sed command just for lts?)
+# Need help to add LUKS/LVM support. 
