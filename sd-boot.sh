@@ -121,7 +121,7 @@ done
 instmicrocode
 
 # Installs systemd-boot to the eps partition
-bootctl --path=/boot install
+bootctl --path=/boot install > /dev/null
  
 # Creates pacman hook to update systemd-boot after package upgrade.
 mkdir -p /etc/pacman.d/hooks
@@ -142,7 +142,7 @@ options root=${rootuuid} rw
 EOF
 
 # If $cpu="NoMicroCode", removes the line for ucode.
-[ $cpu = "NoMicroCode" ] && cat /boot/loader/entries/arch.conf | grep -v "ucode.img" \
+[ $cpu = "NoMicroCode" ] && cat /boot/loader/entries/arch.conf | grep -v "NoMicroCode" \
 								> /boot/loader/entries/arch.conf
 
 ########### To do:

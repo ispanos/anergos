@@ -7,6 +7,10 @@ dotfilesrepo="https://github.com/ispanos/Yar.git"
 progsfiles="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
 aurhelper="yay"
 
+# repo/files folder.
+vmconfig="https://raw.githubusercontent.com/ispanos/YARBS/master/files/99-sysctl.conf"
+paccleanhook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/cleanup.hook"
+
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 getuserandpass() {
@@ -39,15 +43,6 @@ adduserandpass() {
     usermod -a -G wheel "$name" && mkdir -p /home/"$name" && chown "$name":wheel /home/"$name"
     echo "$name:$pass1" | chpasswd
     unset pass1 pass2
-}
-
-gethostname() {
-    # Prompts user for hostname.
-    hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-    while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-        hostname=$(dialog --no-cancel \
-                --inputbox "Hostname not valid. Give a hostname beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
-    done
 }
 
 refreshkeys() {
@@ -187,11 +182,7 @@ multilib() {
     pacman --noconfirm -S lib32-nvidia-utils >/dev/null 2>&1
 }
 
-paccleanhook() {
-    # Creates pacman hook to keep only the 3 latest versions of packages. Stored in files/ folder on repo.
-    mkdir -p /etc/pacman.d/hooks
-    curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/cleanup.hook > /etc/pacman.d/hooks/cleanup.hook
-}
+
 
 ###############################################################
 
@@ -207,9 +198,6 @@ paccleanhook() {
 # Get and verify username and password.
     getuserandpass || error "User exited."
 
-# Get and set computers' hostname.
-    gethostname || error "User exited"
-
 # Give warning if user already exists.
     usercheck || error "User exited."
 
@@ -218,9 +206,6 @@ paccleanhook() {
 
 # The beginning
     adduserandpass || error "Error adding username and/or password."
-
-# Set the hostname
-    hostnamectl set-hostname $hostname
 
 # Refresh Arch keyrings.
     refreshkeys || error "Error automatically refreshing Arch keyring. Consider doing so manually."
@@ -276,7 +261,7 @@ paccleanhook() {
 # serviceinit fstrim.timer numLockOnTty.service
 
 # Sets swappiness and cache pressure for better performance. Stored in files/ folder on repo.
-    curl https://raw.githubusercontent.com/ispanos/YARBS/master/files/99-sysctl.conf > /etc/sysctl.d/99-sysctl.conf
+    curl $vmconfig > /etc/sysctl.d/99-sysctl.conf
 
 # Enable infinality fonts
     [ -f /etc/profile.d/freetype2.sh ] && \
@@ -292,10 +277,11 @@ paccleanhook() {
 #######[ -f usr/bin/NetworkManager ] && serviceinit NetworkManager
 
 # Killua config, if hostname is killua.
-    [ "$hostname" = "killua" ] && killuaset
+    [ $(hostname) = "killua" ] && killuaset
 
-# Pacman hook for cleaning paccache
-    paccleanhook
+# Creates pacman hook to keep only the 3 latest versions of packages. Stored in files/ folder on repo.
+    mkdir -p /etc/pacman.d/hooks
+    curl $paccleanhook > /etc/pacman.d/hooks/cleanup.hook
 
 # This line, overwriting the `newperms` command above will allow the user to run
 # serveral important commands, `shutdown`, `reboot`, updating, etc. without a password.

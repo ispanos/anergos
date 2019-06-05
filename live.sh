@@ -1,7 +1,20 @@
 #!/bin/sh
 
-# This script formats the selected partition and mounts it at `/boot`
 
+# run ESP.sh or do that manually. 
+# cgdisk /dev/nvme0n1
+# New partition
+# 512M
+# ef00 for /boot
+
+# New partition
+# 8e00
+# ArchLVM
+
+#Verify
+
+
+# Formats the selected partition and mounts it at `/boot`
 chooseesppart() {
 
 	# Outputs the number assigned to selected partition
@@ -32,4 +45,21 @@ done
 mkfs.fat -F 32 $esppart
 
 # Mounts the selected esp partition to /mnt/boot
-mount $esppart /mnt/boot || mkdir /mnt/boot && mount $esppart /mnt/boot
+mkdir /mnt/boot && mount $esppart /mnt/boot
+
+
+# In /etc/pacman-mirrors.conf set protocols to https
+
+cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+pacman -Syy pacman-contrib
+
+sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist.backup
+
+rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
+
+pacstrap /mnt base
+
+genfstab -U /mnt >> /mnt/etc/fstab
+
+arch-chroot /mnt
+
