@@ -260,6 +260,7 @@ mergeprogsfiles() {
 }
 
 installationloop() {
+    mergeprogsfiles $progsfiles
     total=$(wc -l < /tmp/progs.csv)
     aurinstalled=$(pacman -Qm | awk '{print $1}')
     while IFS=, read -r tag program comment; do
@@ -412,11 +413,10 @@ pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
 # Temporarily allows user to run sudo without password.
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 
-# manualinsall requires user.
+# Installs $aurhelper. Requires user.
 manualinstall $aurhelper || error "Failed to install AUR helper."
 
 # Installs packages in the newly created /tmp/progs.csv file.
-mergeprogsfiles $progsfiles
 installationloop
 
 # Install the dotfiles in the user's home directory
