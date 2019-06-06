@@ -69,4 +69,6 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt
 
-curl -sLO https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh
+cd /tmp && \
+curl -sLO https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh && \
+sh yarbs.sh
