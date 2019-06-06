@@ -3,37 +3,27 @@
 # Arch Bootstraping script
 # License: GNU GPLv3
 
-# This script installs systemd-boot as a boot loader and creates the necessary config files
-# during Archlinux installation, so that the system can boot after a restart.
-# (Installs cpu microcode if specified by user.)
-# Then creates a user, downloads dotfiles from a git repo and installs programs from the list.
-
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
-####################################################################################################################
-######             System wide configs              ################################################################
-####################################################################################################################
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||             System wide configs              |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 
 aurhelper="yay"
 
 # `/etc/pacman.d/hooks/bootctl-update.hook` file, to run `bootctl update after systemd upgrades.
 bootupthook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook"
-
 # `/boot/loader/loader.conf` file
 btloaderconf="https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf"
-
-# repo/files folder.
+# swapiness and cache_pressure
 vmconfig="https://raw.githubusercontent.com/ispanos/YARBS/master/files/99-sysctl.conf"
-
 # pacman hook to clean old downloaded package versions.
 paccleanhook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/cleanup.hook"
-
 # Maybe make that into a dialog miltiple choice?
 timezone="Europe/Athens"
 
 ##########################################################
-######             Systemd-boot set-up              ######
-##########################################################
+######             SYSTEMD-BOOT set-up              ######
 
 getcpu() {
     # Asks user to choose between "inte" and "amd" cpu. <Cancel> doen't install any microcode
@@ -41,29 +31,24 @@ getcpu() {
     answer=$(dialog --title "Microcode" \
                     --menu "Warning: Cancel to skip microcode installation.\\n\\n\
                             Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
-    
-    # Sets the $cpu variable according to the anwser
     cpu="nmc"
     [ $answer -eq 1 ] && cpu="amd"
     [ $answer -eq 2 ] && cpu="intel"
 
-    # Asks user to confirm answer.
     [ $cpu = "nmc" ] && \
     dialog  --title "Please Confirm" \
-            --yesno "Are you sure you don't want to install any microcode?" 0 0 || \
+            --yesno "Are you sure you don't want to install any microcode?" 0 0               || \
     dialog  --title "Please Confirm" \
             --yesno "Are you sure you want to install $cpu-ucode? (after final confirmation)" 0 0
 }
 
-instmicrocode() {
-    # Installs microcode if cpu is AMD or Intel.
-    ( [ $cpu = "amd" ] || [ $cpu = "intel" ]  )  && \
+installmicrocode() {
     dialog --infobox "Installing ${cpu}-ucode..." 0 0 && \
-    pacman --noconfirm --needed -S ${cpu}-ucode   >/dev/null 2>&1
+    pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 }
 
 listpartnumb(){
-    # All mounted partitions in one line, numbered and separated by a space to make the menu list for dialog
+    # All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
     for i in $(blkid -o list | awk '{print $1}'| grep "^/") ; do
         local -i n+=1
         printf " $n $i"
@@ -78,7 +63,6 @@ chooserootpart() {
     # Outputs the number assigned to selected partition
     rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" \
                             --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
-    
     # Exit the process if the user selects <cancel> instead of a partition.
     [ $? -eq 1 ] && error "You didn't select any partition. Exiting..."
 
@@ -88,13 +72,11 @@ chooserootpart() {
     # This is the UUID=<number>, neeeded for the systemd-boot entry.
     uuidroot=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
     
-    # Ask user for confirmation.
     dialog --title "Please Confirm" \
             --yesno "Are you sure this \"$rootpart - $uuidroot\" is your roor partition UUID?" 0 0
 }
 
-##########################################################
-######               Systemd-boot END               ######
+######               SYSTEMD-BOOT END               ######
 ##########################################################
 
 serviceinit() { 
@@ -118,34 +100,13 @@ gethostname() {
 networkdstart() {
     # Starts networkd as a network manager and configures ethernet.
     serviceinit systemd-networkd systemd-resolved
-    # Sets up ethernet config
     networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
                                                                     > /etc/systemd/network/20-wired.network
-    ## Setus up wireless config
-    #networkctl | awk '/wlan/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=20"}' \
-    #                                                                > /etc/systemd/network/25-wireless.network
-    ## To do:
-    ## serviceinit wpa_supplicant@"$(networkctl | awk '/wlan/ {print $2}')"
-}
-
-
-manualinstall() { 
-    # Installs $1 manually if not installed. Used only for AUR helper here.
-    [ -f "/usr/bin/$1" ] || (
-    dialog --infobox "Installing \"$1\"..." 4 50
-    cd /tmp || exit
-    rm -rf /tmp/"$1"*
-    curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/"$1".tar.gz &&
-    sudo -u "$name" tar -xvf "$1".tar.gz >/dev/null 2>&1 &&
-    cd "$1" &&
-    sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
-    cd /tmp || return)
 }
 
 systembeepoff() { 
     dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
-    rmmod pcspkr
-    echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+    rmmod pcspkr && echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 }
 
 enablemultilib() {
@@ -155,30 +116,14 @@ enablemultilib() {
     pacman -Fy >/dev/null 2>&1
 }
 
-killuaset() {
-
-    dialog --infobox "Killua........" 0 0
-
-    # Temp_Asus_X370_Prime_pro
-    sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
-
-    [ -f /usr/lib/depmod.d/it87.conf ] && \
-    modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
-
-    [ -f /etc/systemd/logind.conf ] && \
-    sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
-}
-
-
-####################################################################################################################
-######                 User set-up                  ################################################################
-####################################################################################################################
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||                 User set-up                  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 progsfiles="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv \
 https://raw.githubusercontent.com/ispanos/YARBS/master/progs.csv \
 https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
-
 
 getuserandpass() {
     # Prompts user for new username an password.
@@ -275,12 +220,28 @@ installationloop() {
     done < /tmp/progs.csv
 }
 
-####################################################################################################################
-######                    Inputs                    ################################################################
-####################################################################################################################
+installaurhelper() { 
+    dialog --infobox "Installing \"${aurhelper}\"..." 4 50
+    cd /tmp || exit
+    curl -sO "https://aur.archlinux.org/cgit/aur.git/snapshot/${aurhelper}.tar.gz" &&
+    sudo -u "$name" tar -xvf ${aurhelper}.tar.gz >/dev/null 2>&1 &&
+    cd ${aurhelper} && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
+    cd /tmp || return
+}
 
-# Installs dialog and refreshes archlinux-keyring.
-pacman --noconfirm -Syu dialog archlinux-keyring >/dev/null 2>&1 || error "Are you have internet connection? "
+killuaset() {
+    dialog --infobox "Killua........" 0 0
+    # Temp_Asus_X370_Prime_pro
+    sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
+    [ -f /usr/lib/depmod.d/it87.conf ] && \
+    modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
+    [ -f /etc/systemd/logind.conf ] && \
+    sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
+}
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+######                    Inputs                    ###############################################################
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+pacman --noconfirm -Syyu dialog archlinux-keyring >/dev/null 2>&1 || error "Check your internet connection?"
 
 getcpu
 while [ $? -eq 1 ] ; do
@@ -289,44 +250,26 @@ done
 
 # Temporary solution incase of LUKS/LVM
 dialog --title "LVM/LUKS" --yesno "Is your root partition encrypted?" 0 0
-
-# Replace this part with an LUKS/LVM solution.
-[ $? -eq 0 ] && dialog --infobox \
-"Tough luck. This script cant handle it. You should probalby select <Yes> if 
-your "/" partition is encrypted, but feel free to select\ <No> if you are 
-willing to risk it. You will need to edit the options of the created enties 
-in "/boot/loader/enties"\ to make this work." 6 80 && \
-sleep 10 && \
-dialog --title "LUKS/LVM" \
-        --yesno "Are you sure you want to try?" 0 0 && \
-[ $? -eq 1 ] && echo "error 'User exited'"
+[ $? -eq 0 ] && dialog --infobox "Tough luck. This script cant handle it." 6 80 && \
+sleep 10 && error "Please help me add LVM/LUKS support to the script."
 
 chooserootpart
 while [ $? -eq 1 ] ; do
     chooserootpart
 done
 
-# Get and set computers' hostname.
-    gethostname || error "User exited"
-
-# Get and verify username and password.
-    getuserandpass || error "User exited."
-
-# Last chance for user to back out before install.
-    dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
-
-
-####################################################################################################################
-######                     Auto                     ######
-####################################################################################################################
-
-
-##########################################################
-######             System wide config               ######
-##########################################################
+gethostname    || error "User exited"
+getuserandpass || error "User exited."
+dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||                     Auto                     |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||             System wide config               |||###
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
 
 # Set Time Zone
 serviceinit systemd-timesyncd.service
+# fstrim.timer numlock.service
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 hwclock --systohc
 
@@ -347,21 +290,19 @@ EOF
 networkdstart
 
 ##########################################################
-######             Systemd-boot set-up              ######
-##########################################################
+######             SYSTEMD-BOOT set-up              ######
+######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
+######   sed for HOOKS="...keyboard encrypt lvm2"   ######
+###### umkinitcpio -p linux && linux-lts entry?     ######
 
-#NOTE# For LVM, system encryption or RAID, modify /etc/mkinitcpio.conf 
-#NOTE# use sed for HOOKS="...keyboard encrypt lvm2" ; mkinitcpio -p linux
-
-# Installs cpu's microcode if the cpu is either intel or amd.
-instmicrocode
+# Installs microcode if the cpu is amd or intel.
+[ $cpu = "nmc" ] || installmicrocode
 
 # Installs systemd-boot to the eps partition
 bootctl --path=/boot install
  
 # Creates pacman hook to update systemd-boot after package upgrade.
-mkdir -p /etc/pacman.d/hooks && \
-curl -Ls "$bootupthook" > /etc/pacman.d/hooks/bootctl-update.hook
+mkdir -p /etc/pacman.d/hooks && curl -Ls "$bootupthook" > /etc/pacman.d/hooks/bootctl-update.hook
  
 # Creates loader.conf. Stored in files/ folder on repo.
 curl -Ls "$btloaderconf" > /boot/loader/loader.conf
@@ -372,14 +313,10 @@ curl -Ls "$btloaderconf" > /boot/loader/loader.conf
 [ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf 
                     echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf 
                     echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf 
-#NOTE# Add linux-lts entry || (for loop /vmlinuz-* kernels or a sed command just for lts?)
-#NOTE# Need help to add LUKS/LVM support. 
-
-##########################################################
-######             Systemd-boot END                 ######
+######             SYSTEMD-BOOT END                 ######
 ##########################################################
 
-dialog --infobox "Configuring pacman and yay." 0 0
+dialog --infobox "Configuring pacman and yay and vm.cofigs." 0 0
 
 # Creates pacman hook to keep only the 3 latest versions of packages.
 curl -Ls "$paccleanhook" > /etc/pacman.d/hooks/cleanup.hook
@@ -397,24 +334,22 @@ curl -Ls "$vmconfig" > /etc/sysctl.d/99-sysctl.conf
 systembeepoff
 enablemultilib
 
-##########################################################
-######                 User set-up                  ######
-##########################################################
+#Installs basedevel and git
+dialog --title "Installation" --infobox "Installing \`basedevel\` and \`git\` ." 5 70
+pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
+
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
+##||||                 User set-up                  |||###
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
 
 # Creates user with given password
 adduserandpass || error "Error adding username and/or password."
-
-#Installs basedevel and git
-dialog --title "YARBS Installation" --infobox "Installing \`basedevel\` and \`git\` ." 5 70
-pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
-# Just in case
-[ -f /etc/sudoers.pacnew ] && cp /etc/sudoers.pacnew /etc/sudoers
 
 # Temporarily allows user to run sudo without password.
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 
 # Installs $aurhelper. Requires user.
-manualinstall $aurhelper || error "Failed to install AUR helper."
+installaurhelper || error "Failed to install AUR helper."
 
 # Installs packages in the newly created /tmp/progs.csv file.
 installationloop
@@ -440,7 +375,3 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
 dialog --title "DONE" --msgbox "Cross your fingers and hope it worked.\\nUse 'passwd' to set a root password" 0 0
-
-clear
-
-# serviceinit fstrim.timer numLockOnTty.service
