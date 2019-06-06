@@ -38,18 +38,11 @@ while [ $? -eq 1 ] ; do
 	chooseesppart
 done
 
-#	Test:
-#	echo $esppart
-
 # Formats selected esp partition.
 mkfs.fat -n "ESP" -F 32 $esppart
 
 # Mounts the selected esp partition to /mnt/boot
 mkdir /mnt/boot && mount $esppart /mnt/boot
-
-
-
-#####==> WARNING: Possibly missing firmware for module
 
 
 pacman -Syy termite-terminfo pacman-contrib
@@ -64,7 +57,8 @@ mount /dev/sda1 /mnt/boot
 mkfs.ext4 -L "Arch" /dev/sda2 
 mount /dev/sda2 /mnt 
 pacstrap /mnt base termite-terminfo
-
+#
+#####==> WARNING: Possibly missing firmware for module
 genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt
