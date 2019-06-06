@@ -42,7 +42,7 @@ done
 #	echo $esppart
 
 # Formats selected esp partition.
-mkfs.fat -F 32 $esppart
+mkfs.fat -n "ESP" -F 32 $esppart
 
 # Mounts the selected esp partition to /mnt/boot
 mkdir /mnt/boot && mount $esppart /mnt/boot
@@ -54,11 +54,11 @@ pacman -Syy pacman-contrib
 curl -L "https://www.archlinux.org/mirrorlist/?country=BE&country=DK&country=FI&country=FR&country=DE&country=GR&country=IT&country=LU&country=MK&country=NO&country=RS&country=SK&country=SI&protocol=https&ip_version=4" > /etc/pacman.d/mirrorlist.backup
 sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist.backup
 
-rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup > /etc/pacman.d/mirrorlist
+rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup | grep -v "#" > /etc/pacman.d/mirrorlist
 
-pacamn -Syy
+pacman -Syy
 
-pacstrap /mnt base
+pacstrap /mnt base termite-terminfo
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
