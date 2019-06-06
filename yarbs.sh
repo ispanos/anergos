@@ -43,12 +43,12 @@ getcpu() {
                             Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
     
     # Sets the $cpu variable according to the anwser
-    cpu="NoMicroCode"
+    cpu="nmc"
     [ $answer -eq 1 ] && cpu="amd"
     [ $answer -eq 2 ] && cpu="intel"
 
     # Asks user to confirm answer.
-    [ $cpu = "NoMicroCode" ] && \
+    [ $cpu = "nmc" ] && \
     dialog  --title "Please Confirm" \
             --yesno "Are you sure you don't want to install any microcode?" 0 0 || \
     dialog  --title "Please Confirm" \
@@ -71,7 +71,7 @@ listpartnumb(){
 }
 
 chooserootpart() {
-    # Creates variable `rootuuid`, needed for loader's entry. Only tested non-encrypted partitions.
+    # Creates variable `uuidroot`, needed for loader's entry. Only tested non-encrypted partitions.
     local -i rootpartnumber
     local rootpart
 
@@ -86,11 +86,11 @@ chooserootpart() {
     rootpart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${rootpartnumber}p)
 
     # This is the UUID=<number>, neeeded for the systemd-boot entry.
-    rootuuid=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
+    uuidroot=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
     
     # Ask user for confirmation.
     dialog --title "Please Confirm" \
-            --yesno "Are you sure this \"$rootpart - $rootuuid\" is your roor partition UUID?" 0 0
+            --yesno "Are you sure this \"$rootpart - $uuidroot\" is your roor partition UUID?" 0 0
 }
 
 ##########################################################
@@ -335,7 +335,8 @@ hwclock --systohc
 
 # Set Locale
 dialog --infobox "Generating Locale.." 0 0
-sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && locale-gen
+sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && locale-gen > /dev/null 2>&1
+echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
 
 # Set the hostname / networking.
 dialog --infobox "Configuring network.." 0 0
@@ -343,7 +344,7 @@ echo $hostname > /etc/hostname
 cat > /etc/hosts <<EOF
 #<ip-address>   <hostname.domain.org>    <hostname>
 127.0.0.1       localhost.localdomain    localhost
-127.0.0.1       localhost.localdomain    localhost
+::1             localhost.localdomain    localhost
 127.0.1.1       ${hostname}.localdomain  $hostname
 EOF
 networkdstart
@@ -359,28 +360,32 @@ networkdstart
 instmicrocode
 
 # Installs systemd-boot to the eps partition
-bootctl --path=/boot install > /dev/null
+bootctl --path=/boot install > /dev/null 2>&1
  
 # Creates pacman hook to update systemd-boot after package upgrade.
 mkdir -p /etc/pacman.d/hooks && \
-curl -Ls $bootupthook > /etc/pacman.d/hooks/bootctl-update.hook
+curl -Ls "$bootupthook" > /etc/pacman.d/hooks/bootctl-update.hook
  
 # Creates loader.conf. Stored in files/ folder on repo.
-curl -Ls $btloaderconf > /boot/loader/loader.conf
+curl -Ls "$btloaderconf" > /boot/loader/loader.conf
 
 # Creates loader entry for root partition, using the "linux" kernel
-mkdir -p /boot/loader/entries/
-cat > /boot/loader/entries/arch.conf <<EOF
-title   Arch Linux
-linux   /vmlinuz-linux
-initrd  /${cpu}-ucode.img
-initrd  /initramfs-linux.img
-options root=${rootuuid} rw
-EOF
-
-# If $cpu="NoMicroCode", removes the line for ucode.
-[ $cpu = "NoMicroCode" ] && cat /boot/loader/entries/arch.conf | grep -v "NoMicroCode" \
-                                > /boot/loader/entries/arch.conf
+                    echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf 
+                    echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf 
+[ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf 
+                    echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf 
+                    echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf 
+# # # # # # # #cat > /boot/loader/entries/arch.conf <<EOF
+# # # # # # # #title   Arch Linux
+# # # # # # # #linux   /vmlinuz-linux
+# # # # # # # #initrd  /${cpu}-ucode.img
+# # # # # # # #initrd  /initramfs-linux.img
+# # # # # # # #options root=${uuidroot} rw
+# # # # # # # #EOF
+# # # # # # # #
+# # # # # # # ## If $cpu="nmc", removes the line for ucode.
+# # # # # # # #[ $cpu = "nmc" ] && cat /boot/loader/entries/arch.conf | grep -v "nmc" \
+# # # # # # # #                                > /boot/loader/entries/arch.conf
 #NOTE# Add linux-lts entry || (for loop /vmlinuz-* kernels or a sed command just for lts?)
 #NOTE# Need help to add LUKS/LVM support. 
 
@@ -391,7 +396,7 @@ EOF
 dialog --infobox "Configuring pacman and yay." 0 0
 
 # Creates pacman hook to keep only the 3 latest versions of packages.
-curl -Ls $paccleanhook > /etc/pacman.d/hooks/cleanup.hook
+curl -Ls "$paccleanhook" > /etc/pacman.d/hooks/cleanup.hook
 
 # Make pacman and yay colorful and adds eye candy on the progress bar because why not.
 grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
@@ -401,11 +406,11 @@ grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILo
 sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
 # Sets swappiness and cache pressure for better performance.
-curl -Ls $vmconfig > /etc/sysctl.d/99-sysctl.conf
+curl -Ls "$vmconfig" > /etc/sysctl.d/99-sysctl.conf
 
 systembeepoff
 enablemultilib
-manualinstall $aurhelper || error "Failed to install AUR helper."enablemultilib
+manualinstall $aurhelper || error "Failed to install AUR helper."
 
 # Killua config, if hostname is killua. Requires $aurhelper.
 [ $(hostname) = "killua" ] && killuaset
