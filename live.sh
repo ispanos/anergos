@@ -1,18 +1,10 @@
 #!/bin/sh
 
-
-# run ESP.sh or do that manually. 
-# cgdisk /dev/nvme0n1
-# New partition
-# 512M
-# ef00 for /boot
-
-# New partition
-# 8e00
-# ArchLVM
-
-#Verify
-
+pacman -Syy termite-terminfo pacman-contrib dialog
+curl -sL "https://www.archlinux.org/mirrorlist/?country=BE&country=DK&country=FI&country=FR&country=DE&country=GR&country=IT&country=LU&country=MK&country=NO&country=RS&country=SK&country=SI&protocol=https&ip_version=4" > /etc/pacman.d/mirrorlist.backup
+sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist.backup
+rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup | grep -v "#" > /etc/pacman.d/mirrorlist
+pacman -Syy
 
 # Formats the selected partition and mounts it at `/boot`
 chooseesppart() {
@@ -33,32 +25,36 @@ chooseesppart() {
 	--yesno "Are you sure you want to format partition \"$esppart\" (after final confirmation)?" 0 0
 }
 
+# Verify the boot mode
+# ls /sys/firmware/efi/efivars
+
+# Connect to the internet
+
+# Update the system clock
+timedatectl set-ntp true
+
+
+# Partition the disks
+# fdisk -l
+
+# Format root partition
+mkfs.ext4 /dev/sdX1
+
 chooseesppart
 while [ $? -eq 1 ] ; do
 	chooseesppart
 done
 
 # Formats selected esp partition.
-mkfs.fat -n "ESP" -F 32 $esppart
+mkfs.fat  -n "ESP" -F 32 $esppart
+mkfs.ext4 -L "Arch" /dev/sdX1
 
-# Mounts the selected esp partition to /mnt/boot
+mount /dev/sda2 /mnt 
 mkdir /mnt/boot && mount $esppart /mnt/boot
 
-
-pacman -Syy termite-terminfo pacman-contrib
-curl -sL "https://www.archlinux.org/mirrorlist/?country=BE&country=DK&country=FI&country=FR&country=DE&country=GR&country=IT&country=LU&country=MK&country=NO&country=RS&country=SK&country=SI&protocol=https&ip_version=4" > /etc/pacman.d/mirrorlist.backup
-sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist.backup
-rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup | grep -v "#" > /etc/pacman.d/mirrorlist
-pacman -Syy
-
-mkfs.fat  -n "ESP" -F 32 /dev/sda1
-mkdir /mnt/boot 
-mount /dev/sda1 /mnt/boot
-mkfs.ext4 -L "Arch" /dev/sda2 
-mount /dev/sda2 /mnt 
 pacstrap /mnt base termite-terminfo
-#
 #####==> WARNING: Possibly missing firmware for module
+
 genfstab -U /mnt >> /mnt/etc/fstab
 
 arch-chroot /mnt
@@ -66,3 +62,32 @@ arch-chroot /mnt
 cd /tmp && \
 curl -sLO https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh && \
 sh yarbs.sh
+
+###
+###
+### NOTES
+
+# run ESP.sh or do that manually. 
+# cgdisk /dev/nvme0n1
+# New partition
+# 512M
+# ef00 for /boot
+
+# New partition
+# 8e00
+# ArchLVM
+
+#Verify
+
+## NOTES FOR YARBS | systemd-boot
+
+# cat > /boot/loader/entries/arch.conf <<EOF
+# title   Arch Linux
+# linux   /vmlinuz-linux
+# initrd  /${cpu}-ucode.img
+# initrd  /initramfs-linux.img
+# options root=${uuidroot} rw
+# EOF
+# 
+# # If $cpu="nmc", removes the line for ucode.
+# [ $cpu = "nmc" ] && cat /boot/loader/entries/arch.conf | grep -v "nmc" > /boot/loader/entries/arch.conf

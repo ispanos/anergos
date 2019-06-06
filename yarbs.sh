@@ -371,17 +371,6 @@ curl -Ls "$btloaderconf" > /boot/loader/loader.conf
 [ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf 
                     echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf 
                     echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf 
-# # # # # # # #cat > /boot/loader/entries/arch.conf <<EOF
-# # # # # # # #title   Arch Linux
-# # # # # # # #linux   /vmlinuz-linux
-# # # # # # # #initrd  /${cpu}-ucode.img
-# # # # # # # #initrd  /initramfs-linux.img
-# # # # # # # #options root=${uuidroot} rw
-# # # # # # # #EOF
-# # # # # # # #
-# # # # # # # ## If $cpu="nmc", removes the line for ucode.
-# # # # # # # #[ $cpu = "nmc" ] && cat /boot/loader/entries/arch.conf | grep -v "nmc" \
-# # # # # # # #                                > /boot/loader/entries/arch.conf
 #NOTE# Add linux-lts entry || (for loop /vmlinuz-* kernels or a sed command just for lts?)
 #NOTE# Need help to add LUKS/LVM support. 
 
@@ -454,6 +443,4 @@ dialog --title "DONE" --msgbox "Cross your fingers and hope it worked.\\nUse 'pa
 
 clear
 
-####### Alternatively enable NetworkManager if its installed.
-#######[ -f usr/bin/NetworkManager ] && serviceinit NetworkManager
 # serviceinit fstrim.timer numLockOnTty.service
