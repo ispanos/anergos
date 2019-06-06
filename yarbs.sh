@@ -57,8 +57,8 @@ getcpu() {
 
 instmicrocode() {
     # Installs microcode if cpu is AMD or Intel.
-    dialog --infobox "Installing ${cpu}-ucode..." 0 0
     ( [ $cpu = "amd" ] || [ $cpu = "intel" ]  )  && \
+    dialog --infobox "Installing ${cpu}-ucode..." 0 0 && \
     pacman --noconfirm --needed -S ${cpu}-ucode   >/dev/null 2>&1
 }
 
@@ -106,10 +106,12 @@ serviceinit() {
 
 gethostname() {
     # Prompts user for hostname.
-    hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+    hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || \
+    exit
     while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
         hostname=$(dialog --no-cancel \
-        --inputbox "Hostname not valid. Give a hostname beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
+        --inputbox "Hostname not valid. Give a hostname beginning with a letter, only lowercase letters, - or _." \
+                    10 60 3>&1 1>&2 2>&3 3>&1)
     done
 }
 
@@ -119,14 +121,11 @@ networkdstart() {
     # Sets up ethernet config
     networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
                                                                     > /etc/systemd/network/20-wired.network
-    
-
-
     ## Setus up wireless config
     #networkctl | awk '/wlan/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=20"}' \
-                                                                    > /etc/systemd/network/25-wireless.network
-    # To do:
-    # serviceinit wpa_supplicant@"$(networkctl | awk '/wlan/ {print $2}')"
+    #                                                                > /etc/systemd/network/25-wireless.network
+    ## To do:
+    ## serviceinit wpa_supplicant@"$(networkctl | awk '/wlan/ {print $2}')"
 }
 
 
@@ -186,13 +185,15 @@ getuserandpass() {
     name=$(dialog --inputbox "Now please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
         name=$(dialog --no-cancel \
-                --inputbox "Username not valid. Give a username beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
+                --inputbox "Username not valid. It must start with a letter, with only lowercase letters, - or _" \
+                            10 60 3>&1 1>&2 2>&3 3>&1)
     done
     pass1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
     pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
     while ! [ "$pass1" = "$pass2" ]; do
         unset pass2
-        pass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nEnter password again." 10 60 3>&1 1>&2 2>&3 3>&1)
+        pass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nEnter password again." \
+                                    10 60 3>&1 1>&2 2>&3 3>&1)
         pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
     done
 }
@@ -277,13 +278,8 @@ installationloop() {
 ######                    Inputs                    ################################################################
 ####################################################################################################################
 
-# Check if user is root on Arch distro. Install dialog.
-pacman -Syu --noconfirm --needed dialog >/dev/null 2>&1 || \
-pacman --noconfirm -Sy archlinux-keyring &&  pacman -Syu --noconfirm --needed dialog || \
-error "Are you have internet connection? "
-
-dialog --infobox "Refreshing Arch Keyring..." 4 40
-pacman --noconfirm -Sy archlinux-keyring >/dev/null 2>&1
+# Installs dialog and refreshes archlinux-keyring.
+pacman --noconfirm -Syu dialog archlinux-keyring >/dev/null 2>&1 || error "Are you have internet connection? "
 
 getcpu
 while [ $? -eq 1 ] ; do
@@ -360,7 +356,7 @@ networkdstart
 instmicrocode
 
 # Installs systemd-boot to the eps partition
-bootctl --path=/boot install > /dev/null 2>&1
+bootctl --path=/boot install
  
 # Creates pacman hook to update systemd-boot after package upgrade.
 mkdir -p /etc/pacman.d/hooks && \
@@ -410,10 +406,6 @@ curl -Ls "$vmconfig" > /etc/sysctl.d/99-sysctl.conf
 
 systembeepoff
 enablemultilib
-manualinstall $aurhelper || error "Failed to install AUR helper."
-
-# Killua config, if hostname is killua. Requires $aurhelper.
-[ $(hostname) = "killua" ] && killuaset
 
 ####################################################################################################################
 ######                 User set-up                  ######
@@ -431,6 +423,9 @@ pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
 # Temporarily allows user to run sudo without password.
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 
+# manualinsall requires user.
+manualinstall $aurhelper || error "Failed to install AUR helper."
+
 # Installs packages in the newly created /tmp/progs.csv file.
 mergeprogsfiles $progsfiles
 installationloop
@@ -445,9 +440,8 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 [ -f /etc/profile.d/freetype2.sh ] && \
 sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh
 
-## Enable sub-pixel RGB rendering
-#sudo -u "$name" mkdir -p "/home/$name/.config/fontconfig/conf.d"
-#ln -sf /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /home/$name/.config/fontconfig/conf.d
+# Killua config, if hostname is killua. Requires $aurhelper.
+[ $(hostname) = "killua" ] && killuaset
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,\
