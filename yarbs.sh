@@ -57,6 +57,7 @@ getcpu() {
 
 instmicrocode() {
     # Installs microcode if cpu is AMD or Intel.
+    dialog --infobox "Installing ${cpu}-ucode..." 0 0
     ( [ $cpu = "amd" ] || [ $cpu = "intel" ]  )  && \
     pacman --noconfirm --needed -S ${cpu}-ucode   >/dev/null 2>&1
 }
@@ -100,7 +101,6 @@ serviceinit() {
     for service in "$@"; do
     dialog --infobox "Enabling \"$service\"..." 4 40
     systemctl enable "$service"
-    systemctl start "$service"
     done
 }
 
@@ -119,10 +119,12 @@ networkdstart() {
     # Sets up ethernet config
     networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
                                                                     > /etc/systemd/network/20-wired.network
-    # Setus up wireless config
-    networkctl | awk '/wlan/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=20"}' \
-                                                                    > /etc/systemd/network/25-wireless.network
+    
 
+
+    ## Setus up wireless config
+    #networkctl | awk '/wlan/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=20"}' \
+                                                                    > /etc/systemd/network/25-wireless.network
     # To do:
     # serviceinit wpa_supplicant@"$(networkctl | awk '/wlan/ {print $2}')"
 }
@@ -148,12 +150,15 @@ systembeepoff() {
 }
 
 enablemultilib() {
+    dialog --infobox "Enabling multilib..." 0 0
     sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
     pacman --noconfirm --needed -Sy >/dev/null 2>&1
     pacman -Fy >/dev/null 2>&1
 }
 
 killuaset() {
+
+    dialog --infobox "Killua........" 0 0
 
     # Temp_Asus_X370_Prime_pro
     sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
@@ -178,7 +183,7 @@ https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
 
 getuserandpass() {
     # Prompts user for new username an password.
-    name=$(dialog --inputbox "First, please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+    name=$(dialog --inputbox "No please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
         name=$(dialog --no-cancel \
                 --inputbox "Username not valid. Give a username beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
@@ -247,7 +252,7 @@ pipinstall() {
 }
 
 mergeprogsfiles() {
-    rm /tmp/progs.csv
+    [ -f /tmp/progs.csv ] && rm /tmp/progs.csv
     for list in "$@"; do
     ([ -f "$list" ] && cp "$list" /tmp/progs.csv) || curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv 
     done
@@ -267,13 +272,6 @@ installationloop() {
         esac
     done < /tmp/progs.csv
 }
-
-resetpulse() { 
-    dialog --infobox "Reseting Pulseaudio..." 4 50
-    killall pulseaudio
-    sudo -n "$name" pulseaudio --start
-}
-
 
 ####################################################################################################################
 ######                    Inputs                    ################################################################
@@ -329,15 +327,23 @@ done
 
 # Set Time Zone
 serviceinit systemd-timesyncd.service
-timedatectl set-timezone $timezone
-timedatectl set-ntp true
+ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
+hwclock --systohc
 
 # Set Locale
+dialog --infobox "Generating Locale.." 0 0
 sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && locale-gen
 
 # Set the hostname / networking.
-hostnamectl set-hostname $hostname
-echo "127.0.1.1 ${hostname}.localdomain $hostname"
+dialog --infobox "Configuring network.." 0 0
+echo $hostname > /etc/hostname
+cat > /etc/hosts <<EOF
+#<ip-address>   <hostname.domain.org>    <hostname>
+127.0.0.1       localhost.localdomain    localhost
+127.0.0.1       localhost.localdomain    localhost
+127.0.1.1       ${hostname}.localdomain  $hostname
+EOF
+networkdstart
 
 ##########################################################
 ######             Systemd-boot set-up              ######
@@ -379,6 +385,8 @@ EOF
 ######             Systemd-boot END                 ######
 ##########################################################
 
+dialog --infobox "Configuring pacman and yay." 0 0
+
 # Creates pacman hook to keep only the 3 latest versions of packages.
 curl -Ls $paccleanhook > /etc/pacman.d/hooks/cleanup.hook
 
@@ -392,13 +400,7 @@ sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 # Sets swappiness and cache pressure for better performance.
 curl -Ls $vmconfig > /etc/sysctl.d/99-sysctl.conf
 
-# Enable infinality fonts
-dialog --infobox "Installing freetype2, a rasterization library."
-pacman -S --noconfirm freetype2 > /dev/null && [ -f /etc/profile.d/freetype2.sh ] && \
-sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh
-
 systembeepoff
-networkdstart
 enablemultilib
 manualinstall $aurhelper || error "Failed to install AUR helper."enablemultilib
 
@@ -428,15 +430,16 @@ installationloop
 # Install the dotfiles in the user's home directory
 putgitrepo "$dotfilesrepo" "/home/$name"
 
-# Pulseaudio, if/when initially installed, often needs a restart to work immediately.
-[ -f /usr/bin/pulseaudio ] && resetpulse
-
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
-# Enable sub-pixel RGB rendering
-sudo -u "$name" mkdir -p "/home/$name/.config/fontconfig/conf.d"
-ln -s /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /home/$name/.config/fontconfig/conf.d
+# Enable infinality fonts
+[ -f /etc/profile.d/freetype2.sh ] && \
+sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh
+
+## Enable sub-pixel RGB rendering
+#sudo -u "$name" mkdir -p "/home/$name/.config/fontconfig/conf.d"
+#ln -sf /etc/fonts/conf.avail/10-sub-pixel-rgb.conf /home/$name/.config/fontconfig/conf.d
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,\
