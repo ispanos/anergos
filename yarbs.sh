@@ -183,7 +183,7 @@ https://raw.githubusercontent.com/ispanos/YARBS/master/extras.csv"
 
 getuserandpass() {
     # Prompts user for new username an password.
-    name=$(dialog --inputbox "No please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+    name=$(dialog --inputbox "Now please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
         name=$(dialog --no-cancel \
                 --inputbox "Username not valid. Give a username beginning with a letter, with only lowercase letters, - or _." 10 60 3>&1 1>&2 2>&3 3>&1)
@@ -278,9 +278,12 @@ installationloop() {
 ####################################################################################################################
 
 # Check if user is root on Arch distro. Install dialog.
-pacman -Syu --noconfirm --needed dialog || \
+pacman -Syu --noconfirm --needed dialog >/dev/null 2>&1 || \
 pacman --noconfirm -Sy archlinux-keyring &&  pacman -Syu --noconfirm --needed dialog || \
 error "Are you have internet connection? "
+
+dialog --infobox "Refreshing Arch Keyring..." 4 40
+pacman --noconfirm -Sy archlinux-keyring >/dev/null 2>&1
 
 getcpu
 while [ $? -eq 1 ] ; do
