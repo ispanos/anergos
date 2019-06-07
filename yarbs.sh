@@ -8,7 +8,7 @@ error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||             System wide configs              |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-
+multilib=true
 aurhelper="yay"
 
 # `/etc/pacman.d/hooks/bootctl-update.hook` file, to run `bootctl update after systemd upgrades.
@@ -331,12 +331,11 @@ sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 # Sets swappiness and cache pressure for better performance.
 curl -Ls "$vmconfig" > /etc/sysctl.d/99-sysctl.conf
 
-systembeepoff
-enablemultilib
-
-#Installs basedevel and git
-dialog --title "Installation" --infobox "Installing \`basedevel\` and \`git\` ." 5 70
+#Installs basedevel and git, disables the beep sound, enables multilib if choose yes when asked.
+dialog --title "Installation" --infobox "Installing \`basedevel\` and \`git\` ..." 5 70
 pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
+[ $multilib ] && enablemultilib
+systembeepoff
 
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
 ##||||                 User set-up                  |||###
