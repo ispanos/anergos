@@ -5,11 +5,12 @@
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||             System wide configs              |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||             System wide configs              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 multilib=true
 aurhelper="yay"
+timezone="Europe/Athens"
 
 # `/etc/pacman.d/hooks/bootctl-update.hook` file, to run `bootctl update after systemd upgrades.
 bootupthook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook"
@@ -19,8 +20,6 @@ btloaderconf="https://raw.githubusercontent.com/ispanos/YARBS/master/files/loade
 vmconfig="https://raw.githubusercontent.com/ispanos/YARBS/master/files/99-sysctl.conf"
 # pacman hook to clean old downloaded package versions.
 paccleanhook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/cleanup.hook"
-# Maybe make that into a dialog miltiple choice?
-timezone="Europe/Athens"
 
 ##########################################################
 ######             SYSTEMD-BOOT set-up              ######
@@ -29,7 +28,7 @@ getcpu() {
     # Asks user to choose between "inte" and "amd" cpu. <Cancel> doen't install any microcode
     local -i answer
     answer=$(dialog --title "Microcode" \
-                    --menu "Warning: Cancel to skip microcode installation.\\n\\n\
+                    --menu "Warning: Cancel to skip microcode installation.
                             Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
     cpu="nmc"
     [ $answer -eq 1 ] && cpu="amd"
@@ -88,11 +87,11 @@ serviceinit() {
 
 gethostname() {
     # Prompts user for hostname.
-    hostname=$(dialog --inputbox "Please enter a name for the computer (hostname)." 10 60 3>&1 1>&2 2>&3 3>&1) || \
+    hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || \
     exit
     while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
         hostname=$(dialog --no-cancel \
-        --inputbox "Hostname not valid. Give a hostname beginning with a letter, only lowercase letters, - or _." \
+        --inputbox "Hostname not valid. It must start with a letter. Only lowercase letters, - or _." \
                     10 60 3>&1 1>&2 2>&3 3>&1)
     done
 }
@@ -116,9 +115,9 @@ enablemultilib() {
     pacman -Fy >/dev/null 2>&1
 }
 
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||                 User set-up                  |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||                 User set-up                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 progsfiles="https://raw.githubusercontent.com/ispanos/YARBS/master/i3.csv \
@@ -130,7 +129,7 @@ getuserandpass() {
     name=$(dialog --inputbox "Now please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
         name=$(dialog --no-cancel \
-                --inputbox "Username not valid. It must start with a letter, with only lowercase letters, - or _" \
+                --inputbox "Name not valid. It must start with a letter. Use only lowercase letters, - or _" \
                             10 60 3>&1 1>&2 2>&3 3>&1)
     done
     pass1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
@@ -176,7 +175,7 @@ maininstall() { # Installs all needed programs from main repo.
 gitmakeinstall() {
     dir=$(mktemp -d)
     dialog --title "YARBS Installation" \
-    --infobox "Installing \`$(basename "$1")\` ($n of $total) via \`git\` and \`make\`. $(basename "$1") $2" 5 70
+    --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
     git clone --depth 1 "$1" "$dir" >/dev/null 2>&1
     cd "$dir" || exit
     make >/dev/null 2>&1
@@ -192,7 +191,8 @@ aurinstall() {
 }
 
 pipinstall() {
-    dialog --title "YARBS Installation" --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
+    dialog --title "YARBS Installation" \
+            --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
     command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
     yes | pip install "$1"
 }
@@ -210,7 +210,8 @@ installationloop() {
     aurinstalled=$(pacman -Qm | awk '{print $1}')
     while IFS=, read -r tag program comment; do
         n=$((n+1))
-        echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
+        echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && \
+                comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
         case "$tag" in
             "") maininstall "$program" "$comment" ;;
             "A") aurinstall "$program" "$comment" ;;
@@ -238,20 +239,15 @@ killuaset() {
     [ -f /etc/systemd/logind.conf ] && \
     sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 }
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-######                    Inputs                    ###############################################################
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+######                    Inputs                    ############################################################
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 pacman --noconfirm -Syyu dialog archlinux-keyring >/dev/null 2>&1 || error "Check your internet connection?"
 
 getcpu
 while [ $? -eq 1 ] ; do
     getcpu  
 done
-
-# Temporary solution incase of LUKS/LVM
-dialog --title "LVM/LUKS" --yesno "Is your root partition encrypted?" 0 0
-[ $? -eq 0 ] && dialog --infobox "Tough luck. This script cant handle it." 6 80 && \
-sleep 10 && error "Please help me add LVM/LUKS support to the script."
 
 chooserootpart
 while [ $? -eq 1 ] ; do
@@ -261,24 +257,19 @@ done
 gethostname    || error "User exited"
 getuserandpass || error "User exited."
 dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||                     Auto                     |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||                     Auto                     ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||             System wide config               |||###
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
 
-# Set Time Zone
+dialog --infobox "Locale and time-sync..." 0 0
 serviceinit systemd-timesyncd.service
-# fstrim.timer numlock.service
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 hwclock --systohc
-
-# Set Locale
-dialog --infobox "Generating Locale.." 0 0
 sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && locale-gen > /dev/null 2>&1
 echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
 
-# Set the hostname / networking.
 dialog --infobox "Configuring network.." 0 0
 echo $hostname > /etc/hostname
 cat > /etc/hosts <<EOF
@@ -293,7 +284,7 @@ networkdstart
 ######             SYSTEMD-BOOT set-up              ######
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
 ######   sed for HOOKS="...keyboard encrypt lvm2"   ######
-###### umkinitcpio -p linux && linux-lts entry?     ######
+######   umkinitcpio -p linux && linux-lts entry?   ######
 
 # Installs microcode if the cpu is amd or intel.
 [ $cpu = "nmc" ] || installmicrocode
@@ -373,4 +364,4 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay -Syu,\
 /usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
-dialog --title "DONE" --msgbox "Cross your fingers and hope it worked.\\nUse 'passwd' to set a root password" 0 0
+dialog --msgbox "Cross your fingers and hope it worked.\\nUse 'passwd' to set a root password" 0 0
