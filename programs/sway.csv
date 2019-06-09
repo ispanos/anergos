@@ -1,0 +1,16 @@
+#TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
+,,
+# This is more of a note that a "production ready" list.,,
+,,
+,sway,"i3 replacment of wayland."
+,bemenu,"is like dmenu for wayland."
+,xorg-server-xwayland,"is a compatibility layer for x11 apps."
+,qt5-wayland,"provides APIs for Wayland."
+,wl-clipboard,"allows for copying and pasting from the command line."
+A,interception-hideaway,"hides cursor after some time."
+,mako,"is a notification daemon."
+,light,"enables changing screen brightness levels."
+A,brightnessctl,"enables changing screen brightness levels."
+,grim,"is a screenshot utility for Wayland."
+,slurp,"is a region-screenshot utility for Wayland."
+A,fedora-firefox-wayland-bin,"is firefox for wayland."
