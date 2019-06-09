@@ -10,7 +10,7 @@
 ,dosfstools,"allows your computer to access dos-like filesystems."
 ,exfat-utils,"allows management of FAT drives."
 ,ntfs-3g,"allows accessing NTFS partitions."
-A,simple-mtpfs,"enables the mounting of cell phones."
+A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 ,p7zip,"is a tool to (de-)compress archives."
 ,unrar,"is a tool to (de-)compress archives."
 ,unzip,"is a tool to (de-)compress archives."
