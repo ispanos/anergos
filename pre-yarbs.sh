@@ -2,17 +2,35 @@
 
 timedatectl set-ntp true
 
-pacman -Syy termite-terminfo pacman-contrib dialog
-curl -sL "https://www.archlinux.org/mirrorlist/?country=BE&country=DK&country=FI&country=FR&country=DE&country=GR&country=IT&country=LU&country=MK&country=NO&country=RS&country=SK&country=SI&protocol=https&ip_version=4" > /etc/pacman.d/mirrorlist.backup
-sed -i 's/^#Server/Server/' /etc/pacman.d/mirrorlist.backup
-rankmirrors -n 6 /etc/pacman.d/mirrorlist.backup | grep -v "#" > /etc/pacman.d/mirrorlist
+
+
+pacman -Syy --needed --noconfirm termite-terminfo dialog
+
+cat > /etc/pacman.d/mirrorlist <<EOF
+##
+## Arch Linux repository mirrorlist
+## Generated on 2019-06-12
+##                Athens
+
+Server = https://foss.aueb.gr/mirrors/linux/archlinux/$repo/os/$arch
+Server = https://appuals.com/archlinux/$repo/os/$arch
+Server = https://mirror.ubrco.de/archlinux/$repo/os/$arch
+Server = https://mirror.wormhole.eu/archlinux/$repo/os/$arch
+Server = https://mirror.orbit-os.com/archlinux/$repo/os/$arch
+Server = https://mirror.bethselamin.de/$repo/os/$arch
+Server = https://mirror.23media.com/archlinux/$repo/os/$arch
+Server = https://mirror.metalgamer.eu/archlinux/$repo/os/$arch
+Server = https://mirror.f4st.host/archlinux/$repo/os/$arch
+Server = https://arch.jensgutermuth.de/$repo/os/$arch
+EOF
+
 pacman -Syy
 
 
-pacstrap /mnt base base-devel git termite-terminfo
+pacstrap /mnt base termite-terminfo
 # Capture Warnings?
 genfstab -U /mnt >> /mnt/etc/fstab
 
 
 curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/tmp/yarbs.sh && \
-arch-chroot /mnt bash /mnt/tmp/yarbs.sh || clear && echo "something went wrong."
+arch-chroot /mnt bash /tmp/yarbs.sh || clear && echo "something went wrong."

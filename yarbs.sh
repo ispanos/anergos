@@ -77,7 +77,7 @@ chooserootpart() {
     uuidroot=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
     
     dialog --title "Please Confirm" \
-            --yesno "Are you sure this \"$rootpart - $uuidroot\" is your roor partition UUID?" 0 0
+            --yesno "Are you sure this \"$rootpart - $uuidroot\" is your root partition UUID?" 0 0
 }
 
 ######               SYSTEMD-BOOT END               ######
@@ -216,7 +216,7 @@ pipinstall() {
 }
 
 mergeprogsfiles() {
-    for list in "$prog_files"; do
+    for list in ${prog_files}; do
 
         if [ -f "$list" ]; then
             cp "$list" /tmp/progs.csv
@@ -332,6 +332,7 @@ if [ $cpu != "nmc" ]; then
 fi
 
 # Installs systemd-boot to the eps partition
+dialog --infobox "Setting-up systemd-boot" 0 0
 bootctl --path=/boot install
  
 # Creates pacman hook to update systemd-boot after package upgrade.
