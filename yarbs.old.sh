@@ -1,51 +1,49 @@
-#!/bin/bash
+#!/bin/sh
 
 # Arch Bootstraping script
 # License: GNU GPLv3
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
-MULTILIB=true
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||             System wide configs              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+multilib=true
 aurhelper="yay"
 timezone="Europe/Athens"
 
-prog_files="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv \
-https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv \
-https://raw.githubusercontent.com/ispanos/YARBS/master/programs/extras.csv"
+# `/etc/pacman.d/hooks/bootctl-update.hook` file, to run `bootctl update after systemd upgrades.
+bootupthook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/bootctl-update.hook"
+# `/boot/loader/loader.conf` file
+btloaderconf="https://raw.githubusercontent.com/ispanos/YARBS/master/files/loader.conf"
+# swapiness and cache_pressure
+vmconfig="https://raw.githubusercontent.com/ispanos/YARBS/master/files/99-sysctl.conf"
+# pacman hook to clean old downloaded package versions.
+paccleanhook="https://raw.githubusercontent.com/ispanos/YARBS/master/files/cleanup.hook"
 
-# Remove the line with "putgitrepo "$dotfilesrepo" "/home/$name" " if you don't have a backup of your dotfiles.
-dotfilesrepo="https://github.com/ispanos/dotfiles.git"
-
-################################################################################################################
-######             SYSTEMD-BOOT set-up              ############################################################
+##########################################################
+######             SYSTEMD-BOOT set-up              ######
 
 getcpu() {
-    # Asks user to choose between "intel" and "amd" cpu. <Cancel> doen't install any microcode (later).
+    # Asks user to choose between "inte" and "amd" cpu. <Cancel> doen't install any microcode
     local -i answer
-
     answer=$(dialog --title "Microcode" \
                     --menu "Warning: Cancel to skip microcode installation.
                             Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
-    
-    if [ $answer -eq 1 ]; then
-        cpu="amd"
-    elif [ $answer -eq 2 ]; then
-        cpu="intel"
-    else
-        cpu="nmc"
-    fi
+    cpu="nmc"
+    [ $answer -eq 1 ] && cpu="amd"
+    [ $answer -eq 2 ] && cpu="intel"
 
-    if [ $cpu = "nmc" ]; then
+    [ $cpu = "nmc" ] && \
+    dialog  --title "Please Confirm" \
+            --yesno "Are you sure you don't want to install any microcode?" 0 0               || \
+    dialog  --title "Please Confirm" \
+            --yesno "Are you sure you want to install $cpu-ucode? (after final confirmation)" 0 0
+}
 
-        dialog  --title "Please Confirm" \
-                --yesno "Are you sure you don't want to install any microcode?" 0 0
-
-    else
-
-        dialog  --title "Please Confirm" \
-                --yesno "Are you sure you want to install ${cpu}-ucode? (after final confirmation)" 0 0
-
-    fi
+installmicrocode() {
+    dialog --infobox "Installing ${cpu}-ucode..." 0 0 && \
+    pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 }
 
 listpartnumb(){
@@ -64,11 +62,8 @@ chooserootpart() {
     # Outputs the number assigned to selected partition
     rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" \
                             --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
-
     # Exit the process if the user selects <cancel> instead of a partition.
-    if [ $? -eq 1 ]; then
-        error "You didn't select any partition. Exiting..."
-    fi
+    [ $? -eq 1 ] && error "You didn't select any partition. Exiting..."
 
     # This is the desired partition.
     rootpart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${rootpartnumber}p)
@@ -83,27 +78,21 @@ chooserootpart() {
 ######               SYSTEMD-BOOT END               ######
 ##########################################################
 
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||             System wide configs              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-
 serviceinit() { 
     for service in "$@"; do
-        dialog --infobox "Enabling \"$service\"..." 4 40
-        systemctl enable "$service"
+    dialog --infobox "Enabling \"$service\"..." 4 40
+    systemctl enable "$service"
     done
 }
 
 gethostname() {
     # Prompts user for hostname.
-    hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-
+    hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || \
+    exit
     while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-        
         hostname=$(dialog --no-cancel \
         --inputbox "Hostname not valid. It must start with a letter. Only lowercase letters, - or _." \
                     10 60 3>&1 1>&2 2>&3 3>&1)
-    
     done
 }
 
@@ -120,41 +109,36 @@ systembeepoff() {
 }
 
 enablemultilib() {
-    if [ $MULTILIB ]; then
-        dialog --infobox "Enabling multilib..." 0 0
-        sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
-        pacman --noconfirm --needed -Sy >/dev/null 2>&1
-        pacman -Fy >/dev/null 2>&1
-    fi
+    dialog --infobox "Enabling multilib..." 0 0
+    sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
+    pacman --noconfirm --needed -Sy >/dev/null 2>&1
+    pacman -Fy >/dev/null 2>&1
 }
 
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||                 User set-up                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 
-
+dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+progsfiles="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv \
+https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv \
+https://raw.githubusercontent.com/ispanos/YARBS/master/programs/extras.csv"
 
 getuserandpass() {
     # Prompts user for new username an password.
     name=$(dialog --inputbox "Now please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-        
         name=$(dialog --no-cancel \
                 --inputbox "Name not valid. It must start with a letter. Use only lowercase letters, - or _" \
                             10 60 3>&1 1>&2 2>&3 3>&1)
     done
-
     pass1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
     pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
-    
     while ! [ "$pass1" = "$pass2" ]; do
-        
         unset pass2
         pass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nEnter password again." \
                                     10 60 3>&1 1>&2 2>&3 3>&1)
         pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
-
     done
 }
 
@@ -190,9 +174,8 @@ maininstall() { # Installs all needed programs from main repo.
 
 gitmakeinstall() {
     dir=$(mktemp -d)
-    dialog  --title "YARBS Installation" \
-            --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
-
+    dialog --title "YARBS Installation" \
+    --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
     git clone --depth 1 "$1" "$dir" >/dev/null 2>&1
     cd "$dir" || exit
     make >/dev/null 2>&1
@@ -201,38 +184,30 @@ gitmakeinstall() {
 }
 
 aurinstall() {
-    dialog  --title "YARBS Installation" \
+    dialog --title "YARBS Installation" \
             --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
-
     echo "$aurinstalled" | grep "^$1$" >/dev/null 2>&1 && return
     sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
 }
 
 pipinstall() {
-    dialog  --title "YARBS Installation" \
+    dialog --title "YARBS Installation" \
             --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
     command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
     yes | pip install "$1"
 }
 
 mergeprogsfiles() {
-    for list in "$prog_files"; do
-
-        if [ -f "$list" ]; then
-            cp "$list" /tmp/progs.csv)
-        else
-            curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
-        fi
-
+    [ -f /tmp/progs.csv ] && rm /tmp/progs.csv
+    for list in "$@"; do
+    ([ -f "$list" ] && cp "$list" /tmp/progs.csv) || curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv 
     done
 }
 
 installationloop() {
-    mergeprogsfiles 
-
+    mergeprogsfiles $progsfiles
     total=$(wc -l < /tmp/progs.csv)
     aurinstalled=$(pacman -Qm | awk '{print $1}')
-    
     while IFS=, read -r tag program comment; do
         n=$((n+1))
         echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && \
@@ -264,11 +239,8 @@ killuaset() {
     [ -f /etc/systemd/logind.conf ] && \
     sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 }
-
-
-
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-######                    Inputs                    ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+######                    Inputs                    ############################################################
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 pacman --noconfirm -Syyu dialog archlinux-keyring >/dev/null 2>&1 || error "Check your internet connection?"
 
@@ -285,19 +257,11 @@ done
 gethostname    || error "User exited"
 getuserandpass || error "User exited."
 dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
-
-
-
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||                     Auto                     ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||             System wide config               |||###
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
-
-
-if [ ! -d "/sys/firmware/efi" ]; then
-    error "Please reboot to UEFI mode. "
-fi
 
 dialog --infobox "Locale and time-sync..." 0 0
 serviceinit systemd-timesyncd.service
@@ -316,9 +280,6 @@ cat > /etc/hosts <<EOF
 EOF
 networkdstart
 
-
-
-
 ##########################################################
 ######             SYSTEMD-BOOT set-up              ######
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
@@ -326,34 +287,16 @@ networkdstart
 ######   umkinitcpio -p linux && linux-lts entry?   ######
 
 # Installs microcode if the cpu is amd or intel.
-if [ $cpu != "nmc" ]; then
-    dialog --infobox "Installing ${cpu}-ucode..." 0 0
-    pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
-fi
+[ $cpu = "nmc" ] || installmicrocode
 
 # Installs systemd-boot to the eps partition
 bootctl --path=/boot install
  
 # Creates pacman hook to update systemd-boot after package upgrade.
-mkdir -p /etc/pacman.d/hooks
-cat > /etc/pacman.d/hooks/bootctl-update.hook <<EOF
-[Trigger]
-Type = Package
-Operation = Upgrade
-Target = systemd
-
-[Action]
-Description = Updating systemd-boot
-When = PostTransaction
-Exec = /usr/bin/bootctl update
-EOF
+mkdir -p /etc/pacman.d/hooks && curl -Ls "$bootupthook" > /etc/pacman.d/hooks/bootctl-update.hook
  
 # Creates loader.conf. Stored in files/ folder on repo.
-cat > /boot/loader/loader.conf <<EOF
-default  arch
-console-mode max
-editor   no
-EOF
+curl -Ls "$btloaderconf" > /boot/loader/loader.conf
 
 # Creates loader entry for root partition, using the "linux" kernel
                     echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf 
@@ -361,28 +304,13 @@ EOF
 [ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf 
                     echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf 
                     echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf 
-
-
-
+######             SYSTEMD-BOOT END                 ######
 ##########################################################
-######            PERFORMANCE-TWEAKS                ######
 
-dialog --infobox "Performance tweaks. (pacman/yay, vm.cofigs)" 0 0
+dialog --infobox "Configuring pacman and yay and vm.cofigs." 0 0
 
 # Creates pacman hook to keep only the 3 latest versions of packages.
-cat > /etc/pacman.d/hooks/cleanup.hook <<EOF
-[Trigger]
-Type = Package
-Operation = Remove
-Operation = Install
-Operation = Upgrade
-Target = *
-
-[Action]
-Description = Keeps only the latest 3 versions of packages
-When = PostTransaction
-Exec = /usr/bin/paccache -rk3
-EOF
+curl -Ls "$paccleanhook" > /etc/pacman.d/hooks/cleanup.hook
 
 # Make pacman and yay colorful and adds eye candy on the progress bar because why not.
 grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
@@ -392,16 +320,13 @@ grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILo
 sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
 # Sets swappiness and cache pressure for better performance.
-echo "vm.swappiness=10"         > /etc/sysctl.d/99-sysctl.conf
-echo "vm.vfs_cache_pressure=50" > /etc/sysctl.d/99-sysctl.conf
+curl -Ls "$vmconfig" > /etc/sysctl.d/99-sysctl.conf
 
 #Installs basedevel and git, disables the beep sound, enables multilib if choose yes when asked.
 dialog --title "Installation" --infobox "Installing \`basedevel\` and \`git\` ..." 5 70
 pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
-enablemultilib
+[ $multilib ] && enablemultilib
 systembeepoff
-
-
 
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
 ##||||                 User set-up                  |||###
@@ -425,7 +350,7 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
-# Enable infinality fonts if freetype2 packages is intalled.
+# Enable infinality fonts
 [ -f /etc/profile.d/freetype2.sh ] && \
 sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh
 
