@@ -6,7 +6,7 @@ timedatectl set-ntp true
 
 pacman -Syy --needed --noconfirm termite-terminfo dialog
 
-cat > /etc/pacman.d/mirrorlist <<EOF
+cat > /etc/pacman.d/mirrorlist <<'EOF'
 ##
 ## Arch Linux repository mirrorlist
 ## Generated on 2019-06-12
