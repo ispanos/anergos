@@ -459,4 +459,5 @@ newperms "%wheel ALL=(ALL) ALL
 printf "${rootpass1}\\n${rootpass1}" | passwd
 unset rootpass1 rootpass2
 
-dialog --msgbox "Cross your fingers and hope it worked." 0 0
+dialog --msgbox "Cross your fingers and hope it worked.\\n\\nPress <Enter> to exit window." 0 0
+read -r
