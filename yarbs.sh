@@ -128,6 +128,21 @@ enablemultilib() {
     fi
 }
 
+getrootpass() {
+    # Prompts user for new username an password.
+    rootpass1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
+    rootpass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+    
+    while ! [ "$rootpass1" = "$rootpass2" ]; do
+        
+        unset rootpass2
+        rootpass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nEnter password again." \
+                                    10 60 3>&1 1>&2 2>&3 3>&1)
+        rootpass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+
+    done
+}
+
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||                 User set-up                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
@@ -440,4 +455,7 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay -Syu,\
 /usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
-dialog --msgbox "Cross your fingers and hope it worked.\\nUse 'passwd' to set a root password" 0 0
+printf "${rootpass1}\\n${rootpass1}" | passwd
+unset rootpass1 rootpass2
+
+dialog --msgbox "Cross your fingers and hope it worked." 0 0

@@ -91,3 +91,5 @@ sh yarbs.sh
 # 
 # # If $cpu="nmc", removes the line for ucode.
 # [ $cpu = "nmc" ] && cat /boot/loader/entries/arch.conf | grep -v "nmc" > /boot/loader/entries/arch.conf
+
+echo "root:$pass" | chpasswd
