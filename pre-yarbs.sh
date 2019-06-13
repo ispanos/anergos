@@ -7,6 +7,7 @@ timedatectl set-ntp true
 HARD_DRIVE="/dev/sda"
 ESP_path="/boot"
 
+umount ${HARD_DRIVE}* 2>/dev/null
 wipefs -a ${HARD_DRIVE}*
 
 cat <<EOF | fdisk $HARD_DRIVE
@@ -20,7 +21,9 @@ t
 n
 
 
+
 t
+
 24
 w
 EOF
