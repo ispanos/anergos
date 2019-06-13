@@ -13,6 +13,7 @@ cat <<EOF | fdisk $HARD_DRIVE
 g
 n
 
+
 +512M
 t
 1
