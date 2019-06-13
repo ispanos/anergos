@@ -299,6 +299,7 @@ done
 
 gethostname    || error "User exited"
 getuserandpass || error "User exited."
+getrootpass    || error "User exited."
 dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
 
 
