@@ -130,7 +130,7 @@ enablemultilib() {
 
 getrootpass() {
     # Prompts user for new username an password.
-    rootpass1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
+    rootpass1=$(dialog --no-cancel --passwordbox "Enter a password for ROOT user." 10 60 3>&1 1>&2 2>&3 3>&1)
     rootpass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
     
     while ! [ "$rootpass1" = "$rootpass2" ]; do
