@@ -6,7 +6,7 @@
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 MULTILIB=true
-fancontrol=""
+fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
 aurhelper="yay"
 timezone="Europe/Athens"
 
