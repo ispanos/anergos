@@ -6,6 +6,7 @@
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 MULTILIB=true
+fancontrol=""
 aurhelper="yay"
 timezone="Europe/Athens"
 
@@ -278,6 +279,7 @@ killuaset() {
     modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
     [ -f /etc/systemd/logind.conf ] && \
     sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
+    curl -Ls "$fancontrol" > /etc/fancontrol && serviceinit fancontrol
 }
 
 
