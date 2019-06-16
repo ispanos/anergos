@@ -6,13 +6,19 @@
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 MULTILIB=true
+# Killua fancntrol settings.
 fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
 aurhelper="yay"
 timezone="Europe/Athens"
 
-prog_files="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv \
-https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv \
-https://raw.githubusercontent.com/ispanos/YARBS/master/programs/extras.csv"
+coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
+extras="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/extras.csv"
+i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
+gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
+sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
+
+
+prog_files="$coreprogs $i3 $extras"
 
 # Remove the line with "putgitrepo "$dotfilesrepo" "/home/$name" " if you don't have a backup of your dotfiles.
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
@@ -106,13 +112,6 @@ gethostname() {
                     10 60 3>&1 1>&2 2>&3 3>&1)
     
     done
-}
-
-networkdstart() {
-    # Starts networkd as a network manager and configures ethernet.
-    serviceinit systemd-networkd systemd-resolved
-    networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
-                                                                    > /etc/systemd/network/20-wired.network
 }
 
 systembeepoff() { 
@@ -282,6 +281,12 @@ killuaset() {
     curl -Ls "$fancontrol" > /etc/fancontrol && serviceinit fancontrol
 }
 
+networkdstart() {
+    # Starts networkd as a network manager and configures ethernet.
+    networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
+                                                                    > /etc/systemd/network/20-wired.network
+    serviceinit systemd-networkd systemd-resolved
+}
 
 
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
@@ -332,9 +337,6 @@ cat > /etc/hosts <<EOF
 ::1             localhost.localdomain    localhost
 127.0.1.1       ${hostname}.localdomain  $hostname
 EOF
-networkdstart
-
-
 
 
 ##########################################################
@@ -440,6 +442,9 @@ installationloop
 
 # Install the dotfiles in the user's home directory
 putgitrepo "$dotfilesrepo" "/home/$name"
+
+# Starts networkmanager if its installed, or uses systemd-networkd
+[ -f usr/bin/NetworkManager ] && serviceinit NetworkManager || networkdstart
 
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
