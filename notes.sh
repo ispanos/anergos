@@ -1,6 +1,9 @@
 #!/bin/sh
 
 
+# On a high dpi display you can set a larger font to make the text larger.
+# setfont sun12x22
+
 # /usr/bin/ls -1 /dev | grep "sd.$" && /usr/bin/ls -1 /dev | grep "nvme.$"
 
 

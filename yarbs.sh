@@ -5,23 +5,50 @@
 
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
-MULTILIB=true
-# Killua fancntrol settings.
-fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
-aurhelper="yay"
 timezone="Europe/Athens"
-
+aurhelper="yay"
 coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
 extras="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/extras.csv"
 i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
 
+# Killua fancntrol settings.
+fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
 
-prog_files="$coreprogs $i3 $extras"
-
-# Remove the line with "putgitrepo "$dotfilesrepo" "/home/$name" " if you don't have a backup of your dotfiles.
+# Defaults. Can be changed with arguemnts: -m [false] -e [gnome,i3,sway] -d [<link>,<filepath>]
+MULTILIB="true"
+environment="$i3"
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+
+
+while getopts ":m:e:d:" option; do 
+    case "${option}" in
+        m) MULTILIB=${OPTARG} ;;
+        e) environment_arg=${OPTARG} ;;
+        d) dotfilesrepo=${OPTARG} ;;
+        *) printf "Invalid option: -%s\\n" "$OPTARG" ;;
+    esac 
+done
+
+# Sets $environment according to the argument passed after option "-e"
+# If no options where set, it defaults to i3.
+if [ $environment_arg = "gnome" ]; then
+    environment=$gnome
+elif [ $environment_arg = "i3" ]; then
+    environment=$i3
+elif [ $environment_arg = "sway" ];then
+    environment=$sway
+elif [ -z $environment_arg ]; then
+    return
+else
+    printf "Invalid environment. Available options are: \\ngnome\\ni3\\nsway" && exit
+fi
+
+
+prog_files="$coreprogs $environment $extras"
+
+
 
 ################################################################################################################
 ######             SYSTEMD-BOOT set-up              ############################################################
@@ -120,7 +147,7 @@ systembeepoff() {
 }
 
 enablemultilib() {
-    if [ $MULTILIB ]; then
+    if [ "$MULTILIB" = "true" ]; then
         dialog --infobox "Enabling multilib..." 0 0
         sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
         pacman --noconfirm --needed -Sy >/dev/null 2>&1
@@ -412,13 +439,24 @@ grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILo
 # Use all cores for compilation.
 sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
+
+
+dialog --infobox "Creating swapfile" 0 0
+fallocate -l 2G /swapfile
+chmod 600 /swapfile
+mkswap /swapfile
+swapon /swapfile
+printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" > /etc/fstab
+
 # Sets swappiness and cache pressure for better performance.
 echo "vm.swappiness=10"         > /etc/sysctl.d/99-sysctl.conf
 echo "vm.vfs_cache_pressure=50" > /etc/sysctl.d/99-sysctl.conf
 
-#Installs basedevel and git, disables the beep sound, enables multilib if choose yes when asked.
+# Installs basedevel and git, disables the beep sound.
 dialog --title "Installation" --infobox "Installing \`basedevel\` and \`git\` ..." 5 70
 pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
+
+# Enables multilib unless argument "-m false" was set when running yarbs.
 enablemultilib
 systembeepoff
 
@@ -445,6 +483,9 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 
 # Starts networkmanager if its installed, or uses systemd-networkd
 [ -f usr/bin/NetworkManager ] && serviceinit NetworkManager || networkdstart
+
+# If gdm is installed it enables it.
+[ -f usr/bin/gdm ] && serviceinit gdm.service
 
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
