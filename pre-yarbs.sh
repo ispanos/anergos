@@ -43,7 +43,7 @@ pacstrap /mnt base base-devel git termite-terminfo
 # Capture Warnings?
 genfstab -U /mnt >> /mnt/etc/fstab
 
-
+koulis="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
 curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/yarbs.sh && \
 arch-chroot /mnt bash yarbs.sh && \
 rm /mnt/yarbs.sh || \
