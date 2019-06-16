@@ -18,3 +18,4 @@
 ,noto-fonts,"provides the sans and serif fonts for YARBS."
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
 ,gdm,"is Gnome's display manager and login screen"
+,firefox,"doesn't need a description."

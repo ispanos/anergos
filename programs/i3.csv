@@ -21,3 +21,6 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 ,gnome-keyring,"takes care of the user's security credentials"
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."
+A,termite-nocsd,"is the terminal I use right now."
+,lxappearance-gtk3,"is used to set gtk themes."
+,firefox,"doesn't need a description."
