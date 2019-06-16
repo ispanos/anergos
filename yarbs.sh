@@ -485,7 +485,7 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 [ -f usr/bin/NetworkManager ] && serviceinit NetworkManager || networkdstart
 
 # If gdm is installed it enables it.
-[ -f usr/bin/gdm ] && serviceinit gdm.service
+[ -f /usr/bin/gdm ] && serviceinit gdm
 
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
