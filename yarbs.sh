@@ -482,7 +482,7 @@ installationloop
 putgitrepo "$dotfilesrepo" "/home/$name"
 
 # Starts networkmanager if its installed, or uses systemd-networkd
-[ -f usr/bin/NetworkManager ] && serviceinit NetworkManager || networkdstart
+[ -f /usr/bin/NetworkManager ] && serviceinit NetworkManager || networkdstart
 
 # If gdm is installed it enables it.
 [ -f /usr/bin/gdm ] && serviceinit gdm
