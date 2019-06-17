@@ -448,7 +448,7 @@ fallocate -l 2G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
-printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" > /etc/fstab
+printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
 
 # Sets swappiness and cache pressure for better performance.
 echo "vm.swappiness=10"         > /etc/sysctl.d/99-sysctl.conf
