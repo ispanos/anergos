@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # On github:
-# https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
+# curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
 
 #pacman -Syy --needed --noconfirm termite-terminfo dialog
 
