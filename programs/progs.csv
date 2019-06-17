@@ -1,5 +1,6 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
 ,arch-audit," is a CVE monitoring utility."
+,linux-headers," files and scripts for building modules for Linux kernel."
 ,expac,"is a pacman database extraction utility."
 ,pacman-contrib,"provides scripts for pacman on Archlinux."
 ,bash-completion,"is what it sounds like."

@@ -19,6 +19,7 @@ fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancont
 # Defaults. Can be changed with arguemnts: -m [false] -e [gnome,i3,sway] -d [<link>,<filepath>]
 MULTILIB="true"
 environment="$i3"
+arglist=""
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 
 
@@ -27,6 +28,7 @@ while getopts ":m:e:d:" option; do
         m) MULTILIB=${OPTARG} ;;
         e) environment_arg=${OPTARG} ;;
         d) dotfilesrepo=${OPTARG} ;;
+        p) arglist=${OPTARG} ;;
         *) printf "Invalid option: -%s\\n" "$OPTARG" ;;
     esac 
 done
@@ -46,7 +48,7 @@ else
 fi
 
 
-prog_files="$coreprogs $environment $extras"
+prog_files="$coreprogs $environment $extras $arglist"
 
 
 
@@ -503,6 +505,12 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,\
 /usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay -Syu,\
 /usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
+
+dialog --msgbox "Removing orphan packages." 0 0
+pacman -Rns $(pacman -Qtdq)
+dialog --msgbox "Running pacman-optimize." 0 0
+pacman-optimize
+
 
 printf "${rootpass1}\\n${rootpass1}" | passwd
 unset rootpass1 rootpass2
