@@ -3,7 +3,7 @@
 # On github:
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
 
-#pacman -Syy --needed --noconfirm termite-terminfo dialog
+pacman -Sy --needed --noconfirm dialog # termite-terminfo
 
 timedatectl set-ntp true
 
@@ -42,8 +42,7 @@ mount ${HARD_DRIVE}1 /mnt${ESP_path}
 ##cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
 ##curl -L "MIRRORS" > /etc/pacman.d/mirrorlist
 
-pacstrap /mnt base base-devel git termite-terminfo
-#linux-headers
+pacstrap /mnt base base-devel git termite-terminfo linux-headers
 
 # Capture Warnings?
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -59,6 +58,6 @@ koulis="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c3
 curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/yarbs.sh && \
 arch-chroot /mnt bash yarbs.sh && \
 rm /mnt/yarbs.sh || \
-printf "\\n\\n\\n\\n\\n\\n\\n\\nsomething went wrong." && clear && exit
+printf "\\n\\n\\n\\n\\n\\n\\n\\nsomething went wrong."
 
 dialog --defaultno --yesno "Reboot computer?"  5 30 && reboot

@@ -8,7 +8,7 @@ error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 timezone="Europe/Athens"
 aurhelper="yay"
 coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
-extras="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/extras.csv"
+common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.csv"
 i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
@@ -46,7 +46,7 @@ else
 fi
 
 
-prog_files="$coreprogs $environment $extras $arglist"
+prog_files="$coreprogs $environment $common $arglist"
 
 
 
@@ -439,6 +439,8 @@ grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILo
 # Use all cores for compilation.
 sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
+dialog --infobox "Running pacman-optimize." 0 0
+pacman-optimize
 
 
 dialog --infobox "Creating swapfile" 0 0
@@ -504,11 +506,8 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay -Syu,\
 /usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
-#dialog --infobox "Removing orphan packages." 0 0
-#pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
-
-dialog --infobox "Running pacman-optimize." 0 0
-pacman-optimize
+dialog --infobox "Removing orphan packages." 0 0
+pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 
 mkdir -p /home/"$name"/.local/
 pacman -Qq > /home/"$name"/.local/Fresh_Install_package_list
@@ -517,4 +516,3 @@ printf "${rootpass1}\\n${rootpass1}" | passwd
 unset rootpass1 rootpass2
 
 dialog --msgbox "Cross your fingers and hope it worked.\\n\\nPress <Enter> to exit window." 0 0
-read -r
