@@ -511,6 +511,8 @@ pacman -Rns $(pacman -Qtdq)
 dialog --msgbox "Running pacman-optimize." 0 0
 pacman-optimize
 
+mkdir -p /home/$USER/.local/
+pacman -Qq > /home/$USER/.local/Fresh_Install_package_list
 
 printf "${rootpass1}\\n${rootpass1}" | passwd
 unset rootpass1 rootpass2
