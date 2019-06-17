@@ -2,6 +2,7 @@
 
 # On github:
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
+# bash pre-yarbs
 
 pacman -Sy --needed --noconfirm dialog # termite-terminfo
 
