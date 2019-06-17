@@ -18,12 +18,12 @@ fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancont
 
 # Defaults. Can be changed with arguemnts: -m [false] -e [gnome,i3,sway] -d [<link>,<filepath>]
 MULTILIB="true"
-environment="$i3"
+environment_arg="i3"
 arglist=""
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 
 
-while getopts ":m:e:d:" option; do 
+while getopts ":m:e:d:p:" option; do 
     case "${option}" in
         m) MULTILIB=${OPTARG} ;;
         e) environment_arg=${OPTARG} ;;
@@ -41,8 +41,6 @@ elif [ $environment_arg = "i3" ]; then
     environment=$i3
 elif [ $environment_arg = "sway" ];then
     environment=$sway
-elif [ -z $environment_arg ]; then
-    return
 else
     printf "Invalid environment. Available options are: \\ngnome\\ni3\\nsway" && exit
 fi
@@ -506,13 +504,14 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay -Syu,\
 /usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
 
-dialog --msgbox "Removing orphan packages." 0 0
-pacman -Rns $(pacman -Qtdq)
-dialog --msgbox "Running pacman-optimize." 0 0
+#dialog --infobox "Removing orphan packages." 0 0
+#pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
+
+dialog --infobox "Running pacman-optimize." 0 0
 pacman-optimize
 
-mkdir -p /home/$USER/.local/
-pacman -Qq > /home/$USER/.local/Fresh_Install_package_list
+mkdir -p /home/"$name"/.local/
+pacman -Qq > /home/"$name"/.local/Fresh_Install_package_list
 
 printf "${rootpass1}\\n${rootpass1}" | passwd
 unset rootpass1 rootpass2

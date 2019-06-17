@@ -1,5 +1,4 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
-,cmake,"is a cross-platform open-source make system."
 A,gtk-theme-minwaita,"is my current gtk theme."
 ,imv,"is an image viewer for Wayland and X11."
 ,mpv,"is simple video/gif player."

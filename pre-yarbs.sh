@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# On github:
+# https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
+
 #pacman -Syy --needed --noconfirm termite-terminfo dialog
 
 timedatectl set-ntp true
@@ -40,10 +43,19 @@ mount ${HARD_DRIVE}1 /mnt${ESP_path}
 ##curl -L "MIRRORS" > /etc/pacman.d/mirrorlist
 
 pacstrap /mnt base base-devel git termite-terminfo
+#linux-headers
+
 # Capture Warnings?
 genfstab -U /mnt >> /mnt/etc/fstab
 
 koulis="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
+
+
+# option -m MULTILIB
+# option -e [gnome,i3,swat]		Sets environment. Only one at a time.
+# option -d <link> 		        Sets dotfilesrepo
+# option -p <link>				Sets $arglist, for addtitional list of packages.
+
 curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/yarbs.sh && \
 arch-chroot /mnt bash yarbs.sh && \
 rm /mnt/yarbs.sh || \
