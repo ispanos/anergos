@@ -439,16 +439,13 @@ grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILo
 # Use all cores for compilation.
 sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
-dialog --infobox "Running pacman-optimize." 0 0
-pacman-optimize
 
-
-dialog --infobox "Creating swapfile" 0 0
-fallocate -l 2G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
-printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
+# dialog --infobox "Creating swapfile" 0 0
+# fallocate -l 2G /swapfile
+# chmod 600 /swapfile
+# mkswap /swapfile
+# swapon /swapfile
+# printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
 
 # Sets swappiness and cache pressure for better performance.
 echo "vm.swappiness=10"         > /etc/sysctl.d/99-sysctl.conf
