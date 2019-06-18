@@ -2,9 +2,9 @@
 
 # On github:
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
-# bash pre-yarbs
-
-pacman -Sy --needed --noconfirm dialog # termite-terminfo
+# bash pre-yarbs.sh
+pacman -Syy
+pacman -S --needed --noconfirm dialog termite-terminfo
 timedatectl set-ntp true
 
 
@@ -22,7 +22,9 @@ list_hard_drives(){
 hard_drive_num=$(dialog --title "Select your Hard-drive" --menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
 
 HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
+#HARD_DRIVE="/dev/sda"
 ESP_path="/boot"
+clear
 
 umount ${HARD_DRIVE}* 2>/dev/null
 wipefs -a ${HARD_DRIVE}*
