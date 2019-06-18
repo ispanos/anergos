@@ -122,7 +122,7 @@ enablemultilib() {
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 progsfiles="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv \
 https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv \
-https://raw.githubusercontent.com/ispanos/YARBS/master/programs/extras.csv"
+https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.csv"
 
 getuserandpass() {
     # Prompts user for new username an password.
