@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
+# /dev/sda1 LABEL=data
+#UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4  /media/Data    ext4 rw,noatime,nofail,user,auto    0  2
 
 # On a high dpi display you can set a larger font to make the text larger.
 # setfont sun12x22
