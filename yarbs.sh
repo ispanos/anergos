@@ -203,7 +203,7 @@ getuserandpass() {
 adduserandpass() {
     # Adds user `$name` with password $pass1.
     dialog --infobox "Adding user \"$name\"..." 4 50
-    useradd -m -g wheel -s /bin/bash "$name" >/dev/null 2>&1 ||
+    useradd -m -g wheel -s /bin/bash "$name" > /dev/null 2>&1 ||
     usermod -a -G wheel "$name" && mkdir -p /home/"$name" && chown "$name":wheel /home/"$name"
     echo "$name:$pass1" | chpasswd
     unset pass1 pass2
@@ -221,13 +221,13 @@ putgitrepo() {
     dir=$(mktemp -d)
     [ ! -d "$2" ] && mkdir -p "$2" && chown -R "$name:wheel" "$2"
     chown -R "$name:wheel" "$dir"
-    sudo -u "$name" git clone --depth 1 "$1" "$dir/gitrepo" >/dev/null 2>&1 &&
+    sudo -u "$name" git clone --depth 1 "$1" "$dir/gitrepo" > /dev/null 2>&1 &&
     sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
 }
 
 maininstall() { # Installs all needed programs from main repo.
     dialog --title "YARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
-    pacman --noconfirm --needed -S "$1" >/dev/null 2>&1
+    pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
 }
 
 gitmakeinstall() {
@@ -235,7 +235,7 @@ gitmakeinstall() {
     dialog  --title "YARBS Installation" \
             --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
 
-    git clone --depth 1 "$1" "$dir" >/dev/null 2>&1
+    git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
     cd "$dir" || exit
     make >/dev/null 2>&1
     make install >/dev/null 2>&1
@@ -246,7 +246,7 @@ aurinstall() {
     dialog  --title "YARBS Installation" \
             --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 
-    echo "$aurinstalled" | grep "^$1$" >/dev/null 2>&1 && return
+    echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
     sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
 }
 
@@ -404,11 +404,11 @@ editor   no
 EOF
 
 # Creates loader entry for root partition, using the "linux" kernel
-                    echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf 
-                    echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf 
-[ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf 
-                    echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf 
-                    echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf 
+                    echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
+                    echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
+[ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
+                    echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
+                    echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf
 
 
 
@@ -448,8 +448,8 @@ sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 # printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
 
 # Sets swappiness and cache pressure for better performance.
-echo "vm.swappiness=10"         > /etc/sysctl.d/99-sysctl.conf
-echo "vm.vfs_cache_pressure=50" > /etc/sysctl.d/99-sysctl.conf
+echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
+echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 
 # Installs basedevel and git, disables the beep sound.
 dialog --title "Installation" --infobox "Installing \`basedevel\` and \`git\` ..." 5 70
