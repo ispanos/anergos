@@ -22,7 +22,11 @@ list_hard_drives(){
 hard_drive_num=$(dialog --title "Select your Hard-drive" --menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
 
 HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
-#HARD_DRIVE="/dev/sda"
+
+if [[ $HARD_DRIVE == *"nvme"* ]]; then
+    HARD_DRIVE="${HARD_DRIVE}p"
+fi
+
 ESP_path="/boot"
 clear
 
