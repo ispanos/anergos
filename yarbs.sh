@@ -13,6 +13,8 @@ i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
 
+gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-nvidia.csv"
+
 # Killua fancntrol settings.
 fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
 
@@ -46,7 +48,7 @@ else
 fi
 
 
-prog_files="$coreprogs $environment $common $arglist"
+prog_files="$coreprogs $environment $common $gaming $arglist"
 
 
 
