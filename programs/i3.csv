@@ -16,7 +16,7 @@
 ,dunst,"is a suckless notification system."
 A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
 ,ttf-inconsolata,"is the monospace font of YARBS."
-,ttf-liberation,"- Red Hats Liberation fonts
+,ttf-liberation,"- Red Hats Liberation fonts"
 ,noto-fonts,"Google Noto TTF fonts."
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
 ,gnome-keyring,"takes care of the user's security credentials"
