@@ -494,7 +494,7 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh
 
 # Killua config, if hostname is killua. Requires $aurhelper.
-[ $(hostname) = "killua" ] && killuaset
+[ $hostname = "killua" ] && killuaset
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,\
