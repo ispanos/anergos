@@ -9,7 +9,7 @@ timedatectl set-ntp true
 
 
 
-drive_list_vert=$(/usr/bin/ls -1 /dev | grep "sd.$" && /usr/bin/ls -1 /dev | grep "nvme.$")
+drive_list_vert=$(/usr/bin/ls -1 /dev | grep "sd.$" && /usr/bin/ls -1 /dev | grep "nvme.*$" | grep -v "p.$")
 
 list_hard_drives(){
     # All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
@@ -22,10 +22,6 @@ list_hard_drives(){
 hard_drive_num=$(dialog --title "Select your Hard-drive" --menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
 
 HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
-
-if [[ $HARD_DRIVE == *"nvme"* ]]; then
-    HARD_DRIVE="${HARD_DRIVE}p"
-fi
 
 ESP_path="/boot"
 clear
@@ -50,6 +46,10 @@ t
 24
 w
 EOF
+
+if [[ $HARD_DRIVE == *"nvme"* ]]; then
+    HARD_DRIVE="${HARD_DRIVE}p"
+fi
 
 yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
 yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}2
