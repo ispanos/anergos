@@ -7,13 +7,15 @@ error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 timezone="Europe/Athens"
 aurhelper="yay"
+
+
 coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
 common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.csv"
 i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
-
 gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-nvidia.csv"
+
 
 # Killua fancntrol settings.
 fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
@@ -52,16 +54,15 @@ prog_files="$coreprogs $environment $common $gaming $arglist"
 
 
 
-################################################################################################################
-######             SYSTEMD-BOOT set-up              ############################################################
+##########################################################################################################
+######             SYSTEMD-BOOT set-up              ######################################################
 
 getcpu() {
     # Asks user to choose between "intel" and "amd" cpu. <Cancel> doen't install any microcode (later).
     local -i answer
 
-    answer=$(dialog --title "Microcode" \
-                    --menu "Warning: Cancel to skip microcode installation.
-                            Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
+    answer=$(dialog --title "Microcode" --menu "Warning: Cancel to skip microcode installation.
+            Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
     
     if [ $answer -eq 1 ]; then
         cpu="amd"
@@ -79,7 +80,7 @@ getcpu() {
     else
 
         dialog  --title "Please Confirm" \
-                --yesno "Are you sure you want to install ${cpu}-ucode? (after final confirmation)" 0 0
+                --yesno "Sure you want to install ${cpu}-ucode? (after final confirmation)" 0 0
 
     fi
 }
@@ -98,7 +99,7 @@ chooserootpart() {
     local rootpart
 
     # Outputs the number assigned to selected partition
-    rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot).:" \
+    rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot):" \
                             --menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
 
     # Exit the process if the user selects <cancel> instead of a partition.
@@ -119,9 +120,9 @@ chooserootpart() {
 ######               SYSTEMD-BOOT END               ######
 ##########################################################
 
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||             System wide configs              ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##||||             System wide configs              ||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 serviceinit() { 
     for service in "$@"; do
@@ -159,33 +160,33 @@ enablemultilib() {
 
 getrootpass() {
     # Prompts user for new username an password.
-    rootpass1=$(dialog --no-cancel --passwordbox "Enter a password for ROOT user." 10 60 3>&1 1>&2 2>&3 3>&1)
+    rootpass1=$(dialog --no-cancel --passwordbox "Enter a root's password." 10 60 3>&1 1>&2 2>&3 3>&1)
     rootpass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
     
     while ! [ "$rootpass1" = "$rootpass2" ]; do
         
         unset rootpass2
-        rootpass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nEnter password again." \
+        rootpass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nTry again." \
                                     10 60 3>&1 1>&2 2>&3 3>&1)
         rootpass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
 
     done
 }
 
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||                 User set-up                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##||||                 User set-up                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 
 
 
 getuserandpass() {
     # Prompts user for new username an password.
-    name=$(dialog --inputbox "Now please enter a name for the user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+    name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
 
     while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
         
         name=$(dialog --no-cancel \
-                --inputbox "Name not valid. It must start with a letter. Use only lowercase letters, - or _" \
+                --inputbox "Name not valid. Start with a letter. Use only lowercase letters, - or _" \
                             10 60 3>&1 1>&2 2>&3 3>&1)
     done
 
@@ -312,16 +313,17 @@ killuaset() {
 
 networkdstart() {
     # Starts networkd as a network manager and configures ethernet.
-    networkctl | awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
-                                                                    > /etc/systemd/network/20-wired.network
+    networkctl | \
+    awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
+                                                        > /etc/systemd/network/20-wired.network
     serviceinit systemd-networkd systemd-resolved
 }
 
 
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-######                    Inputs                    ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-pacman --noconfirm -Syyu dialog archlinux-keyring >/dev/null 2>&1 || error "Check your internet connection?"
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+######                    Inputs                    ||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+pacman --noconfirm -Syyu dialog >/dev/null 2>&1 || error "Check your internet connection?"
 
 getcpu
 while [ $? -eq 1 ] ; do
@@ -340,9 +342,9 @@ dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { 
 
 
 
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||                     Auto                     ||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||##
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##||||                     Auto                     ||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##||||             System wide config               |||###
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
 
@@ -493,14 +495,17 @@ putgitrepo "$dotfilesrepo" "/home/$name"
 
 # Enable infinality fonts if freetype2 packages is intalled.
 [ -f /etc/profile.d/freetype2.sh ] && \
-sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' /etc/profile.d/freetype2.sh
+sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' \
+                /etc/profile.d/freetype2.sh
 
 # Killua config, if hostname is killua. Requires $aurhelper.
 [ $hostname = "killua" ] && killuaset
 
+# Sets permissions needed for stuff.
 newperms "%wheel ALL=(ALL) ALL
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,/usr/bin/wifi-menu,\
-/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,\
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,\
+/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,\
+/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,\
 /usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,\
 /usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay -Syu,\
 /usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
