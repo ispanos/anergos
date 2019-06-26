@@ -12,11 +12,11 @@ timedatectl set-ntp true
 drive_list_vert=$(/usr/bin/ls -1 /dev | grep "sd.$" && /usr/bin/ls -1 /dev | grep "nvme.*$" | grep -v "p.$")
 
 list_hard_drives(){
-    # All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
-    for i in $drive_list_vert ; do
-        local -i n+=1
-        printf " $n $i"
-    done
+	# All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
+	for i in $drive_list_vert ; do
+		local -i n+=1
+		printf " $n $i"
+	done
 }
 
 hard_drive_num=$(dialog --title "Select your Hard-drive" --menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
@@ -48,7 +48,7 @@ w
 EOF
 
 if [[ $HARD_DRIVE == *"nvme"* ]]; then
-    HARD_DRIVE="${HARD_DRIVE}p"
+	HARD_DRIVE="${HARD_DRIVE}p"
 fi
 
 yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
