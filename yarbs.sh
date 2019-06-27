@@ -2,8 +2,8 @@
 
 # Arch Bootstraping script
 # License: GNU GPLv3
-
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
+[ ! -d "/sys/firmware/efi" ] && error "Please reboot to UEFI mode."
 
 timezone="Europe/Athens"
 aurhelper="yay"
@@ -52,6 +52,40 @@ fi
 
 prog_files="$coreprogs $environment $common $gaming $arglist"
 
+get_dialog() {pacman --noconfirm -Syyu dialog >/dev/null 2>&1 ; }
+gethostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
+confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
+
+getuserandpass() {
+	# Prompts user for new username an password.
+	name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+
+	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do	
+		name=$(dialog --no-cancel --inputbox "Name not valid. Start with a letter, use lowercase letters, - or _" 10 60 3>&1 1>&2 2>&3 3>&1)
+	done
+
+	upwd1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
+	upwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	
+	while ! [ "$upwd1" = "$upwd2" ]; do
+		unset upwd2
+		upwd1=$(dialog --no-cancel --passwordbox "Try again, passwords didn't match." 10 60 3>&1 1>&2 2>&3 3>&1)
+		upwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	done
+}
+
+get_root_pass() {
+	# Prompts user for new username an password.
+	rpwd1=$(dialog --no-cancel --passwordbox "Enter a root's password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	rpwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	
+	while ! [ "$rpwd1" = "$rpwd2" ]; do
+		unset rpwd2
+		rpwd1=$(dialog --no-cancel --passwordbox "Try again, passwords didn't match." 10 60 3>&1 1>&2 2>&3 3>&1)
+		rpwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	done
+}
+
 set_locale_time() {
 	dialog --infobox "Locale and time-sync..." 0 0
 	serviceinit systemd-timesyncd.service
@@ -62,7 +96,7 @@ set_locale_time() {
 	echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
 }
 
-configure_networking() {
+config_network() {
 	dialog --infobox "Configuring network.." 0 0
 	echo $hostname > /etc/hostname
 	cat > /etc/hosts <<-EOF
@@ -133,19 +167,6 @@ serviceinit() {
 	done
 }
 
-gethostname() {
-	# Prompts user for hostname.
-	hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-
-	while ! echo "$hostname" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-		
-		hostname=$(dialog --no-cancel \
-		--inputbox "Hostname not valid. It must start with a letter. Only lowercase letters, - or _." \
-					10 60 3>&1 1>&2 2>&3 3>&1)
-	
-	done
-}
-
 pacman_stuff() {
 	dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
 	
@@ -163,13 +184,10 @@ pacman_stuff() {
 		When = PostTransaction
 		Exec = /usr/bin/paccache -rk3
 	EOF
-	
-	# Make pacman and yay colorful and adds eye candy on the progress bar because why not.
+
+	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 	grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
 	grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
-	
-	# Use all cores for compilation.
-	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 }
 
 swap_stuff() {
@@ -185,7 +203,7 @@ swap_stuff() {
 	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 }
 
-disable_beep_sound() { 
+disable_beep() { 
 	dialog --infobox "Disabling 'beep error' sound." 10 50
 	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 }
@@ -200,51 +218,12 @@ multilib() {
 	fi
 }
 
-getrootpass() {
-	# Prompts user for new username an password.
-	rootpass1=$(dialog --no-cancel --passwordbox "Enter a root's password." 10 60 3>&1 1>&2 2>&3 3>&1)
-	rootpass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
-	
-	while ! [ "$rootpass1" = "$rootpass2" ]; do
-		
-		unset rootpass2
-		rootpass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nTry again." \
-									10 60 3>&1 1>&2 2>&3 3>&1)
-		rootpass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
-
-	done
-}
-
-getuserandpass() {
-	# Prompts user for new username an password.
-	name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-
-	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-		
-		name=$(dialog --no-cancel \
-				--inputbox "Name not valid. Start with a letter. Use only lowercase letters, - or _" \
-							10 60 3>&1 1>&2 2>&3 3>&1)
-	done
-
-	pass1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
-	pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
-	
-	while ! [ "$pass1" = "$pass2" ]; do
-		
-		unset pass2
-		pass1=$(dialog --no-cancel --passwordbox "Passwords do not match.\\n\\nEnter password again." \
-									10 60 3>&1 1>&2 2>&3 3>&1)
-		pass2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
-
-	done
-}
-
 create_user() {
-	# Adds user `$name` with password $pass1.
+	# Adds user `$name` with password $upwd1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
 	useradd -m -g wheel -s /bin/bash "$name" > /dev/null 2>&1
-	echo "$name:$pass1" | chpasswd
-	unset pass1 pass2
+	echo "$name:$upwd1" | chpasswd
+	unset upwd1 upwd2
 }
 
 newperms() {
@@ -259,21 +238,18 @@ clone_dotfiles() {
 	echo ".cfg" >> .gitignore
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
-						--local status.showUntrackedFiles no
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
 	rm .gitignore
 }
 
 maininstall() { # Installs all needed programs from main repo.
-	dialog --title "YARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
+	dialo --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
 	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
 }
 
 gitmakeinstall() {
 	dir=$(mktemp -d)
-	dialog  --title "YARBS Installation" \
-			--infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
-
+	dialog  --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
 	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
 	cd "$dir" || exit
 	make >/dev/null 2>&1
@@ -282,52 +258,46 @@ gitmakeinstall() {
 }
 
 aurinstall() {
-	dialog  --title "YARBS Installation" \
-			--infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
-
+	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
 	sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
 }
 
 pipinstall() {
-	dialog  --title "YARBS Installation" \
-			--infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
+	dialog --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
 	command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
 	yes | pip install "$1"
 }
 
 mergeprogsfiles() {
 	for list in ${prog_files}; do
-
 		if [ -f "$list" ]; then
 			cp "$list" /tmp/progs.csv
 		else
 			curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
 		fi
-
 	done
 }
 
 installationloop() {
 	mergeprogsfiles 
 	pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
+	
 	total=$(wc -l < /tmp/progs.csv)
 	aurinstalled=$(pacman -Qm | awk '{print $1}')
-	
 	while IFS=, read -r tag program comment; do
 		n=$((n+1))
-		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && \
-				comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
+		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 		case "$tag" in
-			"") maininstall "$program" "$comment" 		|| echo "$program" >> /home/${name}/failed ;;
-			"A") aurinstall "$program" "$comment" 		|| echo "$program" >> /home/${name}/failed ;;
-			"G") gitmakeinstall "$program" "$comment" 	|| echo "$program" >> /home/${name}/failed ;;
-			"P") pipinstall "$program" "$comment" 		|| echo "$program" >> /home/${name}/failed ;;
+			"")  maininstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"G") gitmakeinstall "$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
 		esac
 	done < /tmp/progs.csv
 }
 
-install_aur_helper() { 
+aur_helper_inst() { 
 	dialog --infobox "Installing \"${aurhelper}\"..." 4 50
 	cd /tmp || exit
 	curl -sO "https://aur.archlinux.org/cgit/aur.git/snapshot/${aurhelper}.tar.gz" &&
@@ -375,39 +345,32 @@ systemd_network() {
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##                 Start                    |||||||||||||||||||||
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-[ ! -d "/sys/firmware/efi" ] && error "Please reboot to UEFI mode. "
-
-pacman --noconfirm -Syyu dialog >/dev/null 2>&1 || error "Check your internet connection?"
-
-gethostname    || error "User exited"
-getuserandpass || error "User exited."
-getrootpass    || error "User exited."
-dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
-
-
+get_dialog		|| error "Check your internet connection?"
+gethostname    	|| error "User exited"
+getuserandpass 	|| error "User exited."
+get_root_pass   || error "User exited."
+confirm_n_go 	|| { clear; exit; }
 set_locale_time
-configure_networking
+config_network
 systemd_boot
 pacman_stuff
 swap_stuff
-disable_beep_sound
+disable_beep
 multilib
-
-create_user || error "Error adding user."					# Creates user with given password.
+create_user 	|| error "Error adding user."
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
-install_aur_helper || error "Failed to install AUR helper." # Requires user.
+aur_helper_inst || error "Failed to install AUR helper." # Requires user.
 installationloop
 clone_dotfiles
 
 sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
-
 [ $hostname = "killua" ] 			&& config_killua
 [ -f /usr/bin/NetworkManager ] 		&& serviceinit NetworkManager || systemd_network
 [ -f /usr/bin/gdm ] 				&& serviceinit gdm
 [ -f /etc/libreoffice/sofficerc ] 	&& sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
-sudo -u "$name" mkdir -p /home/"$name"/.local/
-pacman -Qq > /home/"$name"/.local/Fresh_Install_package_list
+
+sudo -u "$name" mkdir -p /home/"$name"/.local/ && pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
@@ -418,7 +381,7 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/systemctl restart systemd-networkd,\
 /usr/bin/systemctl restart systemd-resolved"
 
-printf "${rootpass1}\\n${rootpass1}" | passwd
-unset rootpass1 rootpass2
+printf "${rpwd1}\\n${rpwd1}" | passwd
+unset rpwd1 rpwd2
 
 dialog --msgbox "Cross your fingers and hope it worked.\\n\\nPress <Enter> to exit window." 0 0
