@@ -73,77 +73,83 @@ configure_hostname() {
 	EOF
 }
 
-get_cpu() {
-	# Asks user to choose between "intel" and "amd" cpu. <Cancel> doen't install any microcode (later).
-	local -i answer
-
-	answer=$(dialog --title "Microcode" --menu "Warning: Cancel to skip microcode installation.
-			Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
-	
-	if [ $answer -eq 1 ]; then
-		cpu="amd"
-	elif [ $answer -eq 2 ]; then
-		cpu="intel"
-	else
-		cpu="nmc"
-	fi
-
-	if [ $cpu = "nmc" ]; then
-
-		dialog  --title "Please Confirm" \
-				--yesno "Are you sure you don't want to install any microcode?" 0 0
-
-	else
-
-		dialog  --title "Please Confirm" \
-				--yesno "Sure you want to install ${cpu}-ucode? (after final confirmation)" 0 0
-
-	fi
-}
-
-listpartnumb(){
-	# All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
-	for i in $(blkid -o list | awk '{print $1}'| grep "^/") ; do
-		local -i n+=1
-		printf " $n $i"
-	done
-}
-
-chooserootpart() {
-	# Note
-	# blkid -s UUID -o value /dev/nvme0n1p2
-
-	# Creates variable `uuidroot`, needed for loader's entry. Only tested non-encrypted partitions.
-	local -i rootpartnumber
-	local rootpart
-
-	# Outputs the number assigned to selected partition
-	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot):" \
-							--menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
-
-	# Exit the process if the user selects <cancel> instead of a partition.
-	if [ $? -eq 1 ]; then
-		error "You didn't select any partition. Exiting..."
-	fi
-
-	# This is the desired partition.
-	rootpart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${rootpartnumber}p)
-
-	# This is the UUID=<number>, neeeded for the systemd-boot entry.
-	uuidroot=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
-	
-	dialog --title "Please Confirm" \
-			--yesno "Are you sure this \"$rootpart - $uuidroot\" is your root partition UUID?" 0 0
-}
+#get_cpu() {
+#	# Asks user to choose between "intel" and "amd" cpu. <Cancel> doen't install any microcode (later).
+#	local -i answer
+#
+#	answer=$(dialog --title "Microcode" --menu "Warning: Cancel to skip microcode installation.
+#			Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
+#	
+#	if [ $answer -eq 1 ]; then
+#		cpu="amd"
+#	elif [ $answer -eq 2 ]; then
+#		cpu="intel"
+#	else
+#		cpu="no"
+#	fi
+#
+#	if [ $cpu = "no" ]; then
+#
+#		dialog  --title "Please Confirm" \
+#				--yesno "Are you sure you don't want to install any microcode?" 0 0
+#
+#	else
+#
+#		dialog  --title "Please Confirm" \
+#				--yesno "Sure you want to install ${cpu}-ucode? (after final confirmation)" 0 0
+#
+#	fi
+#}
+#
+#listpartnumb(){
+#	# All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
+#	for i in $(blkid -o list | awk '{print $1}'| grep "^/") ; do
+#		local -i n+=1
+#		printf " $n $i"
+#	done
+#}
+#
+#chooserootpart() {
+#	# Note
+#	# blkid -s UUID -o value /dev/nvme0n1p2
+#
+#	# Creates variable `uuidroot`, needed for loader's entry. Only tested non-encrypted partitions.
+#	local -i rootpartnumber
+#	local rootpart
+#
+#	# Outputs the number assigned to selected partition
+#	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot):" \
+#							--menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
+#
+#	# Exit the process if the user selects <cancel> instead of a partition.
+#	if [ $? -eq 1 ]; then
+#		error "You didn't select any partition. Exiting..."
+#	fi
+#
+#	# This is the desired partition.
+#	rootpart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${rootpartnumber}p)
+#
+#	# This is the UUID=<number>, neeeded for the systemd-boot entry.
+#	uuidroot=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
+#	
+#	dialog --title "Please Confirm" \
+#			--yesno "Are you sure this \"$rootpart - $uuidroot\" is your root partition UUID?" 0 0
+#}
 
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
 ######   sed for HOOKS="...keyboard encrypt lvm2"   ######
 ######   umkinitcpio -p linux && linux-lts entry?   ######
 
 systemd_boot() {
-	# Installs microcode if the cpu is amd or intel.
-	if [ $cpu != "nmc" ]; then
-		dialog --infobox "Installing ${cpu}-ucode..." 0 0
+
+	case $(lscpu | grep Vendor | awk '{print $3}') in
+		"GenuineIntel") cpu="intel" ;;
+		"AuthenticAMD") cpu="amd" 	;;
+		*)				cpu="no" 	;;
+	esac
+
+	if [ $cpu != "no" ]; then
+		dialog --infobox "Installing ${cpu} microcode." 3 31
 		pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 	fi
 	
@@ -178,7 +184,7 @@ systemd_boot() {
 	# Creates loader entry for root partition, using the "linux" kernel
 						echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
 						echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
-	[ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
+	[ $cpu = "no" ] || 	echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
 						echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
 						echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf
 }
@@ -299,8 +305,7 @@ getuserandpass() {
 adduserandpass() {
 	# Adds user `$name` with password $pass1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
-	useradd -m -g wheel -s /bin/bash "$name" > /dev/null 2>&1 ||
-	usermod -a -G wheel "$name" && mkdir -p /home/"$name" && chown "$name":wheel /home/"$name"
+	useradd -m -g wheel -s /bin/bash "$name" > /dev/null 2>&1
 	echo "$name:$pass1" | chpasswd
 	unset pass1 pass2
 }
@@ -311,15 +316,15 @@ newperms() {
 	chmod 440 /etc/sudoers.d/wheel
 }
 
-putgitrepo() {
-	# Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
-	dialog --infobox "Downloading and installing config files..." 4 60
-	dir=$(mktemp -d)
-	[ ! -d "$2" ] && mkdir -p "$2" && chown -R "$name:wheel" "$2"
-	chown -R "$name:wheel" "$dir"
-	sudo -u "$name" git clone --depth 1 "$1" "$dir/gitrepo" > /dev/null 2>&1 &&
-	sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
-}
+#putgitrepo() {
+#	# Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
+#	dialog --infobox "Downloading and installing config files..." 4 60
+#	dir=$(mktemp -d)
+#	[ ! -d "$2" ] && mkdir -p "$2" && chown -R "$name:wheel" "$2"
+#	chown -R "$name:wheel" "$dir"
+#	sudo -u "$name" git clone --depth 1 "$1" "$dir/gitrepo" > /dev/null 2>&1 &&
+#	sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
+#}
 
 clone_dotfiles() {
 	dialog --infobox "Downloading and installing config files..." 4 60
@@ -405,11 +410,9 @@ install_aur_helper() {
 config_killua() {
 	dialog --infobox "Killua..." 0 0
 	# Temp_Asus_X370_Prime_pro
-	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1 && \
+	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
-	[ -f /etc/systemd/logind.conf ] && \
 	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
-	curl -Ls "$fancontrol" > /etc/fancontrol && serviceinit fancontrol
 }
 
 systemd_network() {
@@ -452,8 +455,7 @@ fi
 
 pacman --noconfirm -Syyu dialog >/dev/null 2>&1 || error "Check your internet connection?"
 
-get_cpu; while [ $? -eq 1 ] ; do get_cpu; done
-
+# get_cpu; while [ $? -eq 1 ] ; do get_cpu; done
 # chooserootpart; while [ $? -eq 1 ] ; do chooserootpart; done
 
 gethostname    || error "User exited"
@@ -500,9 +502,9 @@ clone_dotfiles 								# Install the dotfiles in the user's home directory
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
 # Enable infinality fonts if freetype2 packages is intalled.
-[ -f /etc/profile.d/freetype2.sh ] && \
-sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' \
-				/etc/profile.d/freetype2.sh
+#[ -f /etc/profile.d/freetype2.sh ] && \
+#sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' \
+#				/etc/profile.d/freetype2.sh
 
 dialog --infobox "Removing orphan packages." 0 0
 pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
