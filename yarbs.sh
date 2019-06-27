@@ -236,6 +236,7 @@ clone_dotfiles() {
 	dialog --infobox "Downloading and installing config files..." 4 60
 	cd /home/"$name"
 	echo ".cfg" >> .gitignore
+	rm .bash_profile .bashrc
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
