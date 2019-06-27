@@ -315,9 +315,8 @@ installaurhelper() {
 killuaset() {
 	dialog --infobox "Killua........" 0 0
 	# Temp_Asus_X370_Prime_pro
-	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
-	[ -f /usr/lib/depmod.d/it87.conf ] && \
-	modprobe it87 >/dev/null 2>&1 && echo "it87" > /etc/modules-load.d/it87.conf
+	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1 && \
+	echo "it87" > /etc/modules-load.d/it87.conf
 	[ -f /etc/systemd/logind.conf ] && \
 	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 	curl -Ls "$fancontrol" > /etc/fancontrol && serviceinit fancontrol
