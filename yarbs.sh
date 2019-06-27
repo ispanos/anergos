@@ -62,7 +62,7 @@ set_locale_time() {
 	echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
 }
 
-configure_hostname() {
+configure_networking() {
 	dialog --infobox "Configuring network.." 0 0
 	echo $hostname > /etc/hostname
 	cat > /etc/hosts <<-EOF
@@ -185,9 +185,9 @@ swap_stuff() {
 	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 }
 
-systembeepoff() { 
-	dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
-	rmmod pcspkr && echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+disable_beep_sound() { 
+	dialog --infobox "Disabling 'beep error' sound." 10 50
+	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 }
 
 multilib() { 
@@ -239,7 +239,7 @@ getuserandpass() {
 	done
 }
 
-adduserandpass() {
+create_user() {
 	# Adds user `$name` with password $pass1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
 	useradd -m -g wheel -s /bin/bash "$name" > /dev/null 2>&1
@@ -385,46 +385,29 @@ getrootpass    || error "User exited."
 dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
 
 
-set_locale_time	# Sets locale and timezone.
-
-configure_hostname
-
-systemd_boot 	# Installs systemd-boot bootloader. (for non encrypted drives)
-
-pacman_stuff 	# Clean-up hook, color, candy, all core compilation.
-
-swap_stuff 		# Enables a 2G /swapfile and sets swappiness and cache pressure.
-
+set_locale_time
+configure_networking
+systemd_boot
+pacman_stuff
+swap_stuff
+disable_beep_sound
 multilib
 
-adduserandpass || error "Error adding username and/or password."	# Creates user with given password.
-
-newperms "%wheel ALL=(ALL) NOPASSWD: ALL" 		# Temporarily allows user to run sudo without password.
-
+create_user || error "Error adding user."					# Creates user with given password.
+newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 install_aur_helper || error "Failed to install AUR helper." # Requires user.
-
 installationloop
-
-clone_dotfiles 	# Install the dotfiles in the user's home directory
-
-[ $hostname = "killua" ] && config_killua
-
-[ -f /usr/bin/NetworkManager ] && serviceinit NetworkManager || systemd_network
-
-[ -f /usr/bin/gdm ] && serviceinit gdm 		# If gdm is installed it enables it.
-
-# Disable Libreoffice start-up logo
-[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+clone_dotfiles
 
 sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
 
-dialog --infobox "Removing orphan packages." 0 0
-pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
+[ $hostname = "killua" ] 			&& config_killua
+[ -f /usr/bin/NetworkManager ] 		&& serviceinit NetworkManager || systemd_network
+[ -f /usr/bin/gdm ] 				&& serviceinit gdm
+[ -f /etc/libreoffice/sofficerc ] 	&& sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
 sudo -u "$name" mkdir -p /home/"$name"/.local/
 pacman -Qq > /home/"$name"/.local/Fresh_Install_package_list
-
-systembeepoff
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
