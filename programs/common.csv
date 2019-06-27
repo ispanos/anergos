@@ -1,20 +1,19 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
-A,gtk-theme-minwaita,"is my current gtk theme."
-,imv,"is an image viewer for Wayland and X11."
-,mpv,"is simple video/gif player."
-,gtk-theme-minwaita,"is my theme."
-,galculator,"is a simple GUI calculator."
-,zathura-pdf-poppler,"is a PDF plugin for zathura based on poppler."
-,qt5ct,"is used for theming qt programs."
-,pulseaudio-equalizer,"is an equalizer for pulseaudio."
-,qbittorrent,"is a torrent client."
-A,sublime-text-dev,"is a gtk3 text editor I use. Its not free."
-,playerctl,"provides media control for some mediaplayers."
-A,spotify,"is a music app. Its not free."
-,xarchiver,"is a GUI archive manager used by pcmanfm."
-,pcmanfm-gtk3,"is a simple GUI file manager."
-,gvfs-mtp,"is a virtual filesystem implementation for GIO"
-,gcolor3,"is a gtk3 color picker."
-,libreoffice-fresh,"is an office suit."
-,hunspell-en_US,"is a dicttianery for liberofice"
-,hunspell-el,"is a Gerek dicttianery for liberofice"
+A,gtk-theme-minwaita,is my current gtk theme.
+,imv,is an image viewer for Wayland and X11.
+,mpv,is simple video/gif player.
+,galculator,is a simple GUI calculator.
+,zathura-pdf-poppler,is a PDF plugin for zathura based on poppler.
+,qt5ct,is used for theming qt programs.
+,pulseaudio-equalizer,is an equalizer for pulseaudio.
+,qbittorrent,is a torrent client.
+A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
+,playerctl,provides media control for some mediaplayers.
+A,spotify,is a music app. Its not free.
+,xarchiver,is a GUI archive manager used by pcmanfm.
+,pcmanfm-gtk3,is a simple GUI file manager.
+,gvfs-mtp,is a virtual filesystem implementation for GIO
+,gcolor3,is a gtk3 color picker.
+,libreoffice-fresh,is an office suit.
+,hunspell-en_US,is a dicttianery for liberofice
+,hunspell-el,is a Gerek dicttianery for liberofice
