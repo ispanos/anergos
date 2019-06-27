@@ -94,6 +94,9 @@ listpartnumb(){
 }
 
 chooserootpart() {
+	# Note
+	# blkid -s UUID -o value /dev/nvme0n1p2
+
 	# Creates variable `uuidroot`, needed for loader's entry. Only tested non-encrypted partitions.
 	local -i rootpartnumber
 	local rootpart
@@ -228,6 +231,15 @@ putgitrepo() {
 	sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
 }
 
+clone_dotfiles() {
+	dialog --infobox "Downloading and installing config files..." 4 60
+	cd /home/${name} && (
+	sudo -u "$name" git clone "$dotfilesrepo" /home/${name}/.cfg
+	git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
+	git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
+	)
+}
+
 maininstall() { # Installs all needed programs from main repo.
 	dialog --title "YARBS Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
 	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
@@ -330,10 +342,10 @@ while [ $? -eq 1 ] ; do
 	getcpu  
 done
 
-chooserootpart
-while [ $? -eq 1 ] ; do
-	chooserootpart
-done
+####chooserootpart
+####while [ $? -eq 1 ] ; do
+####	chooserootpart
+####done
 
 gethostname    || error "User exited"
 getuserandpass || error "User exited."
@@ -407,6 +419,9 @@ console-mode max
 editor   no
 EOF
 
+# sets uuidroot as the UUID of the partition mounted at "/".
+uuidroot="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+
 # Creates loader entry for root partition, using the "linux" kernel
 					echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
 					echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
@@ -419,7 +434,7 @@ EOF
 ##########################################################
 ######            PERFORMANCE-TWEAKS                ######
 
-dialog --infobox "Performance tweaks. (pacman/yay, vm.cofigs)" 0 0
+dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
 
 # Creates pacman hook to keep only the 3 latest versions of packages.
 cat > /etc/pacman.d/hooks/cleanup.hook <<EOF
@@ -481,8 +496,9 @@ installaurhelper || error "Failed to install AUR helper."
 # Installs packages in the newly created /tmp/progs.csv file.
 installationloop
 
-# Install the dotfiles in the user's home directory
-putgitrepo "$dotfilesrepo" "/home/$name"
+# # Install the dotfiles in the user's home directory
+# putgitrepo "$dotfilesrepo" "/home/$name"
+clone_dotfiles
 
 # Starts networkmanager if its installed, or uses systemd-networkd
 [ -f /usr/bin/NetworkManager ] && serviceinit NetworkManager || networkdstart
@@ -503,12 +519,13 @@ sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38
 
 # Sets permissions needed for stuff.
 newperms "%wheel ALL=(ALL) ALL
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,\
-/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/pacman -Syu,\
-/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,\
-/usr/bin/systemctl restart NetworkManager,/usr/bin/rc-service NetworkManager restart,\
-/usr/bin/pacman -Syyu --noconfirm,/usr/bin/loadkeys,/usr/bin/yay -Syu,\
-/usr/bin/pacman -Syyuw --noconfirm,/usr/bin/systemctl restart systemd-networkd"
+%wheel ALL=(ALL) NOPASSWD: \
+/usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,\
+/usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
+/usr/bin/pacman -Syu,/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,\
+/usr/bin/systemctl restart NetworkManager,\
+/usr/bin/systemctl restart systemd-networkd,\
+/usr/bin/systemctl restart systemd-resolved,"
 
 dialog --infobox "Removing orphan packages." 0 0
 pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
