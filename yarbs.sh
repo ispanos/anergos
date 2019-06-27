@@ -328,11 +328,12 @@ newperms() {
 
 clone_dotfiles() {
 	dialog --infobox "Downloading and installing config files..." 4 60
-	cd /home/${name} && (
-	sudo -u "$name" git clone "$dotfilesrepo" /home/${name}/.cfg
+	cd /home/"$name"
+	echo ".cfg" >> .gitignore
+	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
-	)
+	rm .gitignore
 }
 
 maininstall() { # Installs all needed programs from main repo.
