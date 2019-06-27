@@ -52,7 +52,7 @@ fi
 
 prog_files="$coreprogs $environment $common $gaming $arglist"
 
-get_dialog() {pacman --noconfirm -Syyu dialog >/dev/null 2>&1 ; }
+get_dialog() { pacman --noconfirm -Syyu dialog >/dev/null 2>&1 ; }
 gethostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
 confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
 
@@ -243,7 +243,7 @@ clone_dotfiles() {
 }
 
 maininstall() { # Installs all needed programs from main repo.
-	dialo --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
+	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
 	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
 }
 
