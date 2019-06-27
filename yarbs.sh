@@ -73,69 +73,6 @@ configure_hostname() {
 	EOF
 }
 
-#get_cpu() {
-#	# Asks user to choose between "intel" and "amd" cpu. <Cancel> doen't install any microcode (later).
-#	local -i answer
-#
-#	answer=$(dialog --title "Microcode" --menu "Warning: Cancel to skip microcode installation.
-#			Choose what cpu microcode to install:" 0 0 0 1 "AMD" 2 "Intel" 3>&1 1>&2 2>&3 3>&1)
-#	
-#	if [ $answer -eq 1 ]; then
-#		cpu="amd"
-#	elif [ $answer -eq 2 ]; then
-#		cpu="intel"
-#	else
-#		cpu="no"
-#	fi
-#
-#	if [ $cpu = "no" ]; then
-#
-#		dialog  --title "Please Confirm" \
-#				--yesno "Are you sure you don't want to install any microcode?" 0 0
-#
-#	else
-#
-#		dialog  --title "Please Confirm" \
-#				--yesno "Sure you want to install ${cpu}-ucode? (after final confirmation)" 0 0
-#
-#	fi
-#}
-#
-#listpartnumb(){
-#	# All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
-#	for i in $(blkid -o list | awk '{print $1}'| grep "^/") ; do
-#		local -i n+=1
-#		printf " $n $i"
-#	done
-#}
-#
-#chooserootpart() {
-#	# Note
-#	# blkid -s UUID -o value /dev/nvme0n1p2
-#
-#	# Creates variable `uuidroot`, needed for loader's entry. Only tested non-encrypted partitions.
-#	local -i rootpartnumber
-#	local rootpart
-#
-#	# Outputs the number assigned to selected partition
-#	rootpartnumber=$(dialog --title "Please select your root partition (UUID needed for systemd-boot):" \
-#							--menu "$(lsblk) " 0 0 0 $(listpartnumb) 3>&1 1>&2 2>&3 3>&1)
-#
-#	# Exit the process if the user selects <cancel> instead of a partition.
-#	if [ $? -eq 1 ]; then
-#		error "You didn't select any partition. Exiting..."
-#	fi
-#
-#	# This is the desired partition.
-#	rootpart=$( blkid -o list | awk '{print $1}'| grep "^/" | tr ' ' '\n' | sed -n ${rootpartnumber}p)
-#
-#	# This is the UUID=<number>, neeeded for the systemd-boot entry.
-#	uuidroot=$( blkid $rootpart | tr " " "\n" | grep "^UUID" | tr -d '"' )
-#	
-#	dialog --title "Please Confirm" \
-#			--yesno "Are you sure this \"$rootpart - $uuidroot\" is your root partition UUID?" 0 0
-#}
-
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
 ######   sed for HOOKS="...keyboard encrypt lvm2"   ######
 ######   umkinitcpio -p linux && linux-lts entry?   ######
@@ -316,23 +253,14 @@ newperms() {
 	chmod 440 /etc/sudoers.d/wheel
 }
 
-#putgitrepo() {
-#	# Downlods a gitrepo $1 and places the files in $2 only overwriting conflicts
-#	dialog --infobox "Downloading and installing config files..." 4 60
-#	dir=$(mktemp -d)
-#	[ ! -d "$2" ] && mkdir -p "$2" && chown -R "$name:wheel" "$2"
-#	chown -R "$name:wheel" "$dir"
-#	sudo -u "$name" git clone --depth 1 "$1" "$dir/gitrepo" > /dev/null 2>&1 &&
-#	sudo -u "$name" cp -rfT "$dir/gitrepo" "$2"
-#}
-
 clone_dotfiles() {
 	dialog --infobox "Downloading and installing config files..." 4 60
 	cd /home/"$name"
 	echo ".cfg" >> .gitignore
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
-	git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
-	git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
+						--local status.showUntrackedFiles no
 	rm .gitignore
 }
 
@@ -391,10 +319,10 @@ installationloop() {
 		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && \
 				comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 		case "$tag" in
-			"") maininstall "$program" "$comment" ;;
-			"A") aurinstall "$program" "$comment" ;;
-			"G") gitmakeinstall "$program" "$comment" ;;
-			"P") pipinstall "$program" "$comment" ;;
+			"") maininstall "$program" "$comment" 		|| echo "$program" >> /home/${name}/failed ;;
+			"A") aurinstall "$program" "$comment" 		|| echo "$program" >> /home/${name}/failed ;;
+			"G") gitmakeinstall "$program" "$comment" 	|| echo "$program" >> /home/${name}/failed ;;
+			"P") pipinstall "$program" "$comment" 		|| echo "$program" >> /home/${name}/failed ;;
 		esac
 	done < /tmp/progs.csv
 }
@@ -418,9 +346,6 @@ config_killua() {
 
 systemd_network() {
 	# Starts networkd as a network manager and configures ethernet.
-	#networkctl | \
-	#awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
-	#													> /etc/systemd/network/20-wired.network
 	cat > /etc/systemd/network/en.network <<-EOF
 		[Match]
 		Name=en*
@@ -446,16 +371,13 @@ systemd_network() {
 	serviceinit systemd-networkd systemd-resolved
 }
 
-
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-######                    Inputs                    ||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+##                 Start                    |||||||||||||||||||||
+##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 [ ! -d "/sys/firmware/efi" ] && error "Please reboot to UEFI mode. "
 
 pacman --noconfirm -Syyu dialog >/dev/null 2>&1 || error "Check your internet connection?"
-
-# get_cpu; while [ $? -eq 1 ] ; do get_cpu; done
-# chooserootpart; while [ $? -eq 1 ] ; do chooserootpart; done
 
 gethostname    || error "User exited"
 getuserandpass || error "User exited."
@@ -463,12 +385,7 @@ getrootpass    || error "User exited."
 dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
 
 
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||                     Auto                     ||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
-# Sets locale and timezone.
-set_locale_time
+set_locale_time	# Sets locale and timezone.
 
 configure_hostname
 
@@ -488,8 +405,7 @@ install_aur_helper || error "Failed to install AUR helper." # Requires user.
 
 installationloop
 
-#putgitrepo "$dotfilesrepo" "/home/$name" 	# Install the dotfiles in the user's home directory
-clone_dotfiles 								# Install the dotfiles in the user's home directory
+clone_dotfiles 	# Install the dotfiles in the user's home directory
 
 [ $hostname = "killua" ] && config_killua
 
@@ -500,15 +416,12 @@ clone_dotfiles 								# Install the dotfiles in the user's home directory
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
-# Enable infinality fonts if freetype2 packages is intalled.
-#[ -f /etc/profile.d/freetype2.sh ] && \
-#sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' \
-#				/etc/profile.d/freetype2.sh
+sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
 
 dialog --infobox "Removing orphan packages." 0 0
 pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 
-mkdir -p /home/"$name"/.local/
+sudo -u "$name" mkdir -p /home/"$name"/.local/
 pacman -Qq > /home/"$name"/.local/Fresh_Install_package_list
 
 systembeepoff
