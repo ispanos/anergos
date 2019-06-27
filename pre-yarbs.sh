@@ -3,6 +3,29 @@
 # On github:
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
 # bash pre-yarbs.sh
+
+
+##cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
+##curl -L "MIRRORS" > /etc/pacman.d/mirrorlist
+mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
+
+cat > /etc/pacman.d/mirrorlist <<EOF
+##
+## Arch Linux repository mirrorlist
+## Generated on 2019-06-27
+##
+
+## Greece
+Server = http://foss.aueb.gr/mirrors/linux/archlinux/$repo/os/$arch
+Server = https://foss.aueb.gr/mirrors/linux/archlinux/$repo/os/$arch
+Server = http://ftp.ntua.gr/pub/linux/archlinux/$repo/os/$arch
+Server = http://ftp.otenet.gr/linux/archlinux/$repo/os/$arch
+Server = http://ftp.cc.uoc.gr/mirrors/linux/archlinux/$repo/os/$arch
+
+EOF
+
+cat /etc/pacman.d/mirrorlist.back >> /etc/pacman.d/mirrorlist
+
 pacman -Syy
 pacman -S --needed --noconfirm dialog termite-terminfo
 timedatectl set-ntp true
@@ -20,9 +43,7 @@ list_hard_drives(){
 }
 
 hard_drive_num=$(dialog --title "Select your Hard-drive" --menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
-
 HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
-
 ESP_path="/boot"
 clear
 
@@ -47,26 +68,15 @@ t
 w
 EOF
 
-if [[ $HARD_DRIVE == *"nvme"* ]]; then
-	HARD_DRIVE="${HARD_DRIVE}p"
-fi
+if [[ $HARD_DRIVE == *"nvme"* ]]; then HARD_DRIVE="${HARD_DRIVE}p"; fi
 
 yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
 yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}2
-
 mount ${HARD_DRIVE}2 /mnt
-
 mkdir -p /mnt${ESP_path}
 mount ${HARD_DRIVE}1 /mnt${ESP_path}
-
-##cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-##curl -L "MIRRORS" > /etc/pacman.d/mirrorlist
-
 pacstrap /mnt base base-devel git termite-terminfo linux-headers
-
-# Capture Warnings?
 genfstab -U /mnt >> /mnt/etc/fstab
-
 koulis="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
 
 
