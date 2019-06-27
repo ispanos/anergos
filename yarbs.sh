@@ -449,9 +449,7 @@ systemd_network() {
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ######                    Inputs                    ||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-if [ ! -d "/sys/firmware/efi" ]; then
-	error "Please reboot to UEFI mode. "
-fi
+[ ! -d "/sys/firmware/efi" ] && error "Please reboot to UEFI mode. "
 
 pacman --noconfirm -Syyu dialog >/dev/null 2>&1 || error "Check your internet connection?"
 
