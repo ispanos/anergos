@@ -4,33 +4,9 @@
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
 # bash pre-yarbs.sh
 
-
-##cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.backup
-##curl -L "MIRRORS" > /etc/pacman.d/mirrorlist
-mv /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.back
-
-cat > /etc/pacman.d/mirrorlist <<EOF
-##
-## Arch Linux repository mirrorlist
-## Generated on 2019-06-27
-##
-
-## Greece
-Server = http://foss.aueb.gr/mirrors/linux/archlinux/$repo/os/$arch
-Server = https://foss.aueb.gr/mirrors/linux/archlinux/$repo/os/$arch
-Server = http://ftp.ntua.gr/pub/linux/archlinux/$repo/os/$arch
-Server = http://ftp.otenet.gr/linux/archlinux/$repo/os/$arch
-Server = http://ftp.cc.uoc.gr/mirrors/linux/archlinux/$repo/os/$arch
-
-EOF
-
-cat /etc/pacman.d/mirrorlist.back >> /etc/pacman.d/mirrorlist
-
 pacman -Syy
-pacman -S --needed --noconfirm dialog termite-terminfo
+pacman -S --needed --noconfirm dialog
 timedatectl set-ntp true
-
-
 
 drive_list_vert=$(/usr/bin/ls -1 /dev | grep "sd.$" && /usr/bin/ls -1 /dev | grep "nvme.*$" | grep -v "p.$")
 
@@ -85,9 +61,9 @@ koulis="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c3
 # option -d <link> 		        Sets dotfilesrepo
 # option -p <link>				Sets $arglist, for addtitional list of packages.
 
-curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/yarbs.sh && \
-arch-chroot /mnt bash yarbs.sh && \
-rm /mnt/yarbs.sh || \
-printf "\\n\\n\\n\\n\\n\\n\\n\\nsomething went wrong."
+curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/yarbs.sh 
+arch-chroot /mnt bash yarbs.sh
+rm /mnt/yarbs.sh || printf "\\n\\n\\n\\n\\n\\n\\n\\nsomething went wrong."
 
-dialog --defaultno --yesno "Reboot computer?"  5 30 && reboot
+dialog --yesno "Reboot computer?"  5 30 && reboot
+dialog --yesno "Return to chroot environment?" 6 30 && arch-chroot /mnt
