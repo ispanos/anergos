@@ -21,7 +21,7 @@ gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-n
 fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
 
 # Defaults. Can be changed with arguemnts: -m [false] -e [gnome,i3,sway] -d [<link>,<filepath>]
-MULTILIB="true"
+multi_lib_bool="true"
 environment_arg="i3"
 arglist=""
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
@@ -29,7 +29,7 @@ dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 
 while getopts ":m:e:d:p:" option; do 
 	case "${option}" in
-		m) MULTILIB=${OPTARG} ;;
+		m) multi_lib_bool=${OPTARG} ;;
 		e) environment_arg=${OPTARG} ;;
 		d) dotfilesrepo=${OPTARG} ;;
 		p) arglist=${OPTARG} ;;
@@ -52,12 +52,28 @@ fi
 
 prog_files="$coreprogs $environment $common $gaming $arglist"
 
+set_locale_time() {
+	dialog --infobox "Locale and time-sync..." 0 0
+	serviceinit systemd-timesyncd.service
+	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
+	hwclock --systohc
+	sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+	locale-gen > /dev/null 2>&1
+	echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
+}
 
+configure_hostname() {
+	dialog --infobox "Configuring network.." 0 0
+	echo $hostname > /etc/hostname
+	cat > /etc/hosts <<-EOF
+		#<ip-address>   <hostname.domain.org>    <hostname>
+		127.0.0.1       localhost.localdomain    localhost
+		::1             localhost.localdomain    localhost
+		127.0.1.1       ${hostname}.localdomain  $hostname
+	EOF
+}
 
-##########################################################################################################
-######             SYSTEMD-BOOT set-up              ######################################################
-
-getcpu() {
+get_cpu() {
 	# Asks user to choose between "intel" and "amd" cpu. <Cancel> doen't install any microcode (later).
 	local -i answer
 
@@ -120,12 +136,52 @@ chooserootpart() {
 			--yesno "Are you sure this \"$rootpart - $uuidroot\" is your root partition UUID?" 0 0
 }
 
-######               SYSTEMD-BOOT END               ######
-##########################################################
+######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
+######   sed for HOOKS="...keyboard encrypt lvm2"   ######
+######   umkinitcpio -p linux && linux-lts entry?   ######
 
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||             System wide configs              ||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+systemd_boot() {
+	# Installs microcode if the cpu is amd or intel.
+	if [ $cpu != "nmc" ]; then
+		dialog --infobox "Installing ${cpu}-ucode..." 0 0
+		pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
+	fi
+	
+	# Installs systemd-boot to the eps partition
+	dialog --infobox "Setting-up systemd-boot" 0 0
+	bootctl --path=/boot install
+	 
+	# Creates pacman hook to update systemd-boot after package upgrade.
+	mkdir -p /etc/pacman.d/hooks
+	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
+		[Trigger]
+		Type = Package
+		Operation = Upgrade
+		Target = systemd
+		
+		[Action]
+		Description = Updating systemd-boot
+		When = PostTransaction
+		Exec = /usr/bin/bootctl update
+	EOF
+	 
+	# Creates loader.conf. Stored in files/ folder on repo.
+	cat > /boot/loader/loader.conf <<-EOF
+		default  arch
+		console-mode max
+		editor   no
+	EOF
+	
+	# sets uuidroot as the UUID of the partition mounted at "/".
+	uuidroot="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+	
+	# Creates loader entry for root partition, using the "linux" kernel
+						echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
+						echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
+	[ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
+						echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
+						echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf
+}
 
 serviceinit() { 
 	for service in "$@"; do
@@ -147,13 +203,53 @@ gethostname() {
 	done
 }
 
+pacman_stuff() {
+	dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
+	
+	# Creates pacman hook to keep only the 3 latest versions of packages.
+	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
+		[Trigger]
+		Type = Package
+		Operation = Remove
+		Operation = Install
+		Operation = Upgrade
+		Target = *
+		
+		[Action]
+		Description = Keeps only the latest 3 versions of packages
+		When = PostTransaction
+		Exec = /usr/bin/paccache -rk3
+	EOF
+	
+	# Make pacman and yay colorful and adds eye candy on the progress bar because why not.
+	grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
+	grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
+	
+	# Use all cores for compilation.
+	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+}
+
+swap_stuff() {
+	dialog --infobox "Creating swapfile" 0 0
+	fallocate -l 2G /swapfile
+	chmod 600 /swapfile
+	mkswap /swapfile
+	swapon /swapfile
+	printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
+	
+	# Sets swappiness and cache pressure for better performance.
+	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
+	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
+}
+
 systembeepoff() { 
 	dialog --infobox "Getting rid of that retarded error beep sound..." 10 50
 	rmmod pcspkr && echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 }
 
-enablemultilib() {
-	if [ "$MULTILIB" = "true" ]; then
+multilib() { 
+	# Enables multilib unless argument "-m false" was set when running yarbs.
+	if [ "$multi_lib_bool" = "true" ]; then
 		dialog --infobox "Enabling multilib..." 0 0
 		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
 		pacman --noconfirm --needed -Sy >/dev/null 2>&1
@@ -175,12 +271,6 @@ getrootpass() {
 
 	done
 }
-
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||                 User set-up                  ||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-
-
 
 getuserandpass() {
 	# Prompts user for new username an password.
@@ -286,7 +376,7 @@ mergeprogsfiles() {
 
 installationloop() {
 	mergeprogsfiles 
-
+	pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
 	total=$(wc -l < /tmp/progs.csv)
 	aurinstalled=$(pacman -Qm | awk '{print $1}')
 	
@@ -303,7 +393,7 @@ installationloop() {
 	done < /tmp/progs.csv
 }
 
-installaurhelper() { 
+install_aur_helper() { 
 	dialog --infobox "Installing \"${aurhelper}\"..." 4 50
 	cd /tmp || exit
 	curl -sO "https://aur.archlinux.org/cgit/aur.git/snapshot/${aurhelper}.tar.gz" &&
@@ -312,8 +402,8 @@ installaurhelper() {
 	cd /tmp || return
 }
 
-killuaset() {
-	dialog --infobox "Killua........" 0 0
+config_killua() {
+	dialog --infobox "Killua..." 0 0
 	# Temp_Asus_X370_Prime_pro
 	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1 && \
 	echo "it87" > /etc/modules-load.d/it87.conf
@@ -322,11 +412,33 @@ killuaset() {
 	curl -Ls "$fancontrol" > /etc/fancontrol && serviceinit fancontrol
 }
 
-networkdstart() {
+systemd_network() {
 	# Starts networkd as a network manager and configures ethernet.
-	networkctl | \
-	awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
-														> /etc/systemd/network/20-wired.network
+	#networkctl | \
+	#awk '/ether/ {print "[Match]\nName="$2"\n\n[Network]\nDHCP=ipv4\n\n[DHCP]\nRouteMetric=10"}' \
+	#													> /etc/systemd/network/20-wired.network
+	cat > /etc/systemd/network/en.network <<-EOF
+		[Match]
+		Name=en*
+		
+		[Network]
+		DHCP=ipv4
+		
+		[DHCP]
+		RouteMetric=10
+	EOF
+
+	cat > /etc/systemd/network/wl.network <<-EOF
+		[Match]
+		Name=wl*
+		
+		[Network]
+		DHCP=ipv4
+		
+		[DHCP]
+		RouteMetric=20
+	EOF
+
 	serviceinit systemd-networkd systemd-resolved
 }
 
@@ -334,17 +446,15 @@ networkdstart() {
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ######                    Inputs                    ||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+if [ ! -d "/sys/firmware/efi" ]; then
+	error "Please reboot to UEFI mode. "
+fi
+
 pacman --noconfirm -Syyu dialog >/dev/null 2>&1 || error "Check your internet connection?"
 
-getcpu
-while [ $? -eq 1 ] ; do
-	getcpu  
-done
+get_cpu; while [ $? -eq 1 ] ; do get_cpu; done
 
-####chooserootpart
-####while [ $? -eq 1 ] ; do
-####	chooserootpart
-####done
+# chooserootpart; while [ $? -eq 1 ] ; do chooserootpart; done
 
 gethostname    || error "User exited"
 getuserandpass || error "User exited."
@@ -352,158 +462,39 @@ getrootpass    || error "User exited."
 dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || { clear; exit; }
 
 
-
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##||||                     Auto                     ||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##||||             System wide config               |||###
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
 
+# Sets locale and timezone.
+set_locale_time
 
-if [ ! -d "/sys/firmware/efi" ]; then
-	error "Please reboot to UEFI mode. "
-fi
+configure_hostname
 
-dialog --infobox "Locale and time-sync..." 0 0
-serviceinit systemd-timesyncd.service
-ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
-hwclock --systohc
-sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen && locale-gen > /dev/null 2>&1
-echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
+systemd_boot 	# Installs systemd-boot bootloader. (for non encrypted drives)
 
-dialog --infobox "Configuring network.." 0 0
-echo $hostname > /etc/hostname
-cat > /etc/hosts <<EOF
-#<ip-address>   <hostname.domain.org>    <hostname>
-127.0.0.1       localhost.localdomain    localhost
-::1             localhost.localdomain    localhost
-127.0.1.1       ${hostname}.localdomain  $hostname
-EOF
+pacman_stuff 	# Clean-up hook, color, candy, all core compilation.
 
+swap_stuff 		# Enables a 2G /swapfile and sets swappiness and cache pressure.
 
-##########################################################
-######             SYSTEMD-BOOT set-up              ######
-######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
-######   sed for HOOKS="...keyboard encrypt lvm2"   ######
-######   umkinitcpio -p linux && linux-lts entry?   ######
+multilib
 
-# Installs microcode if the cpu is amd or intel.
-if [ $cpu != "nmc" ]; then
-	dialog --infobox "Installing ${cpu}-ucode..." 0 0
-	pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
-fi
+adduserandpass || error "Error adding username and/or password."	# Creates user with given password.
 
-# Installs systemd-boot to the eps partition
-dialog --infobox "Setting-up systemd-boot" 0 0
-bootctl --path=/boot install
- 
-# Creates pacman hook to update systemd-boot after package upgrade.
-mkdir -p /etc/pacman.d/hooks
-cat > /etc/pacman.d/hooks/bootctl-update.hook <<EOF
-[Trigger]
-Type = Package
-Operation = Upgrade
-Target = systemd
+newperms "%wheel ALL=(ALL) NOPASSWD: ALL" 		# Temporarily allows user to run sudo without password.
 
-[Action]
-Description = Updating systemd-boot
-When = PostTransaction
-Exec = /usr/bin/bootctl update
-EOF
- 
-# Creates loader.conf. Stored in files/ folder on repo.
-cat > /boot/loader/loader.conf <<EOF
-default  arch
-console-mode max
-editor   no
-EOF
+install_aur_helper || error "Failed to install AUR helper." # Requires user.
 
-# sets uuidroot as the UUID of the partition mounted at "/".
-uuidroot="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
-
-# Creates loader entry for root partition, using the "linux" kernel
-					echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
-					echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
-[ $cpu = "nmc" ] || echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
-					echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
-					echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf
-
-
-
-##########################################################
-######            PERFORMANCE-TWEAKS                ######
-
-dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
-
-# Creates pacman hook to keep only the 3 latest versions of packages.
-cat > /etc/pacman.d/hooks/cleanup.hook <<EOF
-[Trigger]
-Type = Package
-Operation = Remove
-Operation = Install
-Operation = Upgrade
-Target = *
-
-[Action]
-Description = Keeps only the latest 3 versions of packages
-When = PostTransaction
-Exec = /usr/bin/paccache -rk3
-EOF
-
-# Make pacman and yay colorful and adds eye candy on the progress bar because why not.
-grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
-grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
-
-# Use all cores for compilation.
-sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-
-
-dialog --infobox "Creating swapfile" 0 0
-fallocate -l 2G /swapfile
-chmod 600 /swapfile
-mkswap /swapfile
-swapon /swapfile
-printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
-
-# Sets swappiness and cache pressure for better performance.
-echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
-echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
-
-# Installs basedevel and git, disables the beep sound.
-dialog --title "Installation" --infobox "Installing \`basedevel\` and \`git\` ..." 5 70
-pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
-
-# Enables multilib unless argument "-m false" was set when running yarbs.
-enablemultilib
-systembeepoff
-
-
-
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
-##||||                 User set-up                  |||###
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||###
-
-# Creates user with given password
-adduserandpass || error "Error adding username and/or password."
-
-# Temporarily allows user to run sudo without password.
-newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
-
-# Installs $aurhelper. Requires user.
-installaurhelper || error "Failed to install AUR helper."
-
-# Installs packages in the newly created /tmp/progs.csv file.
 installationloop
 
-# # Install the dotfiles in the user's home directory
-# putgitrepo "$dotfilesrepo" "/home/$name"
-clone_dotfiles
+#putgitrepo "$dotfilesrepo" "/home/$name" 	# Install the dotfiles in the user's home directory
+clone_dotfiles 								# Install the dotfiles in the user's home directory
 
-# Starts networkmanager if its installed, or uses systemd-networkd
-[ -f /usr/bin/NetworkManager ] && serviceinit NetworkManager || networkdstart
+[ $hostname = "killua" ] && config_killua
 
-# If gdm is installed it enables it.
-[ -f /usr/bin/gdm ] && serviceinit gdm
+[ -f /usr/bin/NetworkManager ] && serviceinit NetworkManager || systemd_network
+
+[ -f /usr/bin/gdm ] && serviceinit gdm 		# If gdm is installed it enables it.
 
 # Disable Libreoffice start-up logo
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
@@ -513,10 +504,14 @@ clone_dotfiles
 sed -i 's/.*export.*/export FREETYPE_PROPERTIES="truetype:interpreter-version=38"/g' \
 				/etc/profile.d/freetype2.sh
 
-# Killua config, if hostname is killua. Requires $aurhelper.
-[ $hostname = "killua" ] && killuaset
+dialog --infobox "Removing orphan packages." 0 0
+pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 
-# Sets permissions needed for stuff.
+mkdir -p /home/"$name"/.local/
+pacman -Qq > /home/"$name"/.local/Fresh_Install_package_list
+
+systembeepoff
+
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
 /usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,\
@@ -524,13 +519,7 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/pacman -Syu,/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,\
 /usr/bin/systemctl restart NetworkManager,\
 /usr/bin/systemctl restart systemd-networkd,\
-/usr/bin/systemctl restart systemd-resolved,"
-
-dialog --infobox "Removing orphan packages." 0 0
-pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
-
-mkdir -p /home/"$name"/.local/
-pacman -Qq > /home/"$name"/.local/Fresh_Install_package_list
+/usr/bin/systemctl restart systemd-resolved"
 
 printf "${rootpass1}\\n${rootpass1}" | passwd
 unset rootpass1 rootpass2
