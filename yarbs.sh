@@ -53,10 +53,10 @@ fi
 prog_files="$coreprogs $environment $common $gaming $arglist"
 
 get_dialog() { pacman --noconfirm -Syyu dialog >/dev/null 2>&1 ; }
-gethostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
+get_hostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
 confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
 
-getuserandpass() {
+get_userandpass() {
 	# Prompts user for new username an password.
 	name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
 
@@ -308,14 +308,15 @@ aur_helper_inst() {
 }
 
 config_killua() {
+	[ $hostname = "killua" ] && (
 	dialog --infobox "Killua..." 0 0
 	# Temp_Asus_X370_Prime_pro
 	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
-	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
+	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf )
 }
 
-systemd_network() {
+networkd_init() {
 	# Starts networkd as a network manager and configures ethernet.
 	cat > /etc/systemd/network/en.network <<-EOF
 		[Match]
@@ -342,13 +343,34 @@ systemd_network() {
 	serviceinit systemd-networkd systemd-resolved
 }
 
+create_pack_ref() {
+	dialog --infobox "Removing orphans..." 0 0
+	pacman --noconfirm -Rns $(pacman -Qtdq)
+	sudo -u "$name" mkdir -p /home/"$name"/.local/ 
+	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
+}
+
+init_net_manage() {
+	if [ -f /usr/bin/NetworkManager ]; then
+		serviceinit NetworkManager
+	else
+		networkd_init
+	fi
+}
+
+final_sys_settigs() {
+	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
+	[ -f /usr/bin/gdm ] && serviceinit gdm
+	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+}
+
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##                 Start                    |||||||||||||||||||||
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 get_dialog		|| error "Check your internet connection?"
-gethostname    	|| error "User exited"
-getuserandpass 	|| error "User exited."
+get_hostname    || error "User exited"
+get_userandpass || error "User exited."
 get_root_pass   || error "User exited."
 confirm_n_go 	|| { clear; exit; }
 set_locale_time
@@ -363,15 +385,10 @@ newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 aur_helper_inst || error "Failed to install AUR helper." # Requires user.
 installationloop
 clone_dotfiles
-
-sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
-[ $hostname = "killua" ] 			&& config_killua
-[ -f /usr/bin/NetworkManager ] 		&& serviceinit NetworkManager || systemd_network
-[ -f /usr/bin/gdm ] 				&& serviceinit gdm
-[ -f /etc/libreoffice/sofficerc ] 	&& sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-
-
-sudo -u "$name" mkdir -p /home/"$name"/.local/ && pacman -Qq > /home/"$name"/.local/Fresh_pack_list
+config_killua
+init_net_manage
+create_pack_ref
+final_sys_settigs
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
