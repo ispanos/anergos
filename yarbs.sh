@@ -8,17 +8,12 @@ error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 timezone="Europe/Athens"
 aurhelper="yay"
 
-
 coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
 common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.csv"
 i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
 gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-nvidia.csv"
-
-
-# Killua fancntrol settings.
-fancontrol="https://raw.githubusercontent.com/ispanos/YARBS/master/files/fancontrol"
 
 # Defaults. Can be changed with arguemnts: -m [false] -e [gnome,i3,sway] -d [<link>,<filepath>]
 multi_lib_bool="true"
@@ -307,13 +302,49 @@ aur_helper_inst() {
 	cd /tmp || return
 }
 
+enable_numlk_tty() {
+	cat > /usr/local/bin/numlock <<-EOF
+		#!/bin/bash
+		# /usr/local/bin/numlock
+		# /etc/systemd/system/numlock.service
+		for tty in /dev/tty{1..6}
+		do
+		    /usr/bin/setleds -D +num < "$tty";
+		done
+	EOF
+
+	cat > /etc/systemd/system/numlock.service <<-EOF
+		[Unit]
+		Description=numlock
+		
+		[Service]
+		ExecStart=/usr/local/bin/numlock
+		StandardInput=tty
+		RemainAfterExit=yes
+		
+		[Install]
+		WantedBy=multi-user.target
+	EOF
+
+	serviceinit numlock
+}
+
 config_killua() {
 	[ $hostname = "killua" ] && (
+	enable_numlk_tty
 	dialog --infobox "Killua..." 0 0
 	# Temp_Asus_X370_Prime_pro
 	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
-	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf )
+	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
+	
+	cat > /etc/resolv.conf <<-EOF
+		# Resolver configuration file.
+		# See resolv.conf(5) for details.
+		search home
+		nameserver 192.168.1.1
+	EOF
+	)
 }
 
 networkd_init() {
@@ -343,6 +374,11 @@ networkd_init() {
 	serviceinit systemd-networkd systemd-resolved
 }
 
+set_root_pw() {
+	printf "${rpwd1}\\n${rpwd1}" | passwd
+	unset rpwd1 rpwd2
+}
+
 create_pack_ref() {
 	dialog --infobox "Removing orphans..." 0 0
 	pacman --noconfirm -Rns $(pacman -Qtdq)
@@ -364,7 +400,6 @@ final_sys_settigs() {
 	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 }
 
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##                 Start                    |||||||||||||||||||||
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
@@ -389,6 +424,7 @@ config_killua
 init_net_manage
 create_pack_ref
 final_sys_settigs
+set_root_pw
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
@@ -398,8 +434,3 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/systemctl restart NetworkManager,\
 /usr/bin/systemctl restart systemd-networkd,\
 /usr/bin/systemctl restart systemd-resolved"
-
-printf "${rpwd1}\\n${rpwd1}" | passwd
-unset rpwd1 rpwd2
-
-dialog --msgbox "Cross your fingers and hope it worked.\\n\\nPress <Enter> to exit window." 0 0
