@@ -329,9 +329,31 @@ enable_numlk_tty() {
 	serviceinit numlock
 }
 
+i3_lock_sleep() {
+	cat > /etc/systemd/system/SleepLocki3@yiannis.service <<-EOF
+	#/etc/systemd/system/
+	[Unit]
+	Description=Turning i3lock on before sleep
+	Before=sleep.target
+	
+	[Service]
+	User=%I
+	Type=forking
+	Environment=DISPLAY=:0
+	ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/yiannis/.config/wall.png -t
+	ExecStartPost=/usr/bin/sleep 1
+	
+	[Install]
+	WantedBy=sleep.target
+	EOF
+
+	serviceinit SleepLocki3@yiannis
+}
+
 config_killua() {
 	[ $hostname = "killua" ] && (
 	enable_numlk_tty
+	i3_lock_sleep
 	dialog --infobox "Killua..." 0 0
 	# Temp_Asus_X370_Prime_pro
 	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
