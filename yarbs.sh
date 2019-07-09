@@ -231,7 +231,7 @@ clone_dotfiles() {
 	dialog --infobox "Downloading and installing config files..." 4 60
 	cd /home/"$name"
 	echo ".cfg" >> .gitignore
-	rm .bash_profile .bashrc
+	rm .bash_profile .bashrc .xinitrc
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
@@ -331,20 +331,20 @@ enable_numlk_tty() {
 
 i3_lock_sleep() {
 	cat > /etc/systemd/system/SleepLocki3@yiannis.service <<-EOF
-	#/etc/systemd/system/
-	[Unit]
-	Description=Turning i3lock on before sleep
-	Before=sleep.target
-	
-	[Service]
-	User=%I
-	Type=forking
-	Environment=DISPLAY=:0
-	ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/yiannis/.config/wall.png -t
-	ExecStartPost=/usr/bin/sleep 1
-	
-	[Install]
-	WantedBy=sleep.target
+		#/etc/systemd/system/
+		[Unit]
+		Description=Turning i3lock on before sleep
+		Before=sleep.target
+		
+		[Service]
+		User=%I
+		Type=forking
+		Environment=DISPLAY=:0
+		ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/yiannis/.config/wall.png -t
+		ExecStartPost=/usr/bin/sleep 1
+		
+		[Install]
+		WantedBy=sleep.target
 	EOF
 
 	serviceinit SleepLocki3@yiannis
