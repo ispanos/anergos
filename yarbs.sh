@@ -47,7 +47,16 @@ fi
 
 prog_files="$coreprogs $environment $common $gaming $arglist"
 
-get_dialog() { pacman --noconfirm -Syyu dialog >/dev/null 2>&1 ; }
+get_dialog() {
+	echo "Installing dialog, to make things look better..."
+	pacman --noconfirm -Syyu dialog >/dev/null 2>&1
+}
+
+get_deps() {
+	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
+	pacman --noconfirm --needed linux-headers git base-devel >/dev/null 2>&1
+}
+
 get_hostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
 confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
 
@@ -60,24 +69,24 @@ get_userandpass() {
 	done
 
 	upwd1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
-	upwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	upwd2=$(dialog --no-cancel --passwordbox "Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
 	
 	while ! [ "$upwd1" = "$upwd2" ]; do
 		unset upwd2
-		upwd1=$(dialog --no-cancel --passwordbox "Try again, passwords didn't match." 10 60 3>&1 1>&2 2>&3 3>&1)
-		upwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		upwd1=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		upwd2=$(dialog --no-cancel --passwordbox "Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
 	done
 }
 
 get_root_pass() {
 	# Prompts user for new username an password.
-	rpwd1=$(dialog --no-cancel --passwordbox "Enter a root's password." 10 60 3>&1 1>&2 2>&3 3>&1)
-	rpwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	rpwd1=$(dialog --no-cancel --passwordbox "Enter root user's password." 10 60 3>&1 1>&2 2>&3 3>&1)
+	rpwd2=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
 	
 	while ! [ "$rpwd1" = "$rpwd2" ]; do
 		unset rpwd2
-		rpwd1=$(dialog --no-cancel --passwordbox "Try again, passwords didn't match." 10 60 3>&1 1>&2 2>&3 3>&1)
-		rpwd2=$(dialog --no-cancel --passwordbox "Retype password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		rpwd1=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		rpwd2=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
 	done
 }
 
@@ -89,17 +98,6 @@ set_locale_time() {
 	sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
 	locale-gen > /dev/null 2>&1
 	echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
-}
-
-config_network() {
-	dialog --infobox "Configuring network.." 0 0
-	echo $hostname > /etc/hostname
-	cat > /etc/hosts <<-EOF
-		#<ip-address>   <hostname.domain.org>    <hostname>
-		127.0.0.1       localhost.localdomain    localhost
-		::1             localhost.localdomain    localhost
-		127.0.1.1       ${hostname}.localdomain  $hostname
-	EOF
 }
 
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
@@ -396,6 +394,27 @@ networkd_init() {
 	serviceinit systemd-networkd systemd-resolved
 }
 
+init_net_manage() {
+	if [ -f /usr/bin/NetworkManager ]; then
+		serviceinit NetworkManager
+	else
+		networkd_init
+	fi
+}
+
+config_network() {
+	dialog --infobox "Configuring network.." 0 0
+	echo $hostname > /etc/hostname
+	cat > /etc/hosts <<-EOF
+		#<ip-address>   <hostname.domain.org>    <hostname>
+		127.0.0.1       localhost.localdomain    localhost
+		::1             localhost.localdomain    localhost
+		127.0.1.1       ${hostname}.localdomain  $hostname
+	EOF
+
+	init_net_manage
+}
+
 set_root_pw() {
 	printf "${rpwd1}\\n${rpwd1}" | passwd
 	unset rpwd1 rpwd2
@@ -404,16 +423,9 @@ set_root_pw() {
 create_pack_ref() {
 	dialog --infobox "Removing orphans..." 0 0
 	pacman --noconfirm -Rns $(pacman -Qtdq)
-	sudo -u "$name" mkdir -p /home/"$name"/.local/ 
+	sudo -u "$name" mkdir -p /home/"$name"/.local/
+	# creates a list of all installed packages for future reference
 	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
-}
-
-init_net_manage() {
-	if [ -f /usr/bin/NetworkManager ]; then
-		serviceinit NetworkManager
-	else
-		networkd_init
-	fi
 }
 
 final_sys_settigs() {
@@ -430,8 +442,8 @@ get_hostname    || error "User exited"
 get_userandpass || error "User exited."
 get_root_pass   || error "User exited."
 confirm_n_go 	|| { clear; exit; }
+get_deps
 set_locale_time
-config_network
 systemd_boot
 pacman_stuff
 swap_stuff
@@ -443,7 +455,7 @@ aur_helper_inst || error "Failed to install AUR helper." # Requires user.
 installationloop
 clone_dotfiles
 config_killua
-init_net_manage
+config_network
 create_pack_ref
 final_sys_settigs
 set_root_pw

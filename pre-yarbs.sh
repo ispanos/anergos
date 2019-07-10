@@ -4,28 +4,39 @@
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
 # bash pre-yarbs.sh
 
-pacman -Syy
-pacman -S --needed --noconfirm dialog
+# A friends list of packages. Can be added with option ' -p "kk" ' when running yarbs.
+kk="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
+
+pacman -Syy ; pacman -S --needed --noconfirm dialog
 timedatectl set-ntp true
 
-drive_list_vert=$(/usr/bin/ls -1 /dev | grep "sd.$" && /usr/bin/ls -1 /dev | grep "nvme.*$" | grep -v "p.$")
+# Vertical list of all sata and NVME drives.
+drive_list_vert=$(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$")
 
 list_hard_drives(){
-	# All mounted partitions in one line, numbered, separated by a space to make the menu list for dialog
+	# Sata and NVME drives listed in one line, with a number infront of them.
+	# This creates the list for the dialog prompt.
 	for i in $drive_list_vert ; do
 		local -i n+=1
 		printf " $n $i"
 	done
 }
 
+# Prompts user to select the drive to install the system on.
 hard_drive_num=$(dialog --title "Select your Hard-drive" --menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
+
+# Converts the number printed by dialog, to the actuall  name of the selected drive.
 HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
-ESP_path="/boot"
 clear
 
+#	This part is not tested 100%. If you find a better fix please make a PR. 
+# 	Especially for NVME drives.
+# Unmounts the selected drive and wipes all filesystems, to make repartitioning easier.
 umount ${HARD_DRIVE}* 2>/dev/null
 wipefs -a ${HARD_DRIVE}*
 
+# Uses fdisk to create an "EFI System" partition  (260M) and a "Linux root" partition 
+# that takes up the rest of the drive's space.
 cat <<EOF | fdisk $HARD_DRIVE
 g
 n
@@ -44,19 +55,35 @@ t
 w
 EOF
 
+# NVME drives have a different partition naming scheme. 
+# This line adds the later "p" at the end of the drive, to make the next step 
+# the same for both NVME's and sata drives.
 if [[ $HARD_DRIVE == *"nvme"* ]]; then HARD_DRIVE="${HARD_DRIVE}p"; fi
 
-yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
-yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}2
-mount ${HARD_DRIVE}2 /mnt
-mkdir -p /mnt${ESP_path}
-mount ${HARD_DRIVE}1 /mnt${ESP_path}
-pacstrap /mnt base base-devel git termite-terminfo linux-headers
+# Format and mount root partition
+root_partition=${HARD_DRIVE}2
+yes | mkfs.ext4 -L "Arch" 
+mount ${HARD_DRIVE}2 /mnt $root_partition
+
+# Format and mount boot partition.
+boot_partition=${HARD_DRIVE}1
+yes | mkfs.fat  -n "ESP" -F 32 $boot_partition
+mkdir -p /mnt/boot
+mount ${HARD_DRIVE}1 /mnt/boot
+
+# Install base package, using pacstrap.
+if [  -f /usr/share/terminfo/x/xterm-termite ]; then
+	# When I'm using ssh, I need termite-terminfo for my terminal.
+	# If it's installed on the live system, it means I, the user, need it.
+	pacstrap /mnt base termite-terminfo
+elif
+	pacstrap /mnt base
+fi
+
 genfstab -U /mnt >> /mnt/etc/fstab
-koulis="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
 
-
-# option -m MULTILIB
+#		 This is going to get better. Soon.
+# option -m MULTILIB 			Add any sting other than "true" to change it. I'm going to fix it later.
 # option -e [gnome,i3,swat]		Sets environment. Only one at a time.
 # option -d <link> 		        Sets dotfilesrepo
 # option -p <link>				Sets $arglist, for addtitional list of packages.
