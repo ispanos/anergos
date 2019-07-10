@@ -13,7 +13,6 @@ common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.c
 i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
-gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-nvidia.csv"
 
 # Defaults. Can be changed with arguemnts: -m [false] -e [gnome,i3,sway] -d [<link>,<filepath>]
 multi_lib_bool="true"
@@ -45,7 +44,7 @@ else
 fi
 
 
-prog_files="$coreprogs $environment $common $gaming $arglist"
+prog_files="$coreprogs $environment $common $arglist"
 
 get_dialog() {
 	echo "Installing dialog, to make things look better..."

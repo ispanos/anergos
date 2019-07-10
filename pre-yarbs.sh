@@ -7,6 +7,9 @@
 # A friends list of packages. Can be added with option ' -p "kk" ' when running yarbs.
 kk="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
 
+#  Steam and nvidia drivers + discord.
+gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-nvidia.csv"
+
 pacman -Syy ; pacman -S --needed --noconfirm dialog
 timedatectl set-ntp true
 
