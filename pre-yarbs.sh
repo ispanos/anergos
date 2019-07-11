@@ -73,7 +73,7 @@ if [  -f /usr/share/terminfo/x/xterm-termite ]; then
 	# When I'm using ssh, I need termite-terminfo for my terminal.
 	# If it's installed on the live system, it means I, the user, need it.
 	pacstrap /mnt base termite-terminfo
-elif
+else
 	pacstrap /mnt base
 fi
 
