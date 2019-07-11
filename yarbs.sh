@@ -8,43 +8,26 @@ error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 timezone="Europe/Athens"
 aurhelper="yay"
 
+i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
 common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.csv"
-i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
-gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
-
-# Defaults. Can be changed with arguemnts: -m [false] -e [gnome,i3,sway] -d [<link>,<filepath>]
-multi_lib_bool="true"
-environment_arg="i3"
-arglist=""
-dotfilesrepo="https://github.com/ispanos/dotfiles.git"
-
+gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 
 while getopts ":m:e:d:p:" option; do 
 	case "${option}" in
 		m) multi_lib_bool=${OPTARG} ;;
-		e) environment_arg=${OPTARG} ;;
-		d) dotfilesrepo=${OPTARG} ;;
-		p) arglist=${OPTARG} ;;
+		d) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
+		p) prog_files=${OPTARG} ;;
 		*) printf "Invalid option: -%s\\n" "$OPTARG" ;;
 	esac 
 done
 
-# Sets $environment according to the argument passed after option "-e"
-# If no options where set, it defaults to i3.
-if [ $environment_arg = "gnome" ]; then
-	environment=$gnome
-elif [ $environment_arg = "i3" ]; then
-	environment=$i3
-elif [ $environment_arg = "sway" ];then
-	environment=$sway
-else
-	printf "Invalid environment. Available options are: \\ngnome\\ni3\\nsway" && exit
-fi
+[ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
+[ -z "$multi_lib_bool" ] && multi_lib_bool="false"
 
 
-prog_files="$coreprogs $environment $common $arglist"
 
 get_dialog() {
 	echo "Installing dialog, to make things look better..."

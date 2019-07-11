@@ -1,14 +1,8 @@
 #!/bin/bash
+# Partitions and formats selected device and then runs yarbs.
 
-# On github:
-# curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh
-# bash pre-yarbs.sh
-
-# A friends list of packages. Can be added with option ' -p "kk" ' when running yarbs.
-kk="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
-
-#  Steam and nvidia drivers + discord.
-gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-nvidia.csv"
+# License: GNU GPLv3
+# curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh && bash pre-yarbs.sh
 
 pacman -Syy ; pacman -S --needed --noconfirm dialog
 timedatectl set-ntp true
@@ -85,15 +79,38 @@ fi
 
 genfstab -U /mnt >> /mnt/etc/fstab
 
-#		 This is going to get better. Soon.
-# option -m MULTILIB 			Add any sting other than "true" to change it. I'm going to fix it later.
-# option -e [gnome,i3,swat]		Sets environment. Only one at a time.
-# option -d <link> 		        Sets dotfilesrepo
-# option -p <link>				Sets $arglist, for addtitional list of packages.
-
 curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/yarbs.sh 
-arch-chroot /mnt bash yarbs.sh
-rm /mnt/yarbs.sh || printf "\\n\\n\\n\\n\\n\\n\\n\\nsomething went wrong."
 
+# TUI and CLI programs.
+coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
+
+# GUI programs, mainly for sway and i3. 
+common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.csv"
+
+# i3-gaps and some Xorg only packages.
+i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
+
+# swaywm and  some wayland packages.
+sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
+
+# Steam and nvidia drivers + discord.
+gaming="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gaming-nvidia.csv"
+
+# Very minimal gnone DE.
+gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
+
+# A friends list of packages.
+kk="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/raw/45a0929c229532e2fad06d034bdc64a523f3da4b/qwerty.csv"
+
+
+# Default packges lists are [i3,coreprogs,common]. 
+
+# -p 		Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults.
+# -m 		Default is "false". "true"  enable multilib. ( I want to change, so that this option enables multilib without any other string.)
+# -d <link> ' to set your own dotfiles's repo.
+arch-chroot /mnt bash yarbs.sh
+
+
+rm /mnt/yarbs.sh || printf "\\n\\n\\n\\n\\n\\n\\n\\nsomething went wrong."
 dialog --yesno "Reboot computer?"  5 30 && reboot
 dialog --yesno "Return to chroot environment?" 6 30 && arch-chroot /mnt
