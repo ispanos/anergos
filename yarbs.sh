@@ -265,7 +265,7 @@ pipinstall() {
 mergeprogsfiles() {
 	for list in ${prog_files}; do
 		if [ -f "$list" ]; then
-			cp "$list" /tmp/progs.csv
+			cat "$list" >> /tmp/progs.csv
 		else
 			curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
 		fi
