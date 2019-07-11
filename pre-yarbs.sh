@@ -58,13 +58,11 @@ EOF
 if [[ $HARD_DRIVE == *"nvme"* ]]; then HARD_DRIVE="${HARD_DRIVE}p"; fi
 
 # Format and mount root partition
-root_partition=${HARD_DRIVE}2
-yes | mkfs.ext4 -L "Arch" 
+yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}2
 mount ${HARD_DRIVE}2 /mnt $root_partition
 
 # Format and mount boot partition.
-boot_partition=${HARD_DRIVE}1
-yes | mkfs.fat  -n "ESP" -F 32 $boot_partition
+yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
 mkdir -p /mnt/boot
 mount ${HARD_DRIVE}1 /mnt/boot
 
