@@ -1,4 +1,13 @@
 #TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
+A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
+,ttf-inconsolata,"is the monospace font of YARBS."
+,ttf-liberation,"- Red Hats Liberation fonts"
+,noto-fonts,"Google Noto TTF fonts."
+,noto-fonts-emoji,"provides unicode symbols and emojis."
+,gnome-keyring,"takes care of the user's security credentials"
+,libsecret,"is a library for storing and retrieving passwords and other secrets."
+,libnotify,"allows desktop notifications."
+A,termite-nocsd,"is the terminal I use right now."
 A,gtk-theme-minwaita,is my current gtk theme.
 ,imv,is an image viewer for Wayland and X11.
 ,mpv,is simple video/gif player.

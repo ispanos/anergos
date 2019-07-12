@@ -19,3 +19,30 @@
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
 ,gdm,"is Gnome's display manager and login screen"
 ,firefox,"doesn't need a description."
+,gvfs-gphoto2,"Virtual filesystem implementation for GIO (gphoto2 backend; PTP camera, MTP media player)."
+,gvfs-mtp,"Virtual filesystem implementation for GIO (MTP backend; Android, media player)."
+,gvfs-nfs,"Virtual filesystem implementation for GIO (NFS backend)."
+,gthumb,"is an image viewer I use for cropping images."
+,gparted,"is a GUI disc manager."
+,pamac,"is a GUI package manager mainly for Manjaro."
+,polkit-gnome,"is an authentication agent."
+,gksu-polkit,""
+,ttf-liberation,"- Red Hats Liberation fonts"
+A,gtk-theme-minwaita,is my current gtk theme.
+,imv,is an image viewer for Wayland and X11.
+,mpv,is simple video/gif player.
+,galculator,is a simple GUI calculator.
+,zathura-pdf-poppler,is a PDF plugin for zathura based on poppler.
+,qt5ct,is used for theming qt programs.
+,pulseaudio-equalizer,is an equalizer for pulseaudio.
+,qbittorrent,is a torrent client.
+A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
+,playerctl,provides media control for some mediaplayers.
+A,spotify,is a music app. Its not free.
+,xarchiver,is a GUI archive manager used by pcmanfm.
+,pcmanfm-gtk3,is a simple GUI file manager.
+,gcolor3,is a gtk3 color picker.
+,libreoffice-fresh,is an office suit.
+,hunspell-en_US,is a dicttianery for liberofice
+,hunspell-el,is a Gerek dicttianery for liberofice
+A,popcorntime,"is a program that I don't use."
