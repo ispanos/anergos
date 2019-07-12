@@ -103,8 +103,8 @@ kk="https://gist.githubusercontent.com/ispanos/b7460aca88cadb808501dfadb19c342f/
 
 # Default packges lists are [i3,coreprogs,common]. 
 
-# -p 		Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults.
-# -m 		Default is "false". "true"  enable multilib. ( I want to change, so that this option enables multilib without any other string.)
+# -p 		Sets $prog_files. Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults.
+# -m 		Enable multilib.
 # -d <link> ' to set your own dotfiles's repo.
 arch-chroot /mnt bash yarbs.sh
 

@@ -14,18 +14,23 @@ common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.c
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 
-while getopts ":m:e:d:p:" option; do 
+help() {
+	echo  "# -p 			Sets \$prog_files. Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults."
+	echo  "# -m 			Enable multilib."
+	echo  "# -d <link> ' 	to set your own dotfiles's repo."
+}
+while getopts "mhd:p:" option; do 
 	case "${option}" in
-		m) multi_lib_bool=${OPTARG} ;;
+		m) multi_lib_bool="true" ;;
 		d) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
 		p) prog_files=${OPTARG} ;;
+		h) help && exit ;;
 		*) printf "Invalid option: -%s\\n" "$OPTARG" ;;
 	esac 
 done
 
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 [ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
-[ -z "$multi_lib_bool" ] && multi_lib_bool="false"
 
 
 
@@ -185,7 +190,7 @@ disable_beep() {
 
 multilib() { 
 	# Enables multilib unless argument "-m false" was set when running yarbs.
-	if [ "$multi_lib_bool" = "true" ]; then
+	if [ "$multi_lib_bool" ]; then
 		dialog --infobox "Enabling multilib..." 0 0
 		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
 		pacman --noconfirm --needed -Sy >/dev/null 2>&1
