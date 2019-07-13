@@ -128,7 +128,7 @@ set_locale_time() {
 	hwclock --systohc
 	sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
 	locale-gen > /dev/null 2>&1
-	echo 'LANG="$lang"' > /etc/locale.conf
+	echo 'LANG="'$lang'"' > /etc/locale.conf
 }
 
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
