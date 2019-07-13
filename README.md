@@ -8,8 +8,7 @@ My main goal is for this script to do everything I need. However, I would like t
 ## [yarbs.sh](https://github.com/ispanos/YARBS/blob/master/yarbs.sh)
 
 ### Disclaimer: 
-##### If you are not familiar with installing archlinux the recommended way, I would suggest you not to use this script. Besides the fact that I may break something in the script at any moment, you need to understand how things work and how your system is set-up. 
-##### E.g. I'm using `systemd-boot` and not the more traditional `GRUB 2`. 
+##### If you are not familiar with installing archlinux the recommended way, I would suggest you not to use this script. Besides the fact that I may break something in the script at any moment, you need to understand how things work and how your system is set-up. E.g. I'm using `systemd-boot` and not the more traditional `GRUB 2`. 
 
 Right now I'm using `dialog` to display step of the process and get user input. It looks cool and I get a better idea of how much time is needed while installing the packages. The downside is that it hides any error message that may appear and the code looks a bit ugly because of it. ( Not that I know how to write scripts better. ) 
 
@@ -47,10 +46,11 @@ If you include commas in your program descriptions, be sure to include double qu
 
 (\*\*) : Using the flag `-d` you can add the link of your custom dotfiles repository (URL). I should note that I'm backing up most of my dotfiles in a public repo. It clones the repo with the `--bare` option, and instead  of a `.git` folder, it uses a `.cfg` folder. This way I can use an alias to manage my dotfiles' repo without interfering with other git folders in the \~/home folder. I got the idea from here: https://www.atlassian.com/git/tutorials/dotfiles
 This is the alias I have in my .bashrc:
+
 `alias dot='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'`
 
 ### function config_killua
-My computer's hostname is "killua". I used that as a way to add some extra configurations that I only want on my pc, without the need of an extra script. Avoid setting your hostname as "killua" during the initial set-up. If you have a better idea, please contact me or make a PR. I don't have a second computer or I would have used Ansible.
+My computer's hostname is "killua". I used that as a way to add some extra configurations that I only want on my pc, without the need of an extra script. I moved that part of the script to a different file to make yarbs a bit shorter. Avoid setting your hostname as "killua" during the initial set-up. If you have a better idea, please contact me or make a PR. I don't have a second computer or I would have used Ansible.
 
 ## pre-yarbs.sh
 While testing the script on virtualbox, I had to find a way to partition, format, mount the partitions and install arch faster. So I ended up with a second script. Don't use it. It will repartition and format your drive. If you want to use it then please help me make it better and more flexible. Perhaps I can add it to yarbs one day.
