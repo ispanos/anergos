@@ -36,27 +36,52 @@ while getopts "mhd:p:" option; do
 		d) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
 		p) prog_files=${OPTARG} ;;
 		h) help && exit ;;
-		*)  help && exit  ;;
+		*) help && exit  ;;
 	esac 
 done
 
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 [ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
 
+#		CONTENTS:				#
+#		get_dialog				#
+#		get_hostname			#
+#		get_userandpass			#
+#		get_root_pass			#
+#		confirm_n_go			#
+#		get_deps				#
+#		set_locale_time			#
+#		systemd_boot			#
+#		pacman_stuff			#
+#		swap_stuff				#
+#		disable_beep			#
+#		multilib				#
+#		create_user				#
+#		newperms				#
+#		aur_helper_inst			#
+#		installationloop		#
+#		clone_dotfiles			#
+#		config_killua			#
+#		config_network			#
+#		create_pack_ref			#
+#		final_sys_settigs		#
+#		set_root_pw				#
+#		newperms				#
 
+# Used in more that one place.
+serviceinit() { 
+	for service in "$@"; do
+		dialog --infobox "Enabling \"$service\"..." 4 40
+		systemctl enable "$service"
+	done
+}
 
 get_dialog() {
 	echo "Installing dialog, to make things look better..."
 	pacman --noconfirm -Syyu dialog >/dev/null 2>&1
 }
 
-get_deps() {
-	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
-	pacman --noconfirm --needed linux-headers git base-devel >/dev/null 2>&1
-}
-
 get_hostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
-confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
 
 get_userandpass() {
 	# Prompts user for new username an password.
@@ -86,6 +111,13 @@ get_root_pass() {
 		rpwd1=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
 		rpwd2=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
 	done
+}
+
+confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
+
+get_deps() {
+	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
+	pacman --noconfirm --needed linux-headers git base-devel >/dev/null 2>&1
 }
 
 set_locale_time() {
@@ -151,13 +183,6 @@ systemd_boot() {
 						echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf
 }
 
-serviceinit() { 
-	for service in "$@"; do
-		dialog --infobox "Enabling \"$service\"..." 4 40
-		systemctl enable "$service"
-	done
-}
-
 pacman_stuff() {
 	dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
 	
@@ -200,7 +225,7 @@ disable_beep() {
 }
 
 multilib() { 
-	# Enables multilib unless argument "-m false" was set when running yarbs.
+	# Enables multilib if flag -m is used.
 	if [ "$multi_lib_bool" ]; then
 		dialog --infobox "Enabling multilib..." 0 0
 		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
@@ -223,15 +248,13 @@ newperms() {
 	chmod 440 /etc/sudoers.d/wheel
 }
 
-clone_dotfiles() {
-	dialog --infobox "Downloading and installing config files..." 4 60
-	cd /home/"$name"
-	echo ".cfg" >> .gitignore
-	rm .bash_profile .bashrc .xinitrc
-	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
-	rm .gitignore
+aur_helper_inst() { 
+	dialog --infobox "Installing \"${aurhelper}\"..." 4 50
+	cd /tmp || exit
+	curl -sO "https://aur.archlinux.org/cgit/aur.git/snapshot/${aurhelper}.tar.gz" &&
+	sudo -u "$name" tar -xvf ${aurhelper}.tar.gz >/dev/null 2>&1 &&
+	cd ${aurhelper} && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
+	cd /tmp || return
 }
 
 maininstall() { # Installs all needed programs from main repo.
@@ -289,13 +312,15 @@ installationloop() {
 	done < /tmp/progs.csv
 }
 
-aur_helper_inst() { 
-	dialog --infobox "Installing \"${aurhelper}\"..." 4 50
-	cd /tmp || exit
-	curl -sO "https://aur.archlinux.org/cgit/aur.git/snapshot/${aurhelper}.tar.gz" &&
-	sudo -u "$name" tar -xvf ${aurhelper}.tar.gz >/dev/null 2>&1 &&
-	cd ${aurhelper} && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
-	cd /tmp || return
+clone_dotfiles() {
+	dialog --infobox "Downloading and installing config files..." 4 60
+	cd /home/"$name"
+	echo ".cfg" >> .gitignore
+	rm .bash_profile .bashrc .xinitrc
+	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
+	rm .gitignore
 }
 
 enable_numlk_tty() {
@@ -373,38 +398,34 @@ config_killua() {
 	fi
 }
 
-networkd_init() {
-	# Starts networkd as a network manager and configures ethernet.
-	cat > /etc/systemd/network/en.network <<-EOF
-		[Match]
-		Name=en*
-		
-		[Network]
-		DHCP=ipv4
-		
-		[DHCP]
-		RouteMetric=10
-	EOF
-
-	cat > /etc/systemd/network/wl.network <<-EOF
-		[Match]
-		Name=wl*
-		
-		[Network]
-		DHCP=ipv4
-		
-		[DHCP]
-		RouteMetric=20
-	EOF
-
-	serviceinit systemd-networkd systemd-resolved
-}
-
 init_net_manage() {
 	if [ -f /usr/bin/NetworkManager ]; then
 		serviceinit NetworkManager
 	else
-		networkd_init
+		# Starts networkd as a network manager and configures ethernet.
+		cat > /etc/systemd/network/en.network <<-EOF
+			[Match]
+			Name=en*
+			
+			[Network]
+			DHCP=ipv4
+			
+			[DHCP]
+			RouteMetric=10
+		EOF
+
+		cat > /etc/systemd/network/wl.network <<-EOF
+			[Match]
+			Name=wl*
+			
+			[Network]
+			DHCP=ipv4
+			
+			[DHCP]
+			RouteMetric=20
+		EOF
+
+		serviceinit systemd-networkd systemd-resolved
 	fi
 }
 
@@ -421,11 +442,6 @@ config_network() {
 	init_net_manage
 }
 
-set_root_pw() {
-	printf "${rpwd1}\\n${rpwd1}" | passwd
-	unset rpwd1 rpwd2
-}
-
 create_pack_ref() {
 	dialog --infobox "Removing orphans..." 0 0
 	pacman --noconfirm -Rns $(pacman -Qtdq)
@@ -440,14 +456,19 @@ final_sys_settigs() {
 	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 }
 
+set_root_pw() {
+	printf "${rpwd1}\\n${rpwd1}" | passwd
+	unset rpwd1 rpwd2
+}
+
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ##                 Start                    |||||||||||||||||||||
 ##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-get_dialog		|| error "Check your internet connection?"
-get_hostname    || error "User exited"
-get_userandpass || error "User exited."
-get_root_pass   || error "User exited."
-confirm_n_go 	|| { clear; exit; }
+get_dialog 			|| error "Check your internet connection?"
+get_hostname 		|| error "User exited"
+get_userandpass 	|| error "User exited."
+get_root_pass 		|| error "User exited."
+confirm_n_go 		|| { clear; exit; }
 get_deps
 set_locale_time
 systemd_boot
@@ -455,9 +476,9 @@ pacman_stuff
 swap_stuff
 disable_beep
 multilib
-create_user 	|| error "Error adding user."
+create_user 		|| error "Error adding user."
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
-aur_helper_inst || error "Failed to install AUR helper." # Requires user.
+aur_helper_inst 	|| error "Failed to install AUR helper." # Requires user.
 installationloop
 clone_dotfiles
 config_killua
