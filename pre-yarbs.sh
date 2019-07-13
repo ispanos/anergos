@@ -4,7 +4,12 @@
 # License: GNU GPLv3
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/pre-yarbs.sh && bash pre-yarbs.sh
 
-pacman -Syy ; pacman -S --needed --noconfirm dialog
+## Notes
+# setfont sun12x22 #HDPI
+# dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
+## setoN
+
+pacman -Syy --needed --noconfirm dialog
 timedatectl set-ntp true
 
 # Vertical list of all sata and NVME drives.

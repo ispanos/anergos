@@ -15,17 +15,28 @@ sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 
 help() {
-	echo  "# -p 			Sets \$prog_files. Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults."
-	echo  "# -m 			Enable multilib."
-	echo  "# -d <link> ' 	to set your own dotfiles's repo."
+	cat <<-EOF
+		Multilib:
+		  -m             Enable multilib.
+
+		Dotfiles:
+		  -d <link>      to set your own dotfiles's repo. By default it uses my own dotfiles repository.
+		
+		Packages:
+		  -p             Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults.
+		
+		Example: yarbs -p link1 link2 file1 -m -d https://yourgitrepo123.xyz/dotfiles
+		Visit the original repo https://github.com/ispanos/yarbs.git for more info.
+	EOF
 }
+
 while getopts "mhd:p:" option; do 
 	case "${option}" in
 		m) multi_lib_bool="true" ;;
 		d) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
 		p) prog_files=${OPTARG} ;;
 		h) help && exit ;;
-		*) printf "Invalid option: -%s\\n" "$OPTARG" ;;
+		*)  help && exit  ;;
 	esac 
 done
 
@@ -176,7 +187,7 @@ swap_stuff() {
 	chmod 600 /swapfile
 	mkswap /swapfile
 	swapon /swapfile
-	printf "\\n#Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
+	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
 	
 	# Sets swappiness and cache pressure for better performance.
 	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
@@ -336,22 +347,30 @@ i3_lock_sleep() {
 }
 
 config_killua() {
-	[ $hostname = "killua" ] && (
-	enable_numlk_tty
-	i3_lock_sleep
-	dialog --infobox "Killua..." 0 0
-	# Temp_Asus_X370_Prime_pro
-	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
-	echo "it87" > /etc/modules-load.d/it87.conf
-	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
-	
-	cat > /etc/resolv.conf <<-EOF
-		# Resolver configuration file.
-		# See resolv.conf(5) for details.
-		search home
-		nameserver 192.168.1.1
-	EOF
-	)
+	if [ $hostname = "killua" ]; then
+		dialog --infobox "Killua..." 0 0
+
+		enable_numlk_tty
+		i3_lock_sleep
+
+		# Temp_Asus_X370_Prime_pro
+		sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
+		echo "it87" > /etc/modules-load.d/it87.conf
+		
+		sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
+
+		cat > /etc/resolv.conf <<-EOF
+			# Resolver configuration file.
+			# See resolv.conf(5) for details.
+			search home
+			nameserver 192.168.1.1
+		EOF
+
+		cat > /etc/fstab <<-EOF
+			/dev/sda1 LABEL=data
+			UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4  /media/Data    ext4 rw,noatime,nofail,user,auto    0  2
+		EOF
+	fi
 }
 
 networkd_init() {
