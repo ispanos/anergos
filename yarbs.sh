@@ -376,25 +376,26 @@ config_killua() {
 		dialog --infobox "Killua..." 0 0
 
 		enable_numlk_tty
-		i3_lock_sleep
 
-		# Temp_Asus_X370_Prime_pro
+		[ -f /usr/bin/i3lock ] && [ ! -f /usr/bin/swaylock ] && i3_lock_sleep
+
+		# Install driver for Asus X370 Prime pro fan/thermal sensors
 		sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
 		echo "it87" > /etc/modules-load.d/it87.conf
+
+		cat > /etc/fstab <<-EOF
+			# /dev/sda1 LABEL=data
+			UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4  /media/Data    ext4 rw,noatime,nofail,user,auto    0  2
+		EOF
 		
 		sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 
-		cat > /etc/resolv.conf <<-EOF
-			# Resolver configuration file.
-			# See resolv.conf(5) for details.
-			search home
-			nameserver 192.168.1.1
-		EOF
-
-		cat > /etc/fstab <<-EOF
-			/dev/sda1 LABEL=data
-			UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4  /media/Data    ext4 rw,noatime,nofail,user,auto    0  2
-		EOF
+#		cat > /etc/resolv.conf <<-EOF
+#			# Resolver configuration file.
+#			# See resolv.conf(5) for details.
+#			search home
+#			nameserver 192.168.1.1
+#		EOF
 	fi
 }
 
