@@ -23,7 +23,7 @@ A,spotify,is a music app. Its not free.
 ,pcmanfm-gtk3,is a simple GUI file manager.
 ,gvfs-mtp,is a virtual filesystem implementation for GIO
 ,gcolor3,is a gtk3 color picker.
-,libreoffice-fresh,is an office suit.
-,hunspell-en_US,is a dicttianery for liberofice
-,hunspell-el,is a Gerek dicttianery for liberofice
+#,libreoffice-fresh,is an office suit.
+#,hunspell-en_US,is a dicttianery for liberofice
+#,hunspell-el,is a Gerek dicttianery for liberofice
 A,popcorntime,"is a program that I don't use."
