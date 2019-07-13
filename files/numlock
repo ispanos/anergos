@@ -1,7 +1,0 @@
-#!/bin/bash
-# /usr/local/bin/numlock
-# /etc/systemd/system/numlock.service
-for tty in /dev/tty{1..6}
-do
-    /usr/bin/setleds -D +num < "$tty";
-done
