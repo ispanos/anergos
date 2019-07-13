@@ -1,7 +1,7 @@
 # Yiannis' Auto-Rice Bootstraping Scripts (YARBS)
 
 ## About this repo.
-This was originally a fork of [Luke's LARBS](https://github.com/LukeSmithxyz/LARBS), but I wanted a "one-click" script to handle everything when I wanted to start fresh. 
+This was originally a fork of [Luke's LARBS](https://github.com/LukeSmithxyz/LARBS), but I converted it to an "one-click" script to handle everything when I wanted to start fresh. 
 
 My main goal is for this script to do everything I need. However, I would like to keep it somewhat flexible so that other users can use it too. Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome.
 
