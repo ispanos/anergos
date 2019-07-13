@@ -118,7 +118,7 @@ confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do 
 
 get_deps() {
 	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
-	pacman --noconfirm --needed linux-headers git base-devel >/dev/null 2>&1
+	pacman --noconfirm --needed -S linux-headers git base-devel >/dev/null 2>&1
 }
 
 set_locale_time() {
