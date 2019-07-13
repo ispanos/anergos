@@ -252,7 +252,7 @@ newperms() {
 aur_helper_inst() { 
 	dialog --infobox "Installing \"${aurhelper}\"..." 4 50
 	cd /tmp || exit
-	curl -sO "https://aur.archlinux.org/cgit/aur.git/snapshot/${aurhelper}.tar.gz" &&
+	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/"$aurhelper".tar.gz &&
 	sudo -u "$name" tar -xvf ${aurhelper}.tar.gz >/dev/null 2>&1 &&
 	cd ${aurhelper} && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
 	cd /tmp || return
