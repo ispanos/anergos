@@ -6,6 +6,7 @@ error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 [ ! -d "/sys/firmware/efi" ] && error "Please reboot to UEFI mode."
 
 timezone="Europe/Athens"
+lang="en_US.UTF-8"
 aurhelper="yay"
 
 i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
@@ -125,9 +126,9 @@ set_locale_time() {
 	serviceinit systemd-timesyncd.service
 	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 	hwclock --systohc
-	sed -i 's/#en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+	sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
 	locale-gen > /dev/null 2>&1
-	echo 'LANG="en_US.UTF-8"' > /etc/locale.conf
+	echo 'LANG="$lang"' > /etc/locale.conf
 }
 
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
