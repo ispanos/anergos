@@ -334,7 +334,7 @@ clone_dotfiles() {
 	dialog --infobox "Downloading and installing config files..." 4 60
 	cd /home/"$name"
 	echo ".cfg" >> .gitignore
-	rm .bash_profile .bashrc .xinitrc
+	rm .bash_profile .bashrc
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
@@ -387,7 +387,7 @@ config_network() {
 
 create_pack_ref() {
 	dialog --infobox "Removing orphans..." 0 0
-	pacman --noconfirm -Rns $(pacman -Qtdq)
+	pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 	sudo -u "$name" mkdir -p /home/"$name"/.local/
 	# creates a list of all installed packages for future reference
 	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
@@ -400,7 +400,7 @@ final_sys_settigs() {
 }
 
 set_root_pw() {
-	printf "${rpwd1}\\n${rpwd1}" | passwd
+	printf "${rpwd1}\\n${rpwd1}" | passwd >/dev/null 2>&1
 	unset rpwd1 rpwd2
 }
 

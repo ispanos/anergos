@@ -9,6 +9,7 @@ A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being u
 ,libnotify,"allows desktop notifications."
 A,termite-nocsd,"is the terminal I use right now."
 A,gtk-theme-minwaita,is my current gtk theme.
+#,lxappearance-gtk3,"is used to set gtk themes."
 ,imv,is an image viewer for Wayland and X11.
 ,mpv,is simple video/gif player.
 ,galculator,is a simple GUI calculator.
