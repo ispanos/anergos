@@ -3,7 +3,6 @@
 # Arch Bootstraping script
 # License: GNU GPLv3
 error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
-[ ! -d "/sys/firmware/efi" ] && error "Please reboot to UEFI mode."
 
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
@@ -52,7 +51,7 @@ done
 #		confirm_n_go			#
 #		get_deps				#
 #		set_locale_time			#
-#		systemd_boot			#
+#		inst_bootloader			#
 #		pacman_stuff			#
 #		swap_stuff				#
 #		disable_beep			#
@@ -135,8 +134,7 @@ set_locale_time() {
 ######   sed for HOOKS="...keyboard encrypt lvm2"   ######
 ######   umkinitcpio -p linux && linux-lts entry?   ######
 
-systemd_boot() {
-
+get_microcode(){
 	case $(lscpu | grep Vendor | awk '{print $3}') in
 		"GenuineIntel") cpu="intel" ;;
 		"AuthenticAMD") cpu="amd" 	;;
@@ -147,7 +145,9 @@ systemd_boot() {
 		dialog --infobox "Installing ${cpu} microcode." 3 31
 		pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 	fi
-	
+}
+
+systemd_boot() {
 	# Installs systemd-boot to the eps partition
 	dialog --infobox "Setting-up systemd-boot" 0 0
 	bootctl --path=/boot install
@@ -182,6 +182,23 @@ systemd_boot() {
 	[ $cpu = "no" ] || 	echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
 						echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
 						echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf
+}
+
+grub_mbr(){
+		dialog --infobox "Setting-up Grub. -WARNING- ONLY MBR partition table." 0 0
+		pacman --noconfirm --needed -S grub >/dev/null 2>&1
+		grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
+		grub-install --target=i386-pc $grub_path >/dev/null 2>&1
+		grub-mkconfig -o /boot/grub/grub.cfg
+}
+
+inst_bootloader(){
+	get_microcode
+	if [ -d "/sys/firmware/efi" ]; then
+		systemd_boot
+	else
+		grub_mbr
+	fi
 }
 
 pacman_stuff() {
@@ -386,6 +403,7 @@ set_root_pw() {
 	printf "${rpwd1}\\n${rpwd1}" | passwd
 	unset rpwd1 rpwd2
 }
+
 config_killua() {
 	dialog --infobox "Killua..." 0 0
 	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/killua.sh" > killua.sh 
@@ -403,7 +421,7 @@ get_root_pass 		|| error "User exited."
 confirm_n_go 		|| { clear; exit; }
 get_deps
 set_locale_time
-systemd_boot
+inst_bootloader
 pacman_stuff
 swap_stuff
 disable_beep
