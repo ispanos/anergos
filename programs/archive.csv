@@ -62,6 +62,12 @@ A,wattmangtk,""
 ,,
 A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20"
 ,,
+,,
+,libreoffice-fresh,is an office suit.
+,hunspell-en_US,is a dicttianery for liberofice
+,hunspell-el,is a Gerek dicttianery for liberofice
+,,
+,,
 #Were in Swat,,
 ,light,"enables changing screen brightness levels."
 A,brightnessctl,"enables changing screen brightness levels."
