@@ -14,7 +14,6 @@
 ,xcompmgr,"is for transparency and removing screen-tearing."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
-,firefox,"doesn't need a description."
 ,gcolor3,is a gtk3 color picker.
 #,lxappearance-gtk3,"is used to set gtk themes."
 A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
