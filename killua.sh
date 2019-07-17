@@ -57,7 +57,7 @@ temps() {
 
 
 data() {
-	cat > /etc/fstab <<-EOF
+	cat >> /etc/fstab <<-EOF
 		# /dev/sda1 LABEL=data
 		UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4  /media/Data    ext4 rw,noatime,nofail,user,auto    0  2
 	EOF
