@@ -2,6 +2,7 @@
 #@,,"This is more of a note that a 'production ready' list."
 ,sway,"is an i3 replacment of wayland."
 ,swaylock,"is a screen locker for Wayland."
+,swayidle,"handles sway when its idle."
 ,i3blocks,"is the status bar."
 ,bemenu,"is like dmenu for wayland."
 ,xorg-server-xwayland,"is a compatibility layer for x11 apps."
