@@ -61,3 +61,8 @@ A,multibootusb,""
 A,wattmangtk,""
 ,,
 A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20"
+,,
+#Were in Swat,,
+,light,"enables changing screen brightness levels."
+A,brightnessctl,"enables changing screen brightness levels."
+A,interception-hideaway,"hides cursor after some time."

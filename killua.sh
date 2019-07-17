@@ -45,24 +45,6 @@ lock_sleep() {
 			[Install]
 			WantedBy=sleep.target
 		EOF
-
-	elif [ ! -f /usr/bin/i3lock ] && [ -f /usr/bin/swaylock ]; then
-		#cat > /etc/systemd/system/SleepLocki3@yiannis.service <<-EOF
-		#	#/etc/systemd/system/
-		#	[Unit]
-		#	Description=Turning i3lock on before sleep
-		#	Before=sleep.target
-		#	
-		#	[Service]
-		#	User=%I
-		#	Type=forking
-		#	Environment=DISPLAY=:0
-		#	ExecStart=/usr/bin/swaylock -e -f -c 000000 -i /home/yiannis/.config/wall.png -t
-		#	ExecStartPost=/usr/bin/sleep 1
-		#	
-		#	[Install]
-		#	WantedBy=sleep.target
-		#EOF
 	fi
 	systemctl enable SleepLocki3@yiannis
 }
