@@ -7,7 +7,7 @@
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."
-A,termite-nocsd,"is the terminal I use right now."
+,termite,"is the terminal I use right now."
 A,gtk-theme-minwaita,is my current gtk theme.
 ,imv,is an image viewer for Wayland and X11.
 ,mpv,is simple video/gif player.
