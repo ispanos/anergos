@@ -51,7 +51,7 @@ lock_sleep() {
 
 temps() {
 	# Install driver for Asus X370 Prime pro fan/thermal sensors
-	sudo -u "$name" $aurhelper -S --noconfirm it87-dkms-git >/dev/null 2>&1
+	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
 }
 
