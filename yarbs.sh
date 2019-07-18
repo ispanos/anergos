@@ -42,7 +42,7 @@ done
 
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 #[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
-[ -z "$prog_files" ] && prog_files="$sway $coreprogs $common"
+[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
 
 #		CONTENTS:				#
 #		get_dialog				#
@@ -231,7 +231,7 @@ swap_stuff() {
 	chmod 600 /swapfile
 	mkswap /swapfile
 	swapon /swapfile
-	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
+	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
 	
 	# Sets swappiness and cache pressure for better performance.
 	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
