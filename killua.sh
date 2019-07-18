@@ -1,30 +1,8 @@
 #!/bin/bash
 
 enable_numlk_tty() {
-	cat > /usr/local/bin/numlock <<-EOF
-		#!/bin/bash
-		# /usr/local/bin/numlock
-		# /etc/systemd/system/numlock.service
-		for tty in /dev/tty{1..6}
-		do
-		    /usr/bin/setleds -D +num < "$tty";
-		done
-	EOF
-
-	cat > /etc/systemd/system/numlock.service <<-EOF
-		[Unit]
-		Description=numlock
-		
-		[Service]
-		ExecStart=/usr/local/bin/numlock
-		StandardInput=tty
-		RemainAfterExit=yes
-		
-		[Install]
-		WantedBy=multi-user.target
-	EOF
-
-	systemctl enable numlock
+	sudo -u "$name" yay -S --noconfirm systemd-numlockontty >/dev/null 2>&1
+	systemctl enable numLockOnTty
 }
 
 lock_sleep() {
@@ -66,7 +44,7 @@ data() {
 enable_numlk_tty
 lock_sleep
 temps
-data
+#data
 sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 
 # cat > /etc/resolv.conf <<-EOF

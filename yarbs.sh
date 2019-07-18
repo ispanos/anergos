@@ -42,7 +42,7 @@ done
 
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 #[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
-[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
+[ -z "$prog_files" ] && prog_files="$sway $coreprogs $common"
 
 #		CONTENTS:				#
 #		get_dialog				#
@@ -424,7 +424,7 @@ get_deps
 set_locale_time
 inst_bootloader
 pacman_stuff
-swap_stuff
+#swap_stuff
 disable_beep
 multilib
 create_user 		|| error "Error adding user."
