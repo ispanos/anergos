@@ -47,6 +47,7 @@ enable_numlk_tty
 lock_sleep
 temps
 #data
+[ ! -f usr/bin/Xorg ] && rm /home/yiannis/.xinitrc
 sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 
 # cat > /etc/resolv.conf <<-EOF
