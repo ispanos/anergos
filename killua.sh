@@ -1,7 +1,8 @@
 #!/bin/bash
 
 enable_numlk_tty() {
-	sudo -u "$name" yay -S --noconfirm systemd-numlockontty >/dev/null 2>&1
+	dialog  --infobox "Installing systemd-numlockontty." 3 40
+	sudo -u yiannis yay -S --noconfirm systemd-numlockontty >/dev/null 2>&1 &&
 	systemctl enable numLockOnTty
 }
 
@@ -29,7 +30,8 @@ lock_sleep() {
 
 temps() {
 	# Install driver for Asus X370 Prime pro fan/thermal sensors
-	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
+	dialog  --infobox "Installing it87-dkms-git." 3 40
+	sudo -u yiannis yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
 }
 
