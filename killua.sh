@@ -43,16 +43,19 @@ data() {
 	EOF
 }
 
+resolv_conf() {
+	cat > /etc/resolv.conf <<-EOF
+		# Resolver configuration file.
+		# See resolv.conf(5) for details.
+		search home
+		nameserver 192.168.1.1
+	EOF
+}
+
+[ ! -f usr/bin/Xorg ] && rm /home/yiannis/.xinitrc
+#sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 enable_numlk_tty
 lock_sleep
 temps
-#data
-[ ! -f usr/bin/Xorg ] && rm /home/yiannis/.xinitrc
-sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
-
-# cat > /etc/resolv.conf <<-EOF
-# 	# Resolver configuration file.
-# 	# See resolv.conf(5) for details.
-# 	search home
-# 	nameserver 192.168.1.1
-# EOF
+# data
+# resolv_conf
