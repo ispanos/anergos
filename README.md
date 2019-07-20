@@ -1,20 +1,20 @@
 # Yiannis' Auto-Rice Bootstraping Scripts (YARBS)
 
 ## About this repo.
-This was originally a fork of [Luke's LARBS](https://github.com/LukeSmithxyz/LARBS), but I converted it to an "one-click" script to handle everything when I wanted to start fresh. 
+This was originally a fork of [Luke's LARBS](https://github.com/LukeSmithxyz/LARBS), but I converted it to an "one-click" script to handle everything when I wanted to start fresh.
 
-My main goal is for this script to do everything I need. However, I would like to keep it somewhat flexible so that other users can use it too. Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome.
+My main goal is for this script to do everything I need. However, I would like to keep it somewhat flexible so that other users can use it too (the script itself, not my dot files and list of packages). Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome.
 
 ## [yarbs.sh](https://github.com/ispanos/YARBS/blob/master/yarbs.sh)
 
 ### Disclaimer: 
-##### If you are not familiar with installing archlinux the recommended way, I would suggest you not to use this script. Besides the fact that I may break something in the script at any moment, you need to understand how things work and how your system is set-up. E.g. I'm using `systemd-boot` and not the more traditional `GRUB 2`. 
+##### If you are not familiar with installing archlinux the recommended way, I would suggest you not to use this script. Besides the fact that I may break something in the script at any moment, you need to understand how things work and how your system is set-up. E.g. For UEFI installations I'm using `systemd-boot` and not the more traditional `GRUB 2`. 
 
 Right now I'm using `dialog` to display step of the process and get user input. It looks cool and I get a better idea of how much time is needed while installing the packages. The downside is that it hides any error message that may appear and the code looks a bit ugly because of it. ( Not that I know how to write scripts better. ) 
 
 `yarbs.sh` is supposed to run in the chroot environment, right after you've installed the base group using pacstrap and generated the fstab. I'm using functions to split things up and I'm calling all of the at the end. 
 
-[Systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot) only works if you are booted in UEFI mode, so the first step is to check if the folder "/sys/firmware/efi" exists and exits if the folder is not present. To keep things simple, `esp` must be at `/boot`. If you want to change that, you'll need to modify the function named "systemd_boot"
+[Systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot) only works if you are booted in UEFI mode, so the first step is to check, if the folder "/sys/firmware/efi" doesn't exist, it installs grub (MBR/BIOS only). To keep things simple, `esp` must be at `/boot`. If you want to change that, you'll need to modify the function named "systemd_boot"
 
 The rest of the script doesn't have an other requirements (AFAIK).
 - It asks for a username, password, root password, hostname and after a final confirmation the process begins.
