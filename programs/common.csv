@@ -1,10 +1,8 @@
-#TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while installing)
-,polkit-gnome,"is an authentication agent."
+#TAG,NAME IN REPO (or git url),PURPOSE
 ,gnome-keyring,"takes care of the user's security credentials"
+,polkit-gnome,"is an authentication agent."
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,ttf-liberation,"- Red Hats Liberation fonts"
-#,noto-fonts,"Google Noto TTF fonts."
-#,noto-fonts-emoji,"provides unicode symbols and emojis."
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."
 ,termite,"is the terminal I use right now."

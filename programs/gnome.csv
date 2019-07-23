@@ -1,4 +1,4 @@
-#TAG,NAME IN REPO (or git url),PURPOSE (should be a verb phrase to sound right while 
+#TAG,NAME IN REPO (or git url),PURPOSE
 ,gnome-shell,"provides gnome desktop environment."
 ,gnome-control-center,"is the main interface to configure various aspects of the desktop."
 ,gnome-tweaks,"provides advanced settings for Gnome."

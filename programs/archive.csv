@@ -1,74 +1,62 @@
-# TAG,NAME IN REPO (or git url),PURPOSE
-# X,,
-,xcape,"gives the special escape/super mappings of LARBS."
-,xdotool,"provides window action utilities on the command line."
-,xorg-xbacklight,"enables changing screen brightness levels."
-,xssstate,"times out the screen if locked."
-,python-pywal,"is used to change X colors to match the wallpaper."
-,,
-# Sound:,,
+# ARCHIVE,,
+#,recently used:,
+# progs,,
+,expac,"is a pacman database extraction utility."
+,newsboat,"is a news aggregator"
+# i3wm,,
+,lxappearance-gtk3,"is used to set gtk themes."
+,numlockx,"turns on NumLock when i3 starts."
+# common,,
+,noto-fonts,"Google Noto TTF fonts."
+,noto-fonts-emoji,"provides unicode symbols and emojis."
+# Media:,,
 ,pulseaudio-ctl,""
 ,pulseaudio-jack,""
 ,pulseaudio-zerocon,""
 ,paprefs,""
 ,pavucontrol,"is a GUI audio controller."
 ,volumeicon,"is the tray icon for volume control."
-,,
-# Media:,,
-,guvcview-qt,"is the webcam app I use."
+,guvcview-qt,"is the webcam app I used to use."
 ,clementine,"is an audio library."
 A,davinci-resolve,",a professional A/V post-production software suite from Blackmagic Design."
 ,imagemagick,"is a terminal image-manipulator providing some convenient shortcuts and the lockscreen in LARBS."
 ,gthumb,"is an image viewer I use for cropping images."
-,kodi,""
 ,mpd,"is a lightweight music daemon."
 ,mpc,"is a terminal interface for mpd."
 ,ncmpcpp,"a ncurses interface for music with multiple formats and a powerful tag editor."
 ,lirc,"- Linux Infrared Remote Control"
-,,
 #Random,,
 ,syncthing,"private cloud (?)"
 ,wee-slack,""
 A,ttf-ms-fonts,"are Microsoft fonts."
-,atool,"manages and gives information about archives."
 ,findutils,"offers basic file searching utilities to search directories and files."
 ,lshw,"lists all hardware on the system."
 ,glances,"a simple task viewer."
 ,tree,"prints directories in a tree from."
 ,mc,""
 ,tmux,"is a terminal multiplexer."
-,w3m,"is a terminal browser which can also view images."
 ,neofetch,""
 A,sc-im,"is an Excel-like terminal spreadsheet manager."
 A,urlscan,"parses URLs in the terminal allowing keyboard-based selection."
 A,cydia-impactor,"is a GUI tool for working with mobile devices. -cydiaimpactor.com"
 A,task-spooler,"queues commands or files for download."
-,numlockx,"turns on NumLock when i3 starts."
-A,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
-,,
-,,
 #Random-gui-progs,,
 ,gparted,"is a GUI disc manager."
 ,pamac,"is a GUI package manager mainly for Manjaro."
-,polkit-gnome,"is an authentication agent. /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 "
 ,gksu-polkit,""
-,etcher,""
 ,gnucash,""
 A,multibootusb,""
 ,filezilla,""
 ,pacmanlogviewer,""
 ,brasero,"is a DVD burner program."
 A,wattmangtk,""
-,,
 A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20"
-,,
-,,
 ,libreoffice-fresh,is an office suit.
 ,hunspell-en_US,is a dicttianery for liberofice
 ,hunspell-el,is a Gerek dicttianery for liberofice
-,,
-,,
-#Were in Swat,,
-,light,"enables changing screen brightness levels."
-A,brightnessctl,"enables changing screen brightness levels."
-A,interception-hideaway,"hides cursor after some time."
+# X,,
+,xcape,"gives the special escape/super mappings of LARBS."
+,xdotool,"provides window action utilities on the command line."
+,xorg-xbacklight,"enables changing screen brightness levels."
+,xssstate,"times out the screen if locked."
+,python-pywal,"is used to change X colors to match the wallpaper."
