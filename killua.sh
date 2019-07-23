@@ -53,9 +53,9 @@ resolv_conf() {
 }
 
 [ ! -f usr/bin/Xorg ] && rm /home/yiannis/.xinitrc
-#sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
+sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 enable_numlk_tty
 lock_sleep
-# temps
-# data
+temps
+data
 # resolv_conf
