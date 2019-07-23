@@ -2,7 +2,8 @@
 
 enable_numlk_tty() {
 	dialog  --infobox "Installing systemd-numlockontty." 3 40
-	sudo -u yiannis yay -S --noconfirm systemd-numlockontty >/dev/null 2>&1 &&
+	( [ -f /usr/bin/numlockOnTty ] || \
+	sudo -u yiannis yay -S --noconfirm systemd-numlockontty >/dev/null 2>&1 ) &&
 	systemctl enable numLockOnTty
 }
 
