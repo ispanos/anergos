@@ -3,8 +3,8 @@
 ,gnome-keyring,"takes care of the user's security credentials"
 ,ttf-inconsolata,"is the monospace font of YARBS."
 ,ttf-liberation,"- Red Hats Liberation fonts"
-,noto-fonts,"Google Noto TTF fonts."
-,noto-fonts-emoji,"provides unicode symbols and emojis."
+#,noto-fonts,"Google Noto TTF fonts."
+#,noto-fonts-emoji,"provides unicode symbols and emojis."
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."
 ,termite,"is the terminal I use right now."
@@ -23,4 +23,4 @@ A,spotify,is a music app. Its not free.
 ,pcmanfm-gtk3,is a simple GUI file manager.
 ,gvfs-mtp,is a virtual filesystem implementation for GIO
 ,firefox,"doesn't need a description."
-A,popcorntime,"is a program that I don't use."
+A,popcorntime-bin,"is a program that I don't use."

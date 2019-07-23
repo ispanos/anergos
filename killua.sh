@@ -7,7 +7,7 @@ enable_numlk_tty() {
 }
 
 lock_sleep() {
-	if [ -f /usr/bin/i3lock ] && [ ! -f /usr/bin/swaylock ]; then
+	if [ -f /usr/bin/i3lock ] && [ ! -f /usr/bin/sway ]; then
 		cat > /etc/systemd/system/SleepLocki3@yiannis.service <<-EOF
 			#/etc/systemd/system/
 			[Unit]
@@ -56,6 +56,6 @@ resolv_conf() {
 #sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 enable_numlk_tty
 lock_sleep
-temps
+# temps
 # data
 # resolv_conf

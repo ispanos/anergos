@@ -6,7 +6,6 @@ error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
-aurhelper="yay"
 
 i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
 coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
@@ -44,30 +43,6 @@ done
 #[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
 [ -z "$prog_files" ] && prog_files="$sway $coreprogs $common"
 
-#		CONTENTS:				#
-#		get_dialog				#
-#		get_hostname			#
-#		get_userandpass			#
-#		get_root_pass			#
-#		confirm_n_go			#
-#		get_deps				#
-#		set_locale_time			#
-#		inst_bootloader			#
-#		pacman_stuff			#
-#		swap_stuff				#
-#		disable_beep			#
-#		multilib				#
-#		create_user				#
-#		newperms				#
-#		aur_helper_inst			#
-#		installationloop		#
-#		clone_dotfiles			#
-#		config_killua			#
-#		config_network			#
-#		create_pack_ref			#
-#		final_sys_settigs		#
-#		set_root_pw				#
-#		newperms				#
 
 # Used in more that one place.
 serviceinit() { 
@@ -267,12 +242,12 @@ newperms() {
 	chmod 440 /etc/sudoers.d/wheel
 }
 
-aur_helper_inst() { 
-	dialog --infobox "Installing \"${aurhelper}\"..." 4 50
+yay_install() { 
+	dialog --infobox "Installing yay..." 4 50
 	cd /tmp || exit
-	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/"$aurhelper".tar.gz &&
-	sudo -u "$name" tar -xvf ${aurhelper}.tar.gz >/dev/null 2>&1 &&
-	cd ${aurhelper} && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
+	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
+	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
+	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
 	cd /tmp || return
 }
 
@@ -294,7 +269,7 @@ gitmakeinstall() {
 aurinstall() {
 	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
-	sudo -u "$name" $aurhelper -S --noconfirm "$1" >/dev/null 2>&1
+	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
 }
 
 pipinstall() {
@@ -406,7 +381,6 @@ set_root_pw() {
 }
 
 config_killua() {
-	dialog --infobox "Killua..." 0 0
 	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/killua.sh" > killua.sh 
 	bash killua.sh && rm killua.sh
 }
@@ -427,9 +401,9 @@ pacman_stuff
 #swap_stuff
 disable_beep
 multilib
-create_user 		|| error "Error adding user."
+create_user 	|| error "Error adding user."
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
-aur_helper_inst 	|| error "Failed to install AUR helper." # Requires user.
+yay_install 	|| error "Failed to install yay." # Requires user.
 installationloop
 clone_dotfiles
 [ $hostname = "killua" ] && config_killua
