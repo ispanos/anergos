@@ -157,7 +157,7 @@ systemd_boot() {
 						echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
 	[ $cpu = "no" ] || 	echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
 						echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
-						echo "options root=${uuidroot} rw"  >> /boot/loader/entries/arch.conf
+						echo "options root=${uuidroot} rw quiet"  >> /boot/loader/entries/arch.conf
 }
 
 grub_mbr(){
