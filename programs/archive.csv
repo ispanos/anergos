@@ -9,6 +9,9 @@
 # common,,
 ,noto-fonts,"Google Noto TTF fonts."
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
+,libreoffice-fresh,is an office suit.
+,hunspell-en_US,is a dicttianery for liberofice
+,hunspell-el,is a Gerek dicttianery for liberofice
 # Media:,,
 ,pulseaudio-ctl,""
 ,pulseaudio-jack,""
@@ -36,7 +39,7 @@ A,ttf-ms-fonts,"are Microsoft fonts."
 ,mc,""
 ,tmux,"is a terminal multiplexer."
 ,neofetch,""
-A,sc-im,"is an Excel-like terminal spreadsheet manager."
+A,sc-im,"is a terminal spreadsheet manager."
 A,urlscan,"parses URLs in the terminal allowing keyboard-based selection."
 A,cydia-impactor,"is a GUI tool for working with mobile devices. -cydiaimpactor.com"
 A,task-spooler,"queues commands or files for download."
@@ -51,9 +54,6 @@ A,multibootusb,""
 ,brasero,"is a DVD burner program."
 A,wattmangtk,""
 A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20"
-,libreoffice-fresh,is an office suit.
-,hunspell-en_US,is a dicttianery for liberofice
-,hunspell-el,is a Gerek dicttianery for liberofice
 # X,,
 ,xcape,"gives the special escape/super mappings of LARBS."
 ,xdotool,"provides window action utilities on the command line."

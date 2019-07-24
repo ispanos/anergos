@@ -373,6 +373,7 @@ final_sys_settigs() {
 	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
 	[ -f /usr/bin/gdm ] && serviceinit gdm
 	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
 }
 
 set_root_pw() {
