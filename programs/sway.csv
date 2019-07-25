@@ -6,7 +6,7 @@
 ,bemenu,"is like dmenu for wayland."
 A,j4-dmenu-desktop-git,"is a rewrite of i3-dmenu-desktop, which is much faster ."
 ,xorg-server-xwayland,"is a compatibility layer for x11 apps."
-,qt5-wayland,"provides APIs for Wayland."
+#,qt5-wayland,"provides APIs for Wayland."
 ,wl-clipboard,"allows copying and pasting from the command line."
 ,mako,"is a notification daemon."
 ,grim,"is a screenshot utility for Wayland."
