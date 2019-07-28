@@ -236,6 +236,69 @@ create_user() {
 	unset upwd1 upwd2
 }
 
+auto_log_in() {
+	dialog --infobox "Configuring login." 3 23
+	if [ $hostname = "gon" ]; then
+		#  Actual auto-login.
+		linsetting="--autologin $name"
+	else
+		#  Username auto-type.
+		linsetting="--skip-login --login-options $name"
+	fi
+	
+	cat > /etc/systemd/system/getty@.service <<-EOF
+		[Unit]
+		Description=Getty on %I
+		Documentation=man:agetty(8) man:systemd-getty-generator(8)
+		Documentation=http://0pointer.de/blog/projects/serial-console.html
+		After=systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
+		
+		# If additional gettys are spawned during boot then we should make
+		# sure that this is synchronized before getty.target, even though
+		# getty.target didn't actually pull it in.
+		Before=getty.target
+		IgnoreOnIsolate=yes
+		
+		# IgnoreOnIsolate causes issues with sulogin, if someone isolates
+		# rescue.target or starts rescue.service from multi-user.target or
+		# graphical.target.
+		Conflicts=rescue.service
+		Before=rescue.service
+		
+		# On systems without virtual consoles, don't start any getty. Note
+		# that serial gettys are covered by serial-getty@.service, not this
+		# unit.
+		ConditionPathExists=/dev/tty0
+		
+		[Service]
+		ExecStart=-/sbin/agetty $linsetting --noclear %I \$TERM
+		
+		Type=idle
+		Restart=always
+		RestartSec=0
+		UtmpIdentifier=%I
+		TTYPath=/dev/%I
+		TTYReset=yes
+		TTYVHangup=yes
+		TTYVTDisallocate=yes
+		KillMode=process
+		IgnoreSIGPIPE=no
+		SendSIGHUP=yes
+		
+		# Unset locale for the console getty since the console has problems
+		# displaying some internationalized messages.
+		UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
+		
+		[Install]
+		WantedBy=getty.target
+		DefaultInstance=tty1
+		
+	EOF
+
+	systemctl daemon-reload &&
+	systemctl reenable getty@tty1.service
+}
+
 newperms() {
 	# Set special sudoers settings for install (or after).
 	echo "$* " > /etc/sudoers.d/wheel
@@ -403,6 +466,7 @@ pacman_stuff
 disable_beep
 multilib
 create_user 	|| error "Error adding user."
+auto_log_in
 newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 yay_install 	|| error "Failed to install yay." # Requires user.
 installationloop
