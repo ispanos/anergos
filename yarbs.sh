@@ -20,23 +20,23 @@ help() {
 
 		Dotfiles:
 		  -d <link>      to set your own dotfiles's repo. By default it uses my own dotfiles repository.
-		
+
 		Packages:
 		  -p             Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults.
-		
+
 		Example: yarbs -p link1 link2 file1 -m -d https://yourgitrepo123.xyz/dotfiles
 		Visit the original repo https://github.com/ispanos/yarbs.git for more info.
 	EOF
 }
 
-while getopts "mhd:p:" option; do 
+while getopts "mhd:p:" option; do
 	case "${option}" in
 		m) multi_lib_bool="true" ;;
 		d) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
 		p) prog_files=${OPTARG} ;;
 		h) help && exit ;;
 		*) help && exit  ;;
-	esac 
+	esac
 done
 
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
@@ -45,7 +45,7 @@ done
 
 
 # Used in more that one place.
-serviceinit() { 
+serviceinit() {
 	for service in "$@"; do
 		dialog --infobox "Enabling \"$service\"..." 4 40
 		systemctl enable "$service"
@@ -63,13 +63,13 @@ get_userandpass() {
 	# Prompts user for new username an password.
 	name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
 
-	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do	
+	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
 		name=$(dialog --no-cancel --inputbox "Name not valid. Start with a letter, use lowercase letters, - or _" 10 60 3>&1 1>&2 2>&3 3>&1)
 	done
 
 	upwd1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
 	upwd2=$(dialog --no-cancel --passwordbox "Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-	
+
 	while ! [ "$upwd1" = "$upwd2" ]; do
 		unset upwd2
 		upwd1=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
@@ -81,7 +81,7 @@ get_root_pass() {
 	# Prompts user for new username an password.
 	rpwd1=$(dialog --no-cancel --passwordbox "Enter root user's password." 10 60 3>&1 1>&2 2>&3 3>&1)
 	rpwd2=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-	
+
 	while ! [ "$rpwd1" = "$rpwd2" ]; do
 		unset rpwd2
 		rpwd1=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
@@ -127,7 +127,7 @@ systemd_boot() {
 	# Installs systemd-boot to the eps partition
 	dialog --infobox "Setting-up systemd-boot" 0 0
 	bootctl --path=/boot install
-	 
+
 	# Creates pacman hook to update systemd-boot after package upgrade.
 	mkdir -p /etc/pacman.d/hooks
 	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
@@ -135,23 +135,23 @@ systemd_boot() {
 		Type = Package
 		Operation = Upgrade
 		Target = systemd
-		
+
 		[Action]
 		Description = Updating systemd-boot
 		When = PostTransaction
 		Exec = /usr/bin/bootctl update
 	EOF
-	 
+
 	# Creates loader.conf. Stored in files/ folder on repo.
 	cat > /boot/loader/loader.conf <<-EOF
 		default  arch
 		console-mode max
 		editor   no
 	EOF
-	
+
 	# sets uuidroot as the UUID of the partition mounted at "/".
 	uuidroot="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
-	
+
 	# Creates loader entry for root partition, using the "linux" kernel
 						echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
 						echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
@@ -179,7 +179,7 @@ inst_bootloader(){
 
 pacman_stuff() {
 	dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
-	
+
 	# Creates pacman hook to keep only the 3 latest versions of packages.
 	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 		[Trigger]
@@ -188,7 +188,7 @@ pacman_stuff() {
 		Operation = Install
 		Operation = Upgrade
 		Target = *
-		
+
 		[Action]
 		Description = Keeps only the latest 3 versions of packages
 		When = PostTransaction
@@ -207,18 +207,18 @@ swap_stuff() {
 	mkswap /swapfile
 	swapon /swapfile
 	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
-	
+
 	# Sets swappiness and cache pressure for better performance.
 	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
 	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 }
 
-disable_beep() { 
+disable_beep() {
 	dialog --infobox "Disabling 'beep error' sound." 10 50
 	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 }
 
-multilib() { 
+multilib() {
 	# Enables multilib if flag -m is used.
 	if [ "$multi_lib_bool" ]; then
 		dialog --infobox "Enabling multilib..." 0 0
@@ -231,7 +231,7 @@ multilib() {
 create_user() {
 	# Adds user `$name` with password $upwd1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
-	useradd -m -g wheel,power,lock,uucp -s /bin/bash "$name" > /dev/null 2>&1
+	useradd -m -g wheel -G power,lock,uucp -s /bin/bash "$name" > /dev/null 2>&1
 	echo "$name:$upwd1" | chpasswd
 	unset upwd1 upwd2
 }
@@ -245,34 +245,34 @@ auto_log_in() {
 		#  Username auto-type.
 		linsetting="--skip-login --login-options $name"
 	fi
-	
+
 	cat > /etc/systemd/system/getty@.service <<-EOF
 		[Unit]
 		Description=Getty on %I
 		Documentation=man:agetty(8) man:systemd-getty-generator(8)
 		Documentation=http://0pointer.de/blog/projects/serial-console.html
 		After=systemd-user-sessions.service plymouth-quit-wait.service getty-pre.target
-		
+
 		# If additional gettys are spawned during boot then we should make
 		# sure that this is synchronized before getty.target, even though
 		# getty.target didn't actually pull it in.
 		Before=getty.target
 		IgnoreOnIsolate=yes
-		
+
 		# IgnoreOnIsolate causes issues with sulogin, if someone isolates
 		# rescue.target or starts rescue.service from multi-user.target or
 		# graphical.target.
 		Conflicts=rescue.service
 		Before=rescue.service
-		
+
 		# On systems without virtual consoles, don't start any getty. Note
 		# that serial gettys are covered by serial-getty@.service, not this
 		# unit.
 		ConditionPathExists=/dev/tty0
-		
+
 		[Service]
 		ExecStart=-/sbin/agetty $linsetting --noclear %I \$TERM
-		
+
 		Type=idle
 		Restart=always
 		RestartSec=0
@@ -284,15 +284,15 @@ auto_log_in() {
 		KillMode=process
 		IgnoreSIGPIPE=no
 		SendSIGHUP=yes
-		
+
 		# Unset locale for the console getty since the console has problems
 		# displaying some internationalized messages.
 		UnsetEnvironment=LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION
-		
+
 		[Install]
 		WantedBy=getty.target
 		DefaultInstance=tty1
-		
+
 	EOF
 
 	systemctl daemon-reload &&
@@ -305,7 +305,7 @@ newperms() {
 	chmod 440 /etc/sudoers.d/wheel
 }
 
-yay_install() { 
+yay_install() {
 	dialog --infobox "Installing yay..." 4 50
 	cd /tmp || exit
 	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
@@ -352,9 +352,9 @@ mergeprogsfiles() {
 }
 
 installationloop() {
-	mergeprogsfiles 
+	mergeprogsfiles
 	pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
-	
+
 	total=$(wc -l < /tmp/progs.csv)
 	aurinstalled=$(pacman -Qm | awk '{print $1}')
 	while IFS=, read -r tag program comment; do
@@ -388,10 +388,10 @@ init_net_manage() {
 		cat > /etc/systemd/network/en.network <<-EOF
 			[Match]
 			Name=en*
-			
+
 			[Network]
 			DHCP=ipv4
-			
+
 			[DHCP]
 			RouteMetric=10
 		EOF
@@ -399,10 +399,10 @@ init_net_manage() {
 		cat > /etc/systemd/network/wl.network <<-EOF
 			[Match]
 			Name=wl*
-			
+
 			[Network]
 			DHCP=ipv4
-			
+
 			[DHCP]
 			RouteMetric=20
 		EOF
