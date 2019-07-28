@@ -57,6 +57,6 @@ resolv_conf() {
 sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 enable_numlk_tty
 lock_sleep
-temps
+#temps
 data
-# resolv_conf
+resolv_conf
