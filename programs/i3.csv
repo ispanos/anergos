@@ -1,4 +1,4 @@
-#TAG,NAME IN REPO (or git url),PURPOSE
+#TAG,NAME IN REPO,PURPOSE
 ,i3-gaps,"is the main graphical user interface and window manager."
 ,i3blocks,"is the status bar."
 ,i3lock,"is the screen lock."

@@ -1,4 +1,4 @@
-#TAG,NAME IN REPO (or git url),PURPOSE
+#TAG,NAME IN REPO,PURPOSE
 ,sway,"is an i3 replacment of wayland."
 ,swaylock,"is a screen locker for Wayland."
 ,swayidle,"handles sway when its idle."

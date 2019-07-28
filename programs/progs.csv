@@ -1,4 +1,4 @@
-#TAG,NAME IN REPO (or git url),PURPOSE
+#TAG,NAME IN REPO,PURPOSE
 ,atool,"manages and gives information about archives."
 ,arch-audit," is a CVE monitoring utility."
 ,bc,"is an arbitrary precision calculator language."

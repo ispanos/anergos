@@ -1,4 +1,4 @@
-#TAG,NAME IN REPO (or git url),PURPOSE
+#TAG,NAME IN REPO,PURPOSE
 ,pulseaudio-alsa,"is an audio interface with ALSA."
 ,pulsemixer,"is an audio controller."
 ,gnome-keyring,"takes care of the user's security credentials"
