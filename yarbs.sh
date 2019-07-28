@@ -40,8 +40,8 @@ while getopts "mhd:p:" option; do
 done
 
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
-#[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
-[ -z "$prog_files" ] && prog_files="$sway $coreprogs $common"
+[ -z "$prog_files" ] && prog_files="$i3 $coreprogs $common"
+#[ -z "$prog_files" ] && prog_files="$sway $coreprogs $common"
 
 
 # Used in more that one place.
