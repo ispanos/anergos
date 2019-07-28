@@ -231,7 +231,7 @@ multilib() {
 create_user() {
 	# Adds user `$name` with password $upwd1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
-	useradd -m -g wheel -s /bin/bash "$name" > /dev/null 2>&1
+	useradd -m -g wheel,power,lock,uucp -s /bin/bash "$name" > /dev/null 2>&1
 	echo "$name:$upwd1" | chpasswd
 	unset upwd1 upwd2
 }
@@ -462,7 +462,7 @@ get_deps
 set_locale_time
 inst_bootloader
 pacman_stuff
-#swap_stuff
+swap_stuff
 disable_beep
 multilib
 create_user 	|| error "Error adding user."
@@ -479,9 +479,12 @@ set_root_pw
 
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
-/usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend,\
 /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
 /usr/bin/pacman -Syu,/usr/bin/pacman -Syyuu,/usr/bin/pacman -Syyu,\
 /usr/bin/systemctl restart NetworkManager,\
 /usr/bin/systemctl restart systemd-networkd,\
 /usr/bin/systemctl restart systemd-resolved"
+
+# This is a placeholder.
+#newperms "%power ALL=(ALL) NOPASSWD: \
+#/usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend"
