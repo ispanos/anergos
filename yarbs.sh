@@ -450,9 +450,6 @@ config_killua() {
 }
 
 
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
-##                 Start                    |||||||||||||||||||||
-##|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 get_dialog 			|| error "Check your internet connection?"
 get_hostname 		|| error "User exited"
 get_userandpass 	|| error "User exited."
@@ -484,7 +481,3 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/systemctl restart NetworkManager,\
 /usr/bin/systemctl restart systemd-networkd,\
 /usr/bin/systemctl restart systemd-resolved"
-
-# This is a placeholder.
-#newperms "%power ALL=(ALL) NOPASSWD: \
-#/usr/bin/shutdown,/usr/bin/reboot,/usr/bin/systemctl suspend"
