@@ -3,7 +3,6 @@
 ,arch-audit," is a CVE monitoring utility."
 ,bc,"is an arbitrary precision calculator language."
 ,cronie,"is a daemon that runs specified programs at scheduled times."
-,efibootmgr,"is a tool to modify UEFI Firmware Boot Manager Variables."
 ,pacman-contrib,"provides scripts for pacman on Archlinux."
 ,bash-completion,"is what it sounds like."
 ,cmake,"is a cross-platform open-source make system."

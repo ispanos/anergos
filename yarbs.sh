@@ -2,7 +2,7 @@
 
 # Arch Bootstraping script
 # License: GNU GPLv3
-error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
+function error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
@@ -13,7 +13,7 @@ common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.c
 sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
 gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
 
-help() {
+function help() {
 	cat <<-EOF
 		Multilib:
 		  -m             Enable multilib.
@@ -45,21 +45,21 @@ done
 
 
 # Used in more that one place.
-serviceinit() {
+function serviceinit() {
 	for service in "$@"; do
 		dialog --infobox "Enabling \"$service\"..." 4 40
 		systemctl enable "$service"
 	done
 }
 
-get_dialog() {
+function get_dialog() {
 	echo "Installing dialog, to make things look better..."
 	pacman --noconfirm -Syyu dialog >/dev/null 2>&1
 }
 
-get_hostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
+function get_hostname() { hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit; }
 
-get_userandpass() {
+function get_userandpass() {
 	# Prompts user for new username an password.
 	name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
 
@@ -77,7 +77,7 @@ get_userandpass() {
 	done
 }
 
-get_root_pass() {
+function get_root_pass() {
 	# Prompts user for new username an password.
 	rpwd1=$(dialog --no-cancel --passwordbox "Enter root user's password." 10 60 3>&1 1>&2 2>&3 3>&1)
 	rpwd2=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
@@ -89,14 +89,14 @@ get_root_pass() {
 	done
 }
 
-confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
+function confirm_n_go() { dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 ; }
 
-get_deps() {
+function get_deps() {
 	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
 	pacman --noconfirm --needed -S linux-headers git base-devel >/dev/null 2>&1
 }
 
-set_locale_time() {
+function set_locale_time() {
 	dialog --infobox "Locale and time-sync..." 0 0
 	serviceinit systemd-timesyncd.service
 	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
@@ -123,7 +123,7 @@ get_microcode(){
 	fi
 }
 
-systemd_boot() {
+function systemd_boot() {
 	# Installs systemd-boot to the eps partition
 	dialog --infobox "Setting-up systemd-boot" 0 0
 	bootctl --path=/boot install
@@ -172,12 +172,14 @@ inst_bootloader(){
 	get_microcode
 	if [ -d "/sys/firmware/efi" ]; then
 		systemd_boot
+		pacman --needed -noconfirm -S efibootmgr > /dev/null 2>&1
+		dialog --infobox "Installing efibootmgr, a tool to modify UEFI Firmware Boot Manager Variables." 4 50
 	else
 		grub_mbr
 	fi
 }
 
-pacman_stuff() {
+function pacman_stuff() {
 	dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
 
 	# Creates pacman hook to keep only the 3 latest versions of packages.
@@ -200,7 +202,7 @@ pacman_stuff() {
 	grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
 }
 
-swap_stuff() {
+function swap_stuff() {
 	dialog --infobox "Creating swapfile" 0 0
 	fallocate -l 2G /swapfile
 	chmod 600 /swapfile
@@ -213,12 +215,12 @@ swap_stuff() {
 	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 }
 
-disable_beep() {
+function disable_beep() {
 	dialog --infobox "Disabling 'beep error' sound." 10 50
 	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 }
 
-multilib() {
+function multilib() {
 	# Enables multilib if flag -m is used.
 	if [ "$multi_lib_bool" ]; then
 		dialog --infobox "Enabling multilib..." 0 0
@@ -228,7 +230,7 @@ multilib() {
 	fi
 }
 
-create_user() {
+function create_user() {
 	# Adds user `$name` with password $upwd1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
 	useradd -m -g wheel -G power,lock,uucp -s /bin/bash "$name" > /dev/null 2>&1
@@ -236,7 +238,7 @@ create_user() {
 	unset upwd1 upwd2
 }
 
-auto_log_in() {
+function auto_log_in() {
 	dialog --infobox "Configuring login." 3 23
 	if [ $hostname = "gon" ]; then
 		#  Actual auto-login.
@@ -299,13 +301,13 @@ auto_log_in() {
 	systemctl reenable getty@tty1.service
 }
 
-newperms() {
+function newperms() {
 	# Set special sudoers settings for install (or after).
 	echo "$* " > /etc/sudoers.d/wheel
 	chmod 440 /etc/sudoers.d/wheel
 }
 
-yay_install() {
+function yay_install() {
 	dialog --infobox "Installing yay..." 4 50
 	cd /tmp || exit
 	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
@@ -314,12 +316,12 @@ yay_install() {
 	cd /tmp || return
 }
 
-maininstall() { # Installs all needed programs from main repo.
+function maininstall() { # Installs all needed programs from main repo.
 	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
 	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
 }
 
-gitmakeinstall() {
+function gitmakeinstall() {
 	dir=$(mktemp -d)
 	dialog  --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
 	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
@@ -329,19 +331,19 @@ gitmakeinstall() {
 	cd /tmp || return
 }
 
-aurinstall() {
+function aurinstall() {
 	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
 	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
 	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
 }
 
-pipinstall() {
+function pipinstall() {
 	dialog --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
 	command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
 	yes | pip install "$1"
 }
 
-mergeprogsfiles() {
+function mergeprogsfiles() {
 	for list in ${prog_files}; do
 		if [ -f "$list" ]; then
 			cat "$list" >> /tmp/progs.csv
@@ -351,7 +353,7 @@ mergeprogsfiles() {
 	done
 }
 
-installationloop() {
+function installationloop() {
 	mergeprogsfiles
 	pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
 
@@ -369,7 +371,7 @@ installationloop() {
 	done < /tmp/progs.csv
 }
 
-clone_dotfiles() {
+function clone_dotfiles() {
 	dialog --infobox "Downloading and installing config files..." 4 60
 	cd /home/"$name"
 	echo ".cfg" >> .gitignore
@@ -380,38 +382,26 @@ clone_dotfiles() {
 	rm .gitignore
 }
 
-init_net_manage() {
-	if [ -f /usr/bin/NetworkManager ]; then
-		serviceinit NetworkManager
-	else
-		# Starts networkd as a network manager and configures ethernet.
-		cat > /etc/systemd/network/en.network <<-EOF
+function networkd_config() {
+	# Starts networkd as a network manager and creates config files..
+	net_lot=$(networkctl --no-legend | grep -P "ether|wlan" | awk '{print $2}')
+	for device in ${net_lot[*]}; do 
+		((i++))
+		cat > /etc/systemd/network/${device}.network <<-EOF
 			[Match]
-			Name=en*
-
+			Name=$device
+			
 			[Network]
 			DHCP=ipv4
-
+			
 			[DHCP]
-			RouteMetric=10
+			RouteMetric=$(($i * 10))
 		EOF
-
-		cat > /etc/systemd/network/wl.network <<-EOF
-			[Match]
-			Name=wl*
-
-			[Network]
-			DHCP=ipv4
-
-			[DHCP]
-			RouteMetric=20
-		EOF
-
-		serviceinit systemd-networkd systemd-resolved
-	fi
+	done
+	serviceinit systemd-networkd systemd-resolved
 }
 
-config_network() {
+function config_network() {
 	dialog --infobox "Configuring network.." 0 0
 	echo $hostname > /etc/hostname
 	cat > /etc/hosts <<-EOF
@@ -421,10 +411,15 @@ config_network() {
 		127.0.1.1       ${hostname}.localdomain  $hostname
 	EOF
 
-	init_net_manage
+	if [ -f /usr/bin/NetworkManager ]; then
+		serviceinit NetworkManager
+	else
+		networkd_config
+	fi
+	
 }
 
-create_pack_ref() {
+function create_pack_ref() {
 	dialog --infobox "Removing orphans..." 0 0
 	pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 	sudo -u "$name" mkdir -p /home/"$name"/.local/
@@ -432,19 +427,19 @@ create_pack_ref() {
 	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 }
 
-final_sys_settigs() {
+function final_sys_settigs() {
 	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
 	[ -f /usr/bin/gdm ] && serviceinit gdm
 	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
+	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
 }
 
-set_root_pw() {
+function set_root_pw() {
 	printf "${rpwd1}\\n${rpwd1}" | passwd >/dev/null 2>&1
 	unset rpwd1 rpwd2
 }
 
-config_killua() {
+function config_killua() {
 	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/killua.sh" > killua.sh 
 	bash killua.sh && rm killua.sh
 }
