@@ -472,7 +472,7 @@ function config_killua() {
 
 
 get_dialog 			|| error "Check your internet connection?"
-source autoconf
+source autoconf.sh
 get_hostname 		|| error "User exited"
 get_userandpass 	|| error "User exited."
 get_root_pass 		|| error "User exited."
