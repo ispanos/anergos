@@ -133,7 +133,7 @@ function yay_install() {
 	cd /tmp || exit
 	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz
 	sudo -u ${name} tar -xvf yay.tar.gz >/dev/null 2>&1
-	cd yay && sudo -u ${name} makepkg --noconfirm -si >/dev/null 2>&1
+	cd yay && sudo -u ${name} makepkg --noconfirm -si #>/dev/null 2>&1
 	cd /tmp || return
 }
 
