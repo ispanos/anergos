@@ -113,12 +113,6 @@ function get_root_pass() {
 	fi
 }
 
-function confirm_n_go() {
-	if [ "$automated" = "false" ]; then
-		dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35
-	fi
-}
-
 function get_stuff(){
 	get_dialog
 	source autoconf.sh
@@ -126,6 +120,9 @@ function get_stuff(){
 	get_userandpass
 	get_root_pass
 	confirm_n_go
+	if [ "$automated" = "false" ]; then
+		dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35
+	fi
 }
 
 function arch_config() {
@@ -307,7 +304,7 @@ function set_root_pw() {
 	unset rpwd1 rpwd2
 }
 
-function final_sys_settigs() {
+function final_sys_settings() {
 	dialog --infobox "Final configs." 3 18
 	
 	disable_beep
@@ -342,10 +339,6 @@ function final_sys_settigs() {
 		networkd_config && serviceinit systemd-networkd systemd-resolved
 	fi
 
-	set_root_pw
-}
-
-function config_killua() {
 	if [ $hostname = "killua" ]; then
 		sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
 
@@ -357,18 +350,19 @@ function config_killua() {
 		resolv_conf
 		rm killua.sh
 	fi
+
+	clone_dotfiles
+
+	set_root_pw
 }
 
 get_stuff
 arch_config
 create_user
-newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 installationloop
-clone_dotfiles
-config_killua
 create_pack_ref
 create_swapfile
-final_sys_settigs
+final_sys_settings
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
 /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\

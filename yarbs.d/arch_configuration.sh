@@ -132,7 +132,6 @@ function yay_install() {
 	dialog --infobox "Installing yay..." 4 50
 	cd /tmp && curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz
 	sudo -u ${name} tar -xvf yay.tar.gz >/dev/null 2>&1
-	cat /etc/sudoers.d/wheel
 	cd yay && sudo -u ${name} makepkg --needed --noconfirm -si #>/dev/null 2>&1
 	cd /tmp || return
 }
@@ -185,7 +184,9 @@ function pipinstall() {
 }
 
 function installationloop() {
-	get_deps && yay_install && sleep 10
+	get_deps
+	newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
+	yay_install
 	mergeprogsfiles
 	multilib
 
