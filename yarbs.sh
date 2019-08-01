@@ -119,7 +119,7 @@ function confirm_n_go() {
 	fi
 }
 
-function pre_start(){
+function get_stuff(){
 	get_dialog
 	source autoconf.sh
 	get_hostname
@@ -136,15 +136,6 @@ function arch_config() {
 	inst_bootloader
 	pacman_stuff
 	rm autoconf.sh
-}
-
-function create_swapfile() {
-	dialog --infobox "Creating swapfile" 0 0
-	fallocate -l 2G /swapfile
-	chmod 600 /swapfile
-	mkswap /swapfile
-	swapon /swapfile
-	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
 }
 
 function newperms() {
@@ -189,6 +180,15 @@ function networkd_config() {
 			RouteMetric=$(($i * 10))
 		EOF
 	done
+}
+
+function create_swapfile() {
+	dialog --infobox "Creating swapfile" 0 0
+	fallocate -l 2G /swapfile
+	chmod 600 /swapfile
+	mkswap /swapfile
+	swapon /swapfile
+	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
 }
 
 function disable_beep() {
@@ -361,7 +361,7 @@ function config_killua() {
 	fi
 }
 
-pre_start
+get_stuff
 arch_config
 create_user
 installationloop

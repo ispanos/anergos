@@ -76,7 +76,7 @@ function inst_bootloader() {
 	get_microcode
 	if [ -d "/sys/firmware/efi" ]; then
 		systemd_boot
-		pacman --needed -noconfirm -S efibootmgr > /dev/null 2>&1
+		pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
 		dialog --infobox "Installing efibootmgr, a tool to modify UEFI Firmware Boot Manager Variables." 4 50
 	else
 		grub_mbr
@@ -121,13 +121,20 @@ function pacman_stuff() {
 
 
 
-
-
-
 function get_deps() {
-	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
-	pacman --noconfirm --needed -S linux-headers git base-devel >/dev/null 2>&1
+	dialog --title "First things first." --infobox "Installing 'base-devel' and 'git'." 3 40
+	pacman --noconfirm --needed -S  git base-devel >/dev/null 2>&1
 	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+}
+
+function yay_install() {
+	# Requires user.
+	dialog --infobox "Installing yay..." 4 50
+	cd /tmp || exit
+	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
+	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
+	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
+	cd /tmp || return
 }
 
 function mergeprogsfiles() {
@@ -148,16 +155,6 @@ function multilib() {
 		pacman --noconfirm --needed -Sy >/dev/null 2>&1
 		pacman -Fy >/dev/null 2>&1
 	fi
-}
-
-function yay_install() {
-	# Requires user.
-	dialog --infobox "Installing yay..." 4 50
-	cd /tmp || exit
-	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
-	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
-	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
-	cd /tmp || return
 }
 
 function maininstall() { # Installs all needed programs from main repo.
@@ -189,9 +186,9 @@ function pipinstall() {
 
 function installationloop() {
 	get_deps
+	yay_install
 	mergeprogsfiles
 	multilib
-	yay_install
 
 	total=$(wc -l < /tmp/progs.csv)
 	aurinstalled=$(pacman -Qm | awk '{print $1}')
