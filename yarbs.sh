@@ -7,11 +7,13 @@ function error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
 
-i3="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/i3.csv"
-coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
-common="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/common.csv"
-sway="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/sway.csv"
-gnome="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/gnome.csv"
+repo=https://raw.githubusercontent.com/ispanos/YARBS/master
+
+i3="$repo/programs/i3.csv"
+coreprogs="$repo/programs/progs.csv"
+common="$repo/programs/common.csv"
+sway="$repo/programs/sway.csv"
+gnome="$repo/programs/gnome.csv"
 
 function help() {
 	cat <<-EOF
@@ -127,7 +129,7 @@ function pre_start(){
 }
 
 function arch_config() {
-	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.d/arch_configuration.sh" > autoconf.sh
+	curl -sL "$repo/yarbs.d/arch_configuration.sh" > autoconf.sh
 	source autoconf.sh
 	set_locale_time
 	config_network
@@ -159,89 +161,6 @@ function create_user() {
 	unset upwd1 upwd2
 	# Temporarily give wheel that privilages.
 	newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
-}
-
-function get_deps() {
-	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
-	pacman --noconfirm --needed -S linux-headers git base-devel >/dev/null 2>&1
-	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-}
-
-function mergeprogsfiles() {
-	for list in ${prog_files}; do
-		if [ -f "$list" ]; then
-			cat "$list" >> /tmp/progs.csv
-		else
-			curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
-		fi
-	done
-}
-
-function multilib() {
-	# Enables multilib if flag -m is used.
-	if [ "$multi_lib_bool" ]; then
-		dialog --infobox "Enabling multilib..." 0 0
-		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
-		pacman --noconfirm --needed -Sy >/dev/null 2>&1
-		pacman -Fy >/dev/null 2>&1
-	fi
-}
-
-function yay_install() {
-	# Requires user.
-	dialog --infobox "Installing yay..." 4 50
-	cd /tmp || exit
-	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
-	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
-	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
-	cd /tmp || return
-}
-
-function maininstall() { # Installs all needed programs from main repo.
-	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
-	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
-}
-
-function aurinstall() {
-	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
-	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
-	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
-}
-
-function gitmakeinstall() {
-	dir=$(mktemp -d)
-	dialog  --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
-	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
-	cd "$dir" || exit
-	make >/dev/null 2>&1
-	make install >/dev/null 2>&1
-	cd /tmp || return
-}
-
-function pipinstall() {
-	dialog --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
-	command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
-	yes | pip install "$1"
-}
-
-function installationloop() {
-	get_deps
-	mergeprogsfiles
-	multilib
-	yay_install
-
-	total=$(wc -l < /tmp/progs.csv)
-	aurinstalled=$(pacman -Qm | awk '{print $1}')
-	while IFS=, read -r tag program comment; do
-		n=$((n+1))
-		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
-		case "$tag" in
-			"")  maininstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-			"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-			"G") gitmakeinstall "$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-			"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-		esac
-	done < /tmp/progs.csv
 }
 
 function clone_dotfiles() {
@@ -391,22 +310,33 @@ function set_root_pw() {
 }
 
 function final_sys_settigs() {
-
+	dialog --infobox "Final configs." 3 18
+	
 	disable_beep
-	auto_log_in
-	lock_sleep
+	
 	arduino_module
 
 	# Sets swappiness and cache pressure for better performance.
 	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
 	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 
-	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
-	[ -f /usr/bin/gdm ] && serviceinit gdm
-	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
 	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+
+	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
+
+	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
+
+	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+
 	[ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
+
+	if [ -f /usr/bin/gdm ]; then
+		serviceinit gdm
+	else
+		auto_log_in
+		lock_sleep
+	fi
+
 
 	if [ -f /usr/bin/NetworkManager ]; then
 		serviceinit NetworkManager
@@ -419,21 +349,26 @@ function final_sys_settigs() {
 
 function config_killua() {
 	if [ $hostname = "killua" ]; then
-		curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.d/killua.sh" > killua.sh 
-		source killua.sh && rm killua.sh
+		sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
+
+		curl -sL "$repo/yarbs.d/killua.sh" > killua.sh 
+		source killua.sh
+		enable_numlk_tty
+		temps
+		data
+		resolv_conf
+		rm killua.sh
 	fi
 }
 
-
-
 pre_start
 arch_config
-create_swapfile
 create_user
 installationloop
 clone_dotfiles
 config_killua
 create_pack_ref
+create_swapfile
 final_sys_settigs
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \

@@ -29,9 +29,3 @@ resolv_conf() {
 		nameserver 192.168.1.1
 	EOF
 }
-
-sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
-enable_numlk_tty
-temps
-data
-resolv_conf

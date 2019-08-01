@@ -115,3 +115,94 @@ function pacman_stuff() {
 	grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
 	grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
 }
+
+
+
+
+
+
+
+
+
+function get_deps() {
+	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
+	pacman --noconfirm --needed -S linux-headers git base-devel >/dev/null 2>&1
+	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+}
+
+function mergeprogsfiles() {
+	for list in ${prog_files}; do
+		if [ -f "$list" ]; then
+			cat "$list" >> /tmp/progs.csv
+		else
+			curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
+		fi
+	done
+}
+
+function multilib() {
+	# Enables multilib if flag -m is used.
+	if [ "$multi_lib_bool" ]; then
+		dialog --infobox "Enabling multilib..." 0 0
+		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
+		pacman --noconfirm --needed -Sy >/dev/null 2>&1
+		pacman -Fy >/dev/null 2>&1
+	fi
+}
+
+function yay_install() {
+	# Requires user.
+	dialog --infobox "Installing yay..." 4 50
+	cd /tmp || exit
+	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
+	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
+	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
+	cd /tmp || return
+}
+
+function maininstall() { # Installs all needed programs from main repo.
+	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
+	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
+}
+
+function aurinstall() {
+	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
+	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
+	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
+}
+
+function gitmakeinstall() {
+	dir=$(mktemp -d)
+	dialog  --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
+	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
+	cd "$dir" || exit
+	make >/dev/null 2>&1
+	make install >/dev/null 2>&1
+	cd /tmp || return
+}
+
+function pipinstall() {
+	dialog --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
+	command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
+	yes | pip install "$1"
+}
+
+function installationloop() {
+	get_deps
+	mergeprogsfiles
+	multilib
+	yay_install
+
+	total=$(wc -l < /tmp/progs.csv)
+	aurinstalled=$(pacman -Qm | awk '{print $1}')
+	while IFS=, read -r tag program comment; do
+		n=$((n+1))
+		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
+		case "$tag" in
+			"")  maininstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"G") gitmakeinstall "$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+		esac
+	done < /tmp/progs.csv
+}
