@@ -129,13 +129,13 @@ function get_stuff(){
 }
 
 function arch_config() {
-	curl -sL "$repo/yarbs.d/arch_configuration.sh" > autoconf.sh
-	source autoconf.sh
+	curl -sL "$repo/yarbs.d/arch_configuration.sh" > arch_configuration.sh
+	source arch_configuration.sh
 	set_locale_time
 	config_network
 	inst_bootloader
 	pacman_stuff
-	rm autoconf.sh
+	rm arch_configuration.sh
 }
 
 function newperms() {
