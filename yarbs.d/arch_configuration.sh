@@ -76,8 +76,8 @@ function inst_bootloader() {
 	get_microcode
 	if [ -d "/sys/firmware/efi" ]; then
 		systemd_boot
-		pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
 		dialog --infobox "Installing efibootmgr, a tool to modify UEFI Firmware Boot Manager Variables." 4 50
+		pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
 	else
 		grub_mbr
 	fi
@@ -132,8 +132,8 @@ function yay_install() {
 	dialog --infobox "Installing yay..." 4 50
 	cd /tmp || exit
 	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
-	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
-	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
+	sudo -u $name tar -xvf yay.tar.gz >/dev/null 2>&1 &&
+	cd yay && sudo -u $name makepkg --noconfirm -si >/dev/null 2>&1
 	cd /tmp || return
 }
 
