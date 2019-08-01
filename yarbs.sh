@@ -145,13 +145,13 @@ function newperms() {
 }
 
 function create_user() {
+	newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 	# Adds user `$name` with password $upwd1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
 	echo "$name:$upwd1" | chpasswd
 	unset upwd1 upwd2
 	# Temporarily give wheel that privilages.
-	newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 }
 
 function clone_dotfiles() {
