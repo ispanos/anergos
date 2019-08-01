@@ -130,10 +130,11 @@ function get_deps() {
 function yay_install() {
 	# Requires user.
 	dialog --infobox "Installing yay..." 4 50
-	cd /tmp || exit
+	cd /tmp
 	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz
 	sudo -u ${name} tar -xvf yay.tar.gz >/dev/null 2>&1
-	cd yay && sudo -u ${name} makepkg --noconfirm -si #>/dev/null 2>&1
+	echo ${name} && sleep 4
+	cd yay && sudo -u ${name} makepkg --needed --noconfirm -si #>/dev/null 2>&1
 	cd /tmp || return
 }
 
@@ -185,7 +186,7 @@ function pipinstall() {
 }
 
 function installationloop() {
-	get_deps && yay_install || error "Failed to install yay."
+	get_deps && yay_install && sleep 10
 	mergeprogsfiles
 	multilib
 
