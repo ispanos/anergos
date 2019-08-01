@@ -127,7 +127,7 @@ function pre_start(){
 }
 
 function arch_config() {
-	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/arch_configuration.sh" > autoconf.sh
+	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.d/arch_configuration.sh" > autoconf.sh
 	source autoconf.sh
 	set_locale_time
 	config_network
@@ -419,7 +419,7 @@ function final_sys_settigs() {
 
 function config_killua() {
 	if [ $hostname = "killua" ]; then
-		curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/killua.sh" > killua.sh 
+		curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.d/killua.sh" > killua.sh 
 		source killua.sh && rm killua.sh
 	fi
 }
