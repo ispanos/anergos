@@ -145,13 +145,11 @@ function newperms() {
 }
 
 function create_user() {
-	newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 	# Adds user `$name` with password $upwd1.
 	dialog --infobox "Adding user \"$name\"..." 4 50
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
 	echo "$name:$upwd1" | chpasswd
 	unset upwd1 upwd2
-	# Temporarily give wheel that privilages.
 }
 
 function clone_dotfiles() {
@@ -364,6 +362,7 @@ function config_killua() {
 get_stuff
 arch_config
 create_user
+newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
 installationloop
 clone_dotfiles
 config_killua

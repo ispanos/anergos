@@ -83,7 +83,8 @@ fi
 genfstab -U /mnt >> /mnt/etc/fstab
 
 curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.sh" > /mnt/yarbs.sh 
-curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.d/autoconf.sh" > /mnt/autoconf.sh 
+#curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.d/autoconf.sh" > /mnt/autoconf.sh 
+cp autoconf.sh /mnt/autoconf.sh 
 
 # TUI and CLI programs.
 coreprogs="https://raw.githubusercontent.com/ispanos/YARBS/master/programs/progs.csv"
