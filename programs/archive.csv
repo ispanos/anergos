@@ -14,6 +14,18 @@
 ,hunspell-en_US,is a dicttianery for liberofice
 ,hunspell-el,is a Gerek dicttianery for liberofice
 A,spotify,is a music app. Its not free.
+# Gaming, + nvidia,
+,steam,"is a game store."
+,lib32-nss,"fixes network issue with steam on Arch."
+A,discord,"is voice/text chat client for gamers."
+,nvidia,""
+,nvidia-utils,""
+,lib32-nvidia-utils,""
+,nvidia-settings,""
+# LightDM:,,
+,lightdm,""
+,webkit2gtk,""
+,lightdm-webkit-theme-litarvan,""
 # Media:,,
 ,pulseaudio-ctl,""
 ,pulseaudio-jack,""

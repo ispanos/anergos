@@ -10,6 +10,7 @@
 ,nmap,"is a network scanner."
 ,ufw,"is a netfilter firewall."
 ,openssh,"is a suite of security-related network utilities based on the ssh."
+,sshfs,"is a FUSE-based filesystem client for mounting remote directories over ssh."
 ,dosfstools,"allows your computer to access dos-like filesystems."
 ,exfat-utils,"allows management of FAT drives."
 ,ntfs-3g,"allows accessing NTFS partitions."

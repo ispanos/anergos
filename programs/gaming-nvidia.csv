@@ -1,8 +1,0 @@
-#TAG,NAME IN REPO,PURPOSE
-,steam,"is a game store."
-,lib32-nss,"fixes network issue with steam on Arch."
-A,discord,"is voice/text chat client for gamers."
-,nvidia,""
-,nvidia-utils,""
-,lib32-nvidia-utils,""
-,nvidia-settings,""

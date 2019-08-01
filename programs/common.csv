@@ -20,6 +20,8 @@
 ,gvfs-mtp,"(MTP backend; Android, media player)"
 ,gvfs-smb,"(SMB/CIFS backend; Windows client)"
 ,firefox,"doesn't need a description."
+,arduino,"is an IDE for arduino."
+,arduino-docs,"are documents for arduino offline documentation."
 A,popcorntime-bin,"is a program that I don't use."
 A,gtk-theme-minwaita,is my current gtk theme.
 A,sublime-text-dev,is a gtk3 text editor I use. Its not free.

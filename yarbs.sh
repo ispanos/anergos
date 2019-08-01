@@ -117,133 +117,64 @@ function confirm_n_go() {
 	fi
 }
 
-function get_deps() {
-	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
-	pacman --noconfirm --needed -S linux-headers git base-devel >/dev/null 2>&1
+function pre_start(){
+	get_dialog
+	source autoconf.sh
+	get_hostname
+	get_userandpass
+	get_root_pass
+	confirm_n_go
 }
 
-function set_locale_time() {
-	dialog --infobox "Locale and time-sync..." 0 0
-	serviceinit systemd-timesyncd.service
-	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
-	hwclock --systohc
-	sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
-	locale-gen > /dev/null 2>&1
-	echo 'LANG="'$lang'"' > /etc/locale.conf
+function arch_config() {
+	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/arch_configuration.sh" > autoconf.sh
+	source autoconf.sh
+	set_locale_time
+	config_network
+	inst_bootloader
+	pacman_stuff
+	rm autoconf.sh
 }
 
-######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
-######   sed for HOOKS="...keyboard encrypt lvm2"   ######
-######   umkinitcpio -p linux && linux-lts entry?   ######
-
-get_microcode(){
-	case $(lscpu | grep Vendor | awk '{print $3}') in
-		"GenuineIntel") cpu="intel" ;;
-		"AuthenticAMD") cpu="amd" 	;;
-		*)				cpu="no" 	;;
-	esac
-
-	if [ $cpu != "no" ]; then
-		dialog --infobox "Installing ${cpu} microcode." 3 31
-		pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
-	fi
-}
-
-function systemd_boot() {
-	# Installs systemd-boot to the eps partition
-	dialog --infobox "Setting-up systemd-boot" 0 0
-	bootctl --path=/boot install
-
-	# Creates pacman hook to update systemd-boot after package upgrade.
-	mkdir -p /etc/pacman.d/hooks
-	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
-		[Trigger]
-		Type = Package
-		Operation = Upgrade
-		Target = systemd
-
-		[Action]
-		Description = Updating systemd-boot
-		When = PostTransaction
-		Exec = /usr/bin/bootctl update
-	EOF
-
-	# Creates loader.conf. Stored in files/ folder on repo.
-	cat > /boot/loader/loader.conf <<-EOF
-		default  arch
-		console-mode max
-		editor   no
-	EOF
-
-	# sets uuidroot as the UUID of the partition mounted at "/".
-	uuidroot="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
-
-	# Creates loader entry for root partition, using the "linux" kernel
-						echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
-						echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
-	[ $cpu = "no" ] || 	echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
-						echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
-						echo "options root=${uuidroot} rw quiet"  >> /boot/loader/entries/arch.conf
-}
-
-grub_mbr(){
-		dialog --infobox "Setting-up Grub. -WARNING- ONLY MBR partition table." 0 0
-		pacman --noconfirm --needed -S grub >/dev/null 2>&1
-		grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
-		grub-install --target=i386-pc $grub_path >/dev/null 2>&1
-		grub-mkconfig -o /boot/grub/grub.cfg
-}
-
-inst_bootloader(){
-	get_microcode
-	if [ -d "/sys/firmware/efi" ]; then
-		systemd_boot
-		pacman --needed -noconfirm -S efibootmgr > /dev/null 2>&1
-		dialog --infobox "Installing efibootmgr, a tool to modify UEFI Firmware Boot Manager Variables." 4 50
-	else
-		grub_mbr
-	fi
-}
-
-function pacman_stuff() {
-	dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
-
-	# Creates pacman hook to keep only the 3 latest versions of packages.
-	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
-		[Trigger]
-		Type = Package
-		Operation = Remove
-		Operation = Install
-		Operation = Upgrade
-		Target = *
-
-		[Action]
-		Description = Keeps only the latest 3 versions of packages
-		When = PostTransaction
-		Exec = /usr/bin/paccache -rk3
-	EOF
-
-	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-	grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
-	grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
-}
-
-function swap_stuff() {
+function create_swapfile() {
 	dialog --infobox "Creating swapfile" 0 0
 	fallocate -l 2G /swapfile
 	chmod 600 /swapfile
 	mkswap /swapfile
 	swapon /swapfile
 	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
-
-	# Sets swappiness and cache pressure for better performance.
-	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
-	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 }
 
-function disable_beep() {
-	dialog --infobox "Disabling 'beep error' sound." 10 50
-	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+function newperms() {
+	# Set special sudoers settings for install (or after).
+	echo "$* " > /etc/sudoers.d/wheel
+	chmod 440 /etc/sudoers.d/wheel
+}
+
+function create_user() {
+	# Adds user `$name` with password $upwd1.
+	dialog --infobox "Adding user \"$name\"..." 4 50
+	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
+	echo "$name:$upwd1" | chpasswd
+	unset upwd1 upwd2
+	# Temporarily give wheel that privilages.
+	newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
+}
+
+function get_deps() {
+	dialog --title "First things first." --infobox "Installing 'base-devel', 'git', and 'linux-headers'." 3 60
+	pacman --noconfirm --needed -S linux-headers git base-devel >/dev/null 2>&1
+	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+}
+
+function mergeprogsfiles() {
+	for list in ${prog_files}; do
+		if [ -f "$list" ]; then
+			cat "$list" >> /tmp/progs.csv
+		else
+			curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
+		fi
+	done
 }
 
 function multilib() {
@@ -256,12 +187,102 @@ function multilib() {
 	fi
 }
 
-function create_user() {
-	# Adds user `$name` with password $upwd1.
-	dialog --infobox "Adding user \"$name\"..." 4 50
-	useradd -m -g wheel -G power,lock,uucp -s /bin/bash "$name" > /dev/null 2>&1
-	echo "$name:$upwd1" | chpasswd
-	unset upwd1 upwd2
+function yay_install() {
+	# Requires user.
+	dialog --infobox "Installing yay..." 4 50
+	cd /tmp || exit
+	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
+	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
+	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
+	cd /tmp || return
+}
+
+function maininstall() { # Installs all needed programs from main repo.
+	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
+	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
+}
+
+function aurinstall() {
+	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
+	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
+	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
+}
+
+function gitmakeinstall() {
+	dir=$(mktemp -d)
+	dialog  --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
+	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
+	cd "$dir" || exit
+	make >/dev/null 2>&1
+	make install >/dev/null 2>&1
+	cd /tmp || return
+}
+
+function pipinstall() {
+	dialog --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
+	command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
+	yes | pip install "$1"
+}
+
+function installationloop() {
+	get_deps
+	mergeprogsfiles
+	multilib
+	yay_install
+
+	total=$(wc -l < /tmp/progs.csv)
+	aurinstalled=$(pacman -Qm | awk '{print $1}')
+	while IFS=, read -r tag program comment; do
+		n=$((n+1))
+		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
+		case "$tag" in
+			"")  maininstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"G") gitmakeinstall "$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+			"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+		esac
+	done < /tmp/progs.csv
+}
+
+function clone_dotfiles() {
+	dialog --infobox "Downloading and installing config files..." 4 60
+	cd /home/"$name"
+	echo ".cfg" >> .gitignore
+	rm .bash_profile .bashrc
+	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
+	rm .gitignore
+}
+
+function networkd_config() {
+	net_lot=$(networkctl --no-legend | grep -P "ether|wlan" | awk '{print $2}')
+	for device in ${net_lot[*]}; do 
+		((i++))
+		cat > /etc/systemd/network/${device}.network <<-EOF
+			[Match]
+			Name=$device
+			
+			[Network]
+			DHCP=ipv4
+			
+			[DHCP]
+			RouteMetric=$(($i * 10))
+		EOF
+	done
+}
+
+function disable_beep() {
+	dialog --infobox "Disabling 'beep error' sound." 10 50
+	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+}
+
+function create_pack_ref() {
+	dialog --infobox "Removing orphans..." 0 0
+	pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
+	sudo -u "$name" mkdir -p /home/"$name"/.local/
+	# creates a list of all installed packages for future reference
+	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 }
 
 function auto_log_in() {
@@ -327,137 +348,41 @@ function auto_log_in() {
 	systemctl reenable getty@tty1.service
 }
 
-function newperms() {
-	# Set special sudoers settings for install (or after).
-	echo "$* " > /etc/sudoers.d/wheel
-	chmod 440 /etc/sudoers.d/wheel
-}
-
-function yay_install() {
-	dialog --infobox "Installing yay..." 4 50
-	cd /tmp || exit
-	curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz &&
-	sudo -u "$name" tar -xvf yay.tar.gz >/dev/null 2>&1 &&
-	cd yay && sudo -u "$name" makepkg --noconfirm -si >/dev/null 2>&1
-	cd /tmp || return
-}
-
-function maininstall() { # Installs all needed programs from main repo.
-	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
-	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
-}
-
-function gitmakeinstall() {
-	dir=$(mktemp -d)
-	dialog  --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
-	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
-	cd "$dir" || exit
-	make >/dev/null 2>&1
-	make install >/dev/null 2>&1
-	cd /tmp || return
-}
-
-function aurinstall() {
-	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
-	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
-	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
-}
-
-function pipinstall() {
-	dialog --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
-	command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
-	yes | pip install "$1"
-}
-
-function mergeprogsfiles() {
-	for list in ${prog_files}; do
-		if [ -f "$list" ]; then
-			cat "$list" >> /tmp/progs.csv
-		else
-			curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
-		fi
-	done
-}
-
-function installationloop() {
-	mergeprogsfiles
-	pacman --noconfirm --needed -S base-devel git >/dev/null 2>&1
-
-	total=$(wc -l < /tmp/progs.csv)
-	aurinstalled=$(pacman -Qm | awk '{print $1}')
-	while IFS=, read -r tag program comment; do
-		n=$((n+1))
-		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
-		case "$tag" in
-			"")  maininstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-			"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-			"G") gitmakeinstall "$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-			"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-		esac
-	done < /tmp/progs.csv
-}
-
-function clone_dotfiles() {
-	dialog --infobox "Downloading and installing config files..." 4 60
-	cd /home/"$name"
-	echo ".cfg" >> .gitignore
-	rm .bash_profile .bashrc
-	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
-	rm .gitignore
-}
-
-function networkd_config() {
-	# Starts networkd as a network manager and creates config files..
-	net_lot=$(networkctl --no-legend | grep -P "ether|wlan" | awk '{print $2}')
-	for device in ${net_lot[*]}; do 
-		((i++))
-		cat > /etc/systemd/network/${device}.network <<-EOF
-			[Match]
-			Name=$device
+function lock_sleep() {
+	if [ -f /usr/bin/gdm ] && [ -f /usr/bin/i3lock ] && [ ! -f /usr/bin/sway ]; then
+		cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
+			#/etc/systemd/system/
+			[Unit]
+			Description=Turning i3lock on before sleep
+			Before=sleep.target
 			
-			[Network]
-			DHCP=ipv4
+			[Service]
+			User=%I
+			Type=forking
+			Environment=DISPLAY=:0
+			ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/${name}/.config/wall.png -t
+			ExecStartPost=/usr/bin/sleep 1
 			
-			[DHCP]
-			RouteMetric=$(($i * 10))
+			[Install]
+			WantedBy=sleep.target
 		EOF
-	done
-	serviceinit systemd-networkd systemd-resolved
-}
-
-function config_network() {
-	dialog --infobox "Configuring network.." 0 0
-	echo $hostname > /etc/hostname
-	cat > /etc/hosts <<-EOF
-		#<ip-address>   <hostname.domain.org>    <hostname>
-		127.0.0.1       localhost.localdomain    localhost
-		::1             localhost.localdomain    localhost
-		127.0.1.1       ${hostname}.localdomain  $hostname
-	EOF
-
-	if [ -f /usr/bin/NetworkManager ]; then
-		serviceinit NetworkManager
-	else
-		networkd_config
 	fi
-	
+	serviceinit SleepLocki3@${name}
 }
 
-function create_pack_ref() {
-	dialog --infobox "Removing orphans..." 0 0
-	pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
-	sudo -u "$name" mkdir -p /home/"$name"/.local/
-	# creates a list of all installed packages for future reference
-	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
-}
+function arduino_module() {
+	#https://wiki.archlinux.org/index.php/Arduino
+	if [ -f /usr/bin/arduino ]; then
+		for group in {uucp,lock}; do
+			sudo -u "$name" gropus >/dev/null 2>&1 || gpasswd -a $name $group
+		done
 
-function final_sys_settigs() {
-	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
-	[ -f /usr/bin/gdm ] && serviceinit gdm
-	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
+		cat > /etc/modules-load.d/cdc_acm.conf <<-EOF
+			# https://wiki.archlinux.org/index.php/Arduino
+			# Load cdc_acm module for arduino
+			cdc_acm
+		EOF
+	fi
 }
 
 function set_root_pw() {
@@ -465,37 +390,51 @@ function set_root_pw() {
 	unset rpwd1 rpwd2
 }
 
+function final_sys_settigs() {
+
+	disable_beep
+	auto_log_in
+	lock_sleep
+	arduino_module
+
+	# Sets swappiness and cache pressure for better performance.
+	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
+	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
+
+	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
+	[ -f /usr/bin/gdm ] && serviceinit gdm
+	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
+	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+	[ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
+
+	if [ -f /usr/bin/NetworkManager ]; then
+		serviceinit NetworkManager
+	else
+		networkd_config && serviceinit systemd-networkd systemd-resolved
+	fi
+
+	set_root_pw
+}
+
 function config_killua() {
-	curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/killua.sh" > killua.sh 
-	bash killua.sh && rm killua.sh
+	if [ $hostname = "killua" ]; then
+		curl -sL "https://raw.githubusercontent.com/ispanos/YARBS/master/killua.sh" > killua.sh 
+		source killua.sh && rm killua.sh
+	fi
 }
 
 
-get_dialog 			|| error "Check your internet connection?"
-source autoconf.sh
-get_hostname 		|| error "User exited"
-get_userandpass 	|| error "User exited."
-get_root_pass 		|| error "User exited."
-confirm_n_go 		|| { clear; exit; }
-get_deps
-set_locale_time
-inst_bootloader
-pacman_stuff
-swap_stuff
-disable_beep
-multilib
-create_user 	|| error "Error adding user."
-auto_log_in
-newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
-yay_install 	|| error "Failed to install yay." # Requires user.
+
+pre_start
+arch_config
+create_swapfile
+create_user
 installationloop
 clone_dotfiles
-[ $hostname = "killua" ] && config_killua
-config_network
+config_killua
 create_pack_ref
 final_sys_settigs
-set_root_pw
-
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
 /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
