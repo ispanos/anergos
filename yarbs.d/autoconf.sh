@@ -1,5 +1,5 @@
 #!/bin/bash
-hostname=killua
+hostname=
 name=yiannis
 user_password=
 root_password=

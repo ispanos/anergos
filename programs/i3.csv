@@ -10,7 +10,6 @@
 ,xorg-xprop,"is a property displayer for X"
 ,xwallpaper,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
-,xclip,"allows for copying and pasting from the command line (used with mpv)."
 ,xcompmgr,"is for transparency and removing screen-tearing."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."

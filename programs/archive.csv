@@ -7,6 +7,7 @@
 # i3wm,,
 ,lxappearance-gtk3,"is used to set gtk themes."
 ,numlockx,"turns on NumLock when i3 starts."
+,xclip,"allows for copying and pasting from the command line (used with mpv)."
 # common,,
 ,noto-fonts,"Google Noto TTF fonts."
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
@@ -74,3 +75,4 @@ A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v
 ,xorg-xbacklight,"enables changing screen brightness levels."
 ,xssstate,"times out the screen if locked."
 ,python-pywal,"is used to change X colors to match the wallpaper."
+A,interception-hideaway,"hides cursor after some time."

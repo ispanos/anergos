@@ -1,12 +1,34 @@
 #!/bin/bash
 
 enable_numlk_tty() {
-	dialog  --infobox "Installing systemd-numlockontty." 3 40
-	sudo -u "$name" yay -S --noconfirm systemd-numlockontty >/dev/null 2>&1
+	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
+		[Unit]
+		Description=numlockOnTty
+		
+		[Service]
+		ExecStart=/usr/bin/numlockOnTty
+		
+		[Install]
+		WantedBy=multi-user.target
+	EOF
+
+	cat > /usr/bin/numlockOnTty <<-EOF
+		#!/bin/bash
+		for tty in /dev/tty{1..6}
+		do
+		    /usr/bin/setleds -D +num < "$tty";
+		done
+	EOF
+
+	chmod +x /usr/bin/numlockOnTty
 	serviceinit numLockOnTty
 }
 
 temps() {
+	# Change installation method!!
+	# https://aur.archlinux.org/packages/it87-dkms-git/
+	# https://github.com/bbqlinux/it87
+
 	# Install driver for Asus X370 Prime pro fan/thermal sensors
 	dialog  --infobox "Installing it87-dkms-git." 3 40
 	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1

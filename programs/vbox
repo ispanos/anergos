@@ -1,4 +1,4 @@
 ,virtualbox,
 ,virtualbox-host-modules-arch,
 ,virtualbox-guest-iso,
-,QT_QPA_PLATFORM="" VirtualBox,
+#,QT_QPA_PLATFORM="" VirtualBox,

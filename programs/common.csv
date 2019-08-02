@@ -1,5 +1,5 @@
 #TAG,NAME IN REPO,PURPOSE
-,pulseaudio-alsa,"is an audio interface with ALSA."
+,pulseaudio-alsa,"is an audio interface for pulseaudio and ALSA."
 ,pulsemixer,"is an audio controller."
 ,gnome-keyring,"takes care of the user's security credentials"
 ,polkit-gnome,"is an authentication agent."

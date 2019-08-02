@@ -46,118 +46,34 @@ done
 #[ -z "$prog_files" ] && prog_files="$sway $coreprogs $common"
 
 
-# Used in more that one place.
 function serviceinit() {
 	for service in "$@"; do
 		dialog --infobox "Enabling \"$service\"..." 4 40
-		systemctl enable "$service"
+		systemctl enable "$service"  > /dev/null 2>&1
 	done
-}
-
-function get_dialog() {
-	echo "Installing dialog, to make things look better..."
-	pacman --noconfirm -Syyu dialog >/dev/null 2>&1
-}
-
-function get_hostname() { 
-	if [ -z "$hostname" ]; then
-		hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-		automated=false
-	fi
-}
-
-function get_userandpass() {
-	if [ -z "$name" ]; then 
-		# Prompts user for new username an password.
-		name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
-	fi
-
-	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-		name=$(dialog --no-cancel --inputbox "Name not valid. Start with a letter, use lowercase letters, - or _" 10 60 3>&1 1>&2 2>&3 3>&1)
-	done
-
-	if [ -z "$user_password" ]; then
-		upwd1=$(dialog --no-cancel --passwordbox "Enter a password for that user." 10 60 3>&1 1>&2 2>&3 3>&1)
-		upwd2=$(dialog --no-cancel --passwordbox "Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-
-		while ! [ "$upwd1" = "$upwd2" ]; do
-			unset upwd2
-			upwd1=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-			upwd2=$(dialog --no-cancel --passwordbox "Retype user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-		done
-
-		automated=false
-
-	else
-		upwd1=$user_password
-		upwd2=$user_password
-	fi
-}
-
-function get_root_pass() {
-	if [ -z "$root_password" ]; then 
-		# Prompts user for new username an password.
-		rpwd1=$(dialog --no-cancel --passwordbox "Enter root user's password." 10 60 3>&1 1>&2 2>&3 3>&1)
-		rpwd2=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-
-		while ! [ "$rpwd1" = "$rpwd2" ]; do
-			unset rpwd2
-			rpwd1=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-			rpwd2=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
-		done
-	
-		automated=false
-	else
-		rpwd1=$root_password
-		rpwd2=$root_password
-	fi
-}
-
-function get_stuff(){
-	get_dialog
-	source autoconf.sh
-	get_hostname
-	get_userandpass
-	get_root_pass
-	confirm_n_go
-	if [ "$automated" = "false" ]; then
-		dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35
-	fi
-}
-
-function arch_config() {
-	curl -sL "$repo/yarbs.d/arch_configuration.sh" > arch_configuration.sh
-	source arch_configuration.sh
-	set_locale_time
-	config_network
-	inst_bootloader
-	pacman_stuff
-	rm arch_configuration.sh
 }
 
 function newperms() {
-	# Set special sudoers settings for install (or after).
 	echo "$* " > /etc/sudoers.d/wheel
 	chmod 440 /etc/sudoers.d/wheel
 }
 
-function create_user() {
-	# Adds user `$name` with password $upwd1.
-	dialog --infobox "Adding user \"$name\"..." 4 50
-	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
-	echo "$name:$upwd1" | chpasswd
-	unset upwd1 upwd2
+function get_data(){
+	[ -r autoconf.sh ] && source autoconf.sh
+	curl -sL "$repo/yarbs.d/dialog_inputs.sh" > /tmp/dialog_inputs.sh
+	source /tmp/dialog_inputs.sh
+	get_inputs
+	curl -sL "$repo/yarbs.d/arch_configuration.sh" > /tmp/arch_configuration.sh
+	source /tmp/arch_configuration.sh
 }
 
-function clone_dotfiles() {
-	dialog --infobox "Downloading and installing config files..." 4 60
-	cd /home/"$name"
-	echo ".cfg" >> .gitignore
-	rm .bash_profile .bashrc
-	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
-	rm .gitignore
+function create_swapfile() {
+	dialog --infobox "Creating swapfile" 0 0
+	fallocate -l 2G /swapfile
+	chmod 600 /swapfile
+	mkswap /swapfile
+	swapon /swapfile
+	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
 }
 
 function networkd_config() {
@@ -177,35 +93,11 @@ function networkd_config() {
 	done
 }
 
-function create_swapfile() {
-	dialog --infobox "Creating swapfile" 0 0
-	fallocate -l 2G /swapfile
-	chmod 600 /swapfile
-	mkswap /swapfile
-	swapon /swapfile
-	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
-}
-
-function disable_beep() {
-	dialog --infobox "Disabling 'beep error' sound." 10 50
-	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
-}
-
-function create_pack_ref() {
-	dialog --infobox "Removing orphans..." 0 0
-	pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
-	sudo -u "$name" mkdir -p /home/"$name"/.local/
-	# creates a list of all installed packages for future reference
-	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
-}
-
 function auto_log_in() {
 	dialog --infobox "Configuring login." 3 23
 	if [ $hostname = "gon" ]; then
-		#  Actual auto-login.
 		linsetting="--autologin $name"
 	else
-		#  Username auto-type.
 		linsetting="--skip-login --login-options $name"
 	fi
 
@@ -285,18 +177,23 @@ function lock_sleep() {
 }
 
 function arduino_module() {
-	#https://wiki.archlinux.org/index.php/Arduino
 	if [ -f /usr/bin/arduino ]; then
+		echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
 		for group in {uucp,lock}; do
-			sudo -u "$name" gropus >/dev/null 2>&1 || gpasswd -a $name $group
+			sudo -u "$name" groups | grep $group >/dev/null 2>&1 || gpasswd -a $name $group
 		done
-
-		cat > /etc/modules-load.d/cdc_acm.conf <<-EOF
-			# https://wiki.archlinux.org/index.php/Arduino
-			# Load cdc_acm module for arduino
-			cdc_acm
-		EOF
 	fi
+}
+
+function clone_dotfiles() {
+	dialog --infobox "Downloading and installing config files..." 4 60
+	cd /home/"$name"
+	echo ".cfg" >> .gitignore
+	rm .bash_profile .bashrc
+	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
+	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config --local status.showUntrackedFiles no
+	rm .gitignore
 }
 
 function set_root_pw() {
@@ -304,14 +201,11 @@ function set_root_pw() {
 	unset rpwd1 rpwd2
 }
 
-function final_sys_settings() {
+function multi_plat_configs() {
 	dialog --infobox "Final configs." 3 18
-	
-	disable_beep
-	
-	arduino_module
 
-	# Sets swappiness and cache pressure for better performance.
+	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+
 	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
 	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 
@@ -323,6 +217,8 @@ function final_sys_settings() {
 
 	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
+	sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power
+
 	[ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
 
 	if [ -f /usr/bin/gdm ]; then
@@ -332,7 +228,6 @@ function final_sys_settings() {
 		lock_sleep
 	fi
 
-
 	if [ -f /usr/bin/NetworkManager ]; then
 		serviceinit NetworkManager
 	else
@@ -341,9 +236,8 @@ function final_sys_settings() {
 
 	if [ $hostname = "killua" ]; then
 		sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
-
-		curl -sL "$repo/yarbs.d/killua.sh" > killua.sh 
-		source killua.sh
+		curl -sL "$repo/yarbs.d/killua.sh" > /tmp/killua.sh 
+		source /tmp/killua.sh
 		enable_numlk_tty
 		temps
 		data
@@ -351,18 +245,15 @@ function final_sys_settings() {
 		rm killua.sh
 	fi
 
+	arduino_module
 	clone_dotfiles
-
 	set_root_pw
 }
 
-get_stuff
+get_data
 arch_config
-create_user
-installationloop
-create_pack_ref
 create_swapfile
-final_sys_settings
+multi_plat_configs
 newperms "%wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: \
 /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\

@@ -1,13 +1,22 @@
 #!/bin/bash
 
 function set_locale_time() {
-	dialog --infobox "Locale and time-sync..." 0 0
 	serviceinit systemd-timesyncd.service
 	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 	hwclock --systohc
 	sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
 	locale-gen > /dev/null 2>&1
 	echo 'LANG="'$lang'"' > /etc/locale.conf
+}
+
+function config_network() {
+	echo $hostname > /etc/hostname
+	cat > /etc/hosts <<-EOF
+		#<ip-address>   <hostname.domain.org>    <hostname>
+		127.0.0.1       localhost.localdomain    localhost
+		::1             localhost.localdomain    localhost
+		127.0.1.1       ${hostname}.localdomain  $hostname
+	EOF
 }
 
 ######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
@@ -22,14 +31,12 @@ function get_microcode() {
 	esac
 
 	if [ $cpu != "no" ]; then
-		dialog --infobox "Installing ${cpu} microcode." 3 31
 		pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 	fi
 }
 
 function systemd_boot() {
 	# Installs systemd-boot to the eps partition
-	dialog --infobox "Setting-up systemd-boot" 0 0
 	bootctl --path=/boot install
 
 	# Creates pacman hook to update systemd-boot after package upgrade.
@@ -53,19 +60,18 @@ function systemd_boot() {
 		editor   no
 	EOF
 
-	# sets uuidroot as the UUID of the partition mounted at "/".
-	uuidroot="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+	# sets id as the UUID of the partition mounted at "/".
+	id="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
 
 	# Creates loader entry for root partition, using the "linux" kernel
 						echo "title   Arch Linux"           >  /boot/loader/entries/arch.conf
 						echo "linux   /vmlinuz-linux"       >> /boot/loader/entries/arch.conf
 	[ $cpu = "no" ] || 	echo "initrd  /${cpu}-ucode.img"    >> /boot/loader/entries/arch.conf
 						echo "initrd  /initramfs-linux.img" >> /boot/loader/entries/arch.conf
-						echo "options root=${uuidroot} rw quiet"  >> /boot/loader/entries/arch.conf
+						echo "options root=${id} rw quiet"  >> /boot/loader/entries/arch.conf
 }
 
 function grub_mbr() {
-		dialog --infobox "Setting-up Grub. -WARNING- ONLY MBR partition table." 0 0
 		pacman --noconfirm --needed -S grub >/dev/null 2>&1
 		grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
 		grub-install --target=i386-pc $grub_path >/dev/null 2>&1
@@ -73,30 +79,28 @@ function grub_mbr() {
 }
 
 function inst_bootloader() {
+	dialog --infobox "Installing bootloader." 3 28
 	get_microcode
 	if [ -d "/sys/firmware/efi" ]; then
-		systemd_boot
-		dialog --infobox "Installing efibootmgr, a tool to modify UEFI Firmware Boot Manager Variables." 4 50
-		pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
+		systemd_boot && pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
 	else
 		grub_mbr
 	fi
 }
 
-function config_network() {
-	dialog --infobox "Configuring network.." 0 0
-	echo $hostname > /etc/hostname
-	cat > /etc/hosts <<-EOF
-		#<ip-address>   <hostname.domain.org>    <hostname>
-		127.0.0.1       localhost.localdomain    localhost
-		::1             localhost.localdomain    localhost
-		127.0.1.1       ${hostname}.localdomain  $hostname
-	EOF
+function vanila_arch() {
+	set_locale_time
+	config_network
+	inst_bootloader
 }
 
-function pacman_stuff() {
-	dialog --infobox "Performance tweaks. (pacman/yay)" 0 0
 
+
+
+
+
+
+function pacman_stuff() {
 	# Creates pacman hook to keep only the 3 latest versions of packages.
 	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 		[Trigger]
@@ -116,8 +120,12 @@ function pacman_stuff() {
 	grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
 }
 
-
-
+function create_user() {
+	dialog --infobox "Adding user \"$name\"..." 4 50
+	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
+	echo "$name:$upwd1" | chpasswd
+	unset upwd1 upwd2
+}
 
 
 
@@ -132,7 +140,7 @@ function yay_install() {
 	dialog --infobox "Installing yay..." 4 50
 	cd /tmp && curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz
 	sudo -u ${name} tar -xvf yay.tar.gz >/dev/null 2>&1
-	cd yay && sudo -u ${name} makepkg --needed --noconfirm -si #>/dev/null 2>&1
+	cd yay && sudo -u ${name} makepkg --needed --noconfirm -si >/dev/null 2>&1
 	cd /tmp || return
 }
 
@@ -202,4 +210,20 @@ function installationloop() {
 			"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
 		esac
 	done < /tmp/progs.csv
+}
+
+
+function create_pack_ref() {
+	dialog --infobox "Removing orphans..." 0 0
+	pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
+	sudo -u "$name" mkdir -p /home/"$name"/.local/
+	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
+}
+
+function arch_config() {
+	vanila_arch
+	pacman_stuff
+	create_user
+	installationloop
+	create_pack_ref
 }

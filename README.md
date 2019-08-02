@@ -1,5 +1,7 @@
 # Yiannis' Auto-Rice Bootstraping Scripts (YARBS)
 
+## This is outdated. New description comming soon.
+
 ## About this repo.
 This was originally a fork of [Luke's LARBS](https://github.com/LukeSmithxyz/LARBS), but I converted it to an "one-click" script to handle everything when I wanted to start fresh.
 

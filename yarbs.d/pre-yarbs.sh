@@ -1,13 +1,12 @@
 #!/bin/bash
 # Partitions and formats selected device and then runs yarbs.
-
 # License: GNU GPLv3
+
 # curl -LsO https://raw.githubusercontent.com/ispanos/YARBS/master/yarbs.d/pre-yarbs.sh && bash pre-yarbs.sh
 
 ## Notes
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
-## setoN
 
 pacman -Syy --needed --noconfirm dialog
 timedatectl set-ntp true
