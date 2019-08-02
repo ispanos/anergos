@@ -18,6 +18,14 @@ Depending on your own build, you may want to tactically order the programs in yo
 
 ## [yarbs.sh](https://github.com/ispanos/YARBS/blob/master/yarbs.sh)
 
+```
+	-m             Enable multilib.
+	-d <link>      to set your own dotfiles's repo. By default it uses my own dotfiles repository.
+	-p             Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults.
+
+	Example: yarbs -p link1 link2 file1 -m -d https://yourgitrepo123.xyz/dotfiles
+```
+
 Right now I'm using `dialog` to display step of the process and get user input. It looks cool and I get a better idea of how much time is needed while installing the packages. The downside is that it hides any error message that may appear and the code looks a bit ugly because of it. ( Not that I know how to write scripts better. ) 
 
 If you want to streamline the script even further, `autoconf.sh` can be used to pre-set the variables. If all of them are filled, yarbs.sh will not prompt you for any input.

@@ -1,7 +1,6 @@
 #!/bin/bash
 # License: GNU GPLv3
 
-function error() { clear; printf "ERROR:\\n%s\\n" "$1"; exit;}
 
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
@@ -25,13 +24,12 @@ function help() {
 	EOF
 }
 
-while getopts "mhd:p:" option; do
+while getopts "md:p:" option; do
 	case "${option}" in
 		m) multi_lib_bool="true" ;;
 		d) dotfilesrepo=${OPTARG} && git ls-remote "$dotfilesrepo" || exit ;;
 		p) prog_files=${OPTARG} ;;
-		h) help && exit ;;
-		*) help && exit  ;;
+		*) exit  ;;
 	esac
 done
 
@@ -66,7 +64,6 @@ newperms "%wheel ALL=(ALL) ALL
 /usr/bin/systemctl restart systemd-resolved"
 
 #####
-##
 ## it87
-##
+## bootloader?
 ####
