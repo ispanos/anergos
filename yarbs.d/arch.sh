@@ -88,10 +88,16 @@ function inst_bootloader() {
 	fi
 }
 
+function set_root_pw() {
+	printf "${rpwd1}\\n${rpwd1}" | passwd >/dev/null 2>&1
+	unset rpwd1 rpwd2
+}
+
 function vanila_arch() {
 	set_locale_time
 	config_network
 	inst_bootloader
+	set_root_pw
 }
 
 
@@ -220,10 +226,17 @@ function create_pack_ref() {
 	pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 }
 
-function arch_config() {
-	vanila_arch
-	pacman_stuff
-	create_user
-	installationloop
-	create_pack_ref
+function pacman_group() {
+	groupadd pacman
+	gpasswd -a "$name" pacman
+	echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
+	chmod 440 /etc/sudoers.d/pacman
 }
+
+vanila_arch
+
+pacman_stuff
+create_user
+installationloop
+create_pack_ref
+pacman_group
