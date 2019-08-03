@@ -3,6 +3,7 @@
 # /*
 # it87
 # bootloader?
+# mergeprogsfiles !!
 # */
 hostname=killua
 name=yiannis
@@ -14,7 +15,7 @@ lang="en_US.UTF-8"
 repo=https://raw.githubusercontent.com/ispanos/YARBS/master
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 
-for i in "$@"; do prog_files="$prog_files $repo/programs/$i.csv"; done
+#for i in "$@"; do prog_files="$prog_files $repo/programs/$i.csv"; done
 
 curl -sL "$repo/yarbs.d/get_stuff.sh" 	> /tmp/get_stuff.sh && source /tmp/get_stuff.sh
 curl -sL "$repo/yarbs.d/arch.sh" 		> /tmp/arch.sh 		&& source /tmp/arch.sh
