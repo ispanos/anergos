@@ -3,10 +3,22 @@
 dialog --infobox "Setting up Arch..." 3 20
 
 function systemd_boot() {
-	# Installs systemd-boot to the eps partition
-	bootctl --path=/boot install
+	bootctl --path=/boot install >/dev/null 2>&1
+	cat > /boot/loader/loader.conf <<-EOF
+		default  arch
+		console-mode max
+		editor   no
+	EOF
 
-	# Creates pacman hook to update systemd-boot after package upgrade.
+	id="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+	cat > /boot/loader/entries/arch.conf <<-EOF
+	title   Arch Linux
+	linux   /vmlinuz-linux
+	initrd  /${cpu}-ucode.img
+	initrd  /initramfs-linux.img
+	options root=${id} rw quiet
+	EOF
+	
 	mkdir -p /etc/pacman.d/hooks
 	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
 		[Trigger]
@@ -18,25 +30,6 @@ function systemd_boot() {
 		When = PostTransaction
 		Exec = /usr/bin/bootctl update
 	EOF
-
-	# Creates loader.conf. Stored in files/ folder on repo.
-	cat > /boot/loader/loader.conf <<-EOF
-		default  arch
-		console-mode max
-		editor   no
-	EOF
-
-	# sets id as the UUID of the partition mounted at "/".
-	id="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
-
-	# Creates loader entry for root partition, using the "linux" kernel
-	cat > /boot/loader/entries/arch.conf <<-EOF
-	title   Arch Linux
-	linux   /vmlinuz-linux
-	initrd  /${cpu}-ucode.img
-	initrd  /initramfs-linux.img
-	options root=${id} rw quiet
-	EOF
 }
 
 function grub_mbr() {
@@ -46,20 +39,19 @@ function grub_mbr() {
 		grub-mkconfig -o /boot/grub/grub.cfg
 }
 
-function maininstall() { # Installs all needed programs from main repo.
+function maininstall() {
 	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
 	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
 }
 
 function aurinstall() {
 	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
-	echo "$aurinstalled" | grep "^$1$" > /dev/null 2>&1 && return
 	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
 }
 
 function gitmakeinstall() {
 	dir=$(mktemp -d)
-	dialog  --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
+	dialog --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
 	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
 	cd "$dir" || exit
 	make >/dev/null 2>&1
@@ -123,7 +115,8 @@ echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/s
 dialog --infobox "Installing yay..." 4 50
 cd /tmp && curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz
 sudo -u ${name} tar -xvf yay.tar.gz >/dev/null 2>&1
-grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || 
+sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 cd yay && sudo -u ${name} makepkg --needed --noconfirm -si >/dev/null 2>&1
 cd /tmp || return
 
@@ -131,23 +124,16 @@ cd /tmp || return
 if [ "$multi_lib_bool" ]; then
 	dialog --infobox "Enabling multilib..." 0 0
 	sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
-	pacman --noconfirm --needed -Sy >/dev/null 2>&1
-	pacman -Fy >/dev/null 2>&1
+	pacman --noconfirm --needed -Syu >/dev/null 2>&1
 fi
 
-## mergeprogsfiles
-#for list in ${prog_files}; do
-#	curl -Ls "$list" | sed '/^#/d' >> /tmp/progs.csv
-#done
-
-# mergeprogsfiles UNTESTED
 for i in "$@"; do curl -Ls "$repo/programs/$i.csv" | sed '/^#/d' >> /tmp/progs.csv; done
 
 total=$(wc -l < /tmp/progs.csv)
-aurinstalled=$(pacman -Qm | awk '{print $1}')
 while IFS=, read -r tag program comment; do
-	n=$((n+1))
-	echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
+	((n++))
+	echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && 
+	comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 	case "$tag" in
 		"")  maininstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
 		"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
@@ -161,8 +147,6 @@ pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 sudo -u "$name" mkdir -p /home/"$name"/.local/
 pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 
-
-# Creates pacman hook to keep only the 3 latest versions of packages.
 cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 	[Trigger]
 	Type = Package
@@ -170,17 +154,15 @@ cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 	Operation = Install
 	Operation = Upgrade
 	Target = *
-
 	[Action]
 	Description = Keeps only the latest 3 versions of packages
 	When = PostTransaction
 	Exec = /usr/bin/paccache -rk3
 EOF
 
-grep "^Color" /etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" /etc/pacman.conf
-grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/#VerbosePkgLists/a ILoveCandy" /etc/pacman.conf
+grep "^Color" 	/etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" 	/etc/pacman.conf
+grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/Color/a ILoveCandy" /etc/pacman.conf
 
-groupadd pacman
-gpasswd -a "$name" pacman
+groupadd pacman && gpasswd -a "$name" pacman
 echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
 chmod 440 /etc/sudoers.d/pacman

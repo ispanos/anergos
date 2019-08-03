@@ -5,6 +5,7 @@
 ,expac,"is a pacman database extraction utility."
 ,newsboat,"is a news aggregator"
 # i3wm,,
+,ttf-joypixels,"is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere."
 ,lxappearance-gtk3,"is used to set gtk themes."
 ,numlockx,"turns on NumLock when i3 starts."
 ,xclip,"allows for copying and pasting from the command line (used with mpv)."
