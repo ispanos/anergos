@@ -1,5 +1,40 @@
 #!/bin/bash
 
+function power_is_suspend() { sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf;}
+
+function enable_numlk_tty() {
+	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
+		[Unit]
+		Description=numlockOnTty
+		
+		[Service]
+		ExecStart=/usr/bin/numlockOnTty
+		
+		[Install]
+		WantedBy=multi-user.target
+	EOF
+
+	cat > /usr/bin/numlockOnTty <<-EOF
+		#!/bin/bash
+		for tty in /dev/tty{1..6}
+		do
+		    /usr/bin/setleds -D +num < "$tty";
+		done
+	EOF
+
+	chmod +x /usr/bin/numlockOnTty
+	systemctl enable numLockOnTty
+}
+
+resolv_conf() {
+	cat > /etc/resolv.conf <<-EOF
+		# Resolver configuration file.
+		# See resolv.conf(5) for details.
+		search home
+		nameserver 192.168.1.1
+	EOF
+}
+
 function create_swapfile() {
 	dialog --infobox "Creating swapfile" 0 0
 	fallocate -l 2G /swapfile
@@ -106,7 +141,7 @@ function lock_sleep() {
 			WantedBy=sleep.target
 		EOF
 	fi
-	serviceinit SleepLocki3@${name}
+	systemctl enable SleepLocki3@${name}
 }
 
 function arduino_module() {
@@ -129,53 +164,45 @@ function clone_dotfiles() {
 	rm .gitignore
 }
 
-function config_stuff() {
-	dialog --infobox "Final configs." 3 18
+dialog --infobox "Final configs." 3 18
 
-	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 
-	echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
-	echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
+echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
+echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
 
-	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
-	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
+grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
 
-	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
+sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh # Enable infinality fonts
 
-	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
-	sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power
+sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power
 
-	[ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
+[ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
 
-	if [ -f /usr/bin/gdm ]; then
-		serviceinit gdm
-	else
-		auto_log_in
-		lock_sleep
-	fi
+if [ -f /usr/bin/gdm ]; then
+	systemctl enable gdm
+else
+	auto_log_in
+	lock_sleep
+fi
 
-	if [ -f /usr/bin/NetworkManager ]; then
-		serviceinit NetworkManager
-	else
-		networkd_config && serviceinit systemd-networkd systemd-resolved
-	fi
+if [ -f /usr/bin/NetworkManager ]; then
+	systemctl enable NetworkManager
+else
+	networkd_config
+	systemctl enable systemd-networkd
+	systemctl enable systemd-resolved
+fi
 
-	if [ $hostname = "killua" ]; then
-		sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf 
-		curl -sL "$repo/yarbs.d/killua.sh" > /tmp/killua.sh 
-		source /tmp/killua.sh
-		enable_numlk_tty
-		temps
-		data
-		resolv_conf
-		rm killua.sh
-	fi
+if [ $hostname = "killua" ]; then
+	curl -sL "$repo/yarbs.d/killua.sh" > /tmp/killua.sh && source /tmp/killua.sh
+	power_is_suspend
+fi
 
-	create_swapfile
-	arduino_module
-	clone_dotfiles
-}
-
-config_stuff
+create_swapfile
+arduino_module
+clone_dotfiles

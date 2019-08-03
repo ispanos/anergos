@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function set_locale_time() {
-	serviceinit systemd-timesyncd.service
+	systemctl enable systemd-timesyncd.service
 	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 	hwclock --systohc
 	sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
@@ -18,10 +18,6 @@ function config_network() {
 		127.0.1.1       ${hostname}.localdomain  $hostname
 	EOF
 }
-
-######   For LVM/LUKS modify /etc/mkinitcpio.conf   ######
-######   sed for HOOKS="...keyboard encrypt lvm2"   ######
-######   umkinitcpio -p linux && linux-lts entry?   ######
 
 function get_microcode() {
 	case $(lscpu | grep Vendor | awk '{print $3}') in
@@ -100,12 +96,6 @@ function vanila_arch() {
 	set_root_pw
 }
 
-
-
-
-
-
-
 function pacman_stuff() {
 	# Creates pacman hook to keep only the 3 latest versions of packages.
 	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
@@ -132,8 +122,6 @@ function create_user() {
 	echo "$name:$upwd1" | chpasswd
 	unset upwd1 upwd2
 }
-
-
 
 function get_deps() {
 	dialog --title "First things first." --infobox "Installing 'base-devel' and 'git'." 3 40
@@ -199,7 +187,7 @@ function pipinstall() {
 
 function installationloop() {
 	get_deps
-	newperms "%wheel ALL=(ALL) NOPASSWD: ALL"
+	echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 	yay_install
 	mergeprogsfiles
 	multilib
@@ -217,7 +205,6 @@ function installationloop() {
 		esac
 	done < /tmp/progs.csv
 }
-
 
 function create_pack_ref() {
 	dialog --infobox "Removing orphans..." 0 0

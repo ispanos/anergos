@@ -19,6 +19,7 @@ function get_userandpass() {
 
 	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
 		name=$(dialog --no-cancel --inputbox "Name not valid. Start with a letter, use lowercase letters, - or _" 10 60 3>&1 1>&2 2>&3 3>&1)
+		automated=false
 	done
 
 	if [ -z "$user_password" ]; then

@@ -1,29 +1,5 @@
 #!/bin/bash
 
-enable_numlk_tty() {
-	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
-		[Unit]
-		Description=numlockOnTty
-		
-		[Service]
-		ExecStart=/usr/bin/numlockOnTty
-		
-		[Install]
-		WantedBy=multi-user.target
-	EOF
-
-	cat > /usr/bin/numlockOnTty <<-EOF
-		#!/bin/bash
-		for tty in /dev/tty{1..6}
-		do
-		    /usr/bin/setleds -D +num < "$tty";
-		done
-	EOF
-
-	chmod +x /usr/bin/numlockOnTty
-	serviceinit numLockOnTty
-}
-
 temps() {
 	# Change installation method!!
 	# https://aur.archlinux.org/packages/it87-dkms-git/
@@ -43,11 +19,8 @@ data() {
 	EOF
 }
 
-resolv_conf() {
-	cat > /etc/resolv.conf <<-EOF
-		# Resolver configuration file.
-		# See resolv.conf(5) for details.
-		search home
-		nameserver 192.168.1.1
-	EOF
-}
+temps
+data
+
+enable_numlk_tty
+resolv_conf

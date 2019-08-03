@@ -18,17 +18,7 @@ Depending on your own build, you may want to tactically order the programs in yo
 
 ## [yarbs.sh](https://github.com/ispanos/YARBS/blob/master/yarbs.sh)
 
-```
-	-m             Enable multilib.
-	-d <link>      to set your own dotfiles's repo. By default it uses my own dotfiles repository.
-	-p             Add your own link(s) with the list(s) of packages you want to install. -- Overides defaults.
-
-	Example: yarbs -p link1 link2 file1 -m -d https://yourgitrepo123.xyz/dotfiles
-```
-
-Right now I'm using `dialog` to display step of the process and get user input. It looks cool and I get a better idea of how much time is needed while installing the packages. The downside is that it hides any error message that may appear and the code looks a bit ugly because of it. ( Not that I know how to write scripts better. ) 
-
-If you want to streamline the script even further, `autoconf.sh` can be used to pre-set the variables. If all of them are filled, yarbs.sh will not prompt you for any input.
+Right now I'm using `dialog` to display step of the process and get user input. It looks cool and I get a better idea of how much time is needed while installing the packages. The downside is that it hides any error message that may appear and the code looks a bit ugly because of it. ( Not that I know how to write scripts better. ) Any valid variable set in the main script, will not be requested again.
 
 `yarbs.sh` is supposed to run in the chroot environment, right after you've installed the base group using pacstrap and generated the fstab. I'm using functions and splitting things up into separate files, otherwise the script would be 700 lines of bash in one file. I'm calling the other scripts using `source` so that the variables and common functions can work. 
 
@@ -39,10 +29,9 @@ If you want to streamline the script even further, `autoconf.sh` can be used to 
 - Configures network.
 - Installs bootloader.
 - Creates user.
-- Enables multilib if `-m` flag is used.
 - Installs base-devel and git.
 - Installs yay.
-- Installs packages (\*)
+- Installs packages.
 - Creates a file "\~/.local/Fresh_pack_list" that includes all of the installed packages.
 
 ### This are missing here. (arch.sh and mpc.sh)
@@ -51,17 +40,14 @@ If you want to streamline the script even further, `autoconf.sh` can be used to 
 - Disables that awful beeps sound.
 - Enables `NetworkManager` if it's installed, or configures and enables `systemd-networkd` and `systemd-resolved`
 - Enables `gdm` if it's installed, enables infinality fonts, disables start-up logo in libreoffice if its installed.
-- Clones dot files repo (\*\*)
+- Clones dot files repo (\*)
 
-(\*) : Using the flag `-p` you can add as many files or links as you want, containing the packages you want to install. ONLY meant for testing.
-
-
-(\*\*) : Using the flag `-d` you can add the link of your custom dotfiles repository (URL). ONLY meant for testing. I should note that I'm backing up most of my dotfiles in a public repo. It clones the repo with the `--bare` option, and instead  of a `.git` folder, it uses a `.cfg` folder. This way I can use an alias to manage my dotfiles' repo without interfering with other git folders in the \~/home folder. I got the idea from here: https://www.atlassian.com/git/tutorials/dotfiles
+(\*) : I should note that I'm backing up most of my dotfiles in a public repo. It clones the repo with the `--bare` option, and instead  of a `.git` folder, it uses a `.cfg` folder. This way I can use an alias to manage my dotfiles' repo without interfering with other git folders in the \~/home folder. I got the idea from here: https://www.atlassian.com/git/tutorials/dotfiles
 This is the alias I have in my .bashrc:
 
 `alias dot='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'`
 
-I'm currently looking into YADM and Stow. 
+##### I'm currently looking into YADM and Stow. 
 
 ### killua.sh
 My desktop computer's hostname is "killua". I used that as a way to add some extra configurations that I only want on my desktop pc, without the need of an extra configurations later. I moved that part of the script to a different file to make the config script a bit shorter. Avoid setting your hostname as "killua" during the initial set-up. If you have a better idea, please contact me or make a PR. I think hostnames are a good variable to add system-specific configurations. I don't have a second computer, but if I did maybe Ansible would be even better.
