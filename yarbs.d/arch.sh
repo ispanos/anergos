@@ -12,11 +12,11 @@ function systemd_boot() {
 
 	id="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
 	cat > /boot/loader/entries/arch.conf <<-EOF
-	title   Arch Linux
-	linux   /vmlinuz-linux
-	initrd  /${cpu}-ucode.img
-	initrd  /initramfs-linux.img
-	options root=${id} rw quiet
+		title   Arch Linux
+		linux   /vmlinuz-linux
+		initrd  /${cpu}-ucode.img
+		initrd  /initramfs-linux.img
+		options root=${id} rw quiet
 	EOF
 	
 	mkdir -p /etc/pacman.d/hooks
@@ -66,7 +66,7 @@ function pipinstall() {
 }
 
 
-systemctl enable systemd-timesyncd.service
+systemctl enable systemd-timesyncd.service >/dev/null 2>&1
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 hwclock --systohc
 sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
@@ -130,8 +130,7 @@ fi
 for i in "$@"; do curl -Ls "$repo/programs/$i.csv" | sed '/^#/d' >> /tmp/progs.csv; done
 
 total=$(wc -l < /tmp/progs.csv)
-while IFS=, read -r tag program comment; do
-	((n++))
+while IFS=, read -r tag program comment; do ((n++))
 	echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && 
 	comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 	case "$tag" in
@@ -163,6 +162,6 @@ EOF
 grep "^Color" 	/etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" 	/etc/pacman.conf
 grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/Color/a ILoveCandy" /etc/pacman.conf
 
-groupadd pacman && gpasswd -a "$name" pacman
+groupadd pacman && gpasswd -a "$name" pacman >/dev/null 2>&1
 echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
 chmod 440 /etc/sudoers.d/pacman

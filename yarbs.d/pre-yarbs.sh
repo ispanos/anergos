@@ -67,7 +67,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 { [ -r yarbs.sh ] && cp yarbs.sh /mnt/yarbs.sh; } || curl -sL "$raw_repo/yarbs.sh" > /mnt/yarbs.sh
 
 arch-chroot /mnt bash yarbs.sh progs i3 common
-rm yarbs.sh
+rm /mnt/yarbs.sh
 
 dialog --yesno "Reboot computer?"  5 30 && reboot
 dialog --yesno "Return to chroot environment?" 6 30 && arch-chroot /mnt

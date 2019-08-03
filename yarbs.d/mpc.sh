@@ -24,7 +24,7 @@ function enable_numlk_tty() {
 	EOF
 
 	chmod +x /usr/bin/numlockOnTty
-	systemctl enable numLockOnTty
+	systemctl enable numLockOnTty >/dev/null 2>&1
 }
 
 resolv_conf() {
@@ -47,8 +47,7 @@ function create_swapfile() {
 
 function networkd_config() {
 	net_lot=$(networkctl --no-legend | grep -P "ether|wlan" | awk '{print $2}')
-	for device in ${net_lot[*]}; do 
-		((i++))
+	for device in ${net_lot[*]}; do ((i++))
 		cat > /etc/systemd/network/${device}.network <<-EOF
 			[Match]
 			Name=$device
@@ -63,12 +62,13 @@ function networkd_config() {
 }
 
 function agetty_set() {
-	cp /usr/lib/systemd/system/getty@.service /etc/systemd/system/getty@.service
-	log="ExecStart=-/sbin/agetty --skip-login --login-options $name --noclear %I \\\$TERM"
+	log="ExecStart=-\/sbin\/agetty --skip-login --login-options $name --noclear %I \\\$TERM"
 	[ "$1" = "auto" ] && 
-	log="ExecStart=-/sbin/agetty --autologin $name --noclear %I \\\$TERM"
-	sed -i "s/ExecStart=.*/$log/" /etc/systemd/system/getty@.service
-	systemctl daemon-reload && systemctl reenable getty@tty1.service >/dev/null 2>&1
+	log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \\\$TERM"
+	sed -i "s/ExecStart=.*/$log/" \
+	/usr/lib/systemd/system/getty@.service > /etc/systemd/system/getty@.service
+	systemctl daemon-reload 				>/dev/null 2>&1 
+	systemctl reenable getty@tty1.service 	>/dev/null 2>&1
 }
 
 function lock_sleep() {
@@ -102,6 +102,23 @@ function clone_dotfiles() {
 					--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
 }
 
+temps() {
+	# https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
+	dialog  --infobox "Installing it87-dkms-git." 3 40
+	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
+	echo "it87" > /etc/modules-load.d/it87.conf
+}
+
+data() {
+	mkdir -p /media/Data
+	cat >> /etc/fstab <<-EOF
+		# /dev/sda1 LABEL=data
+		UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4  /media/Data    ext4 rw,noatime,nofail,user,auto    0  2
+	
+	EOF
+}
+
+
 dialog --infobox "Final configs." 3 18
 
 echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
@@ -126,20 +143,20 @@ sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power
 if [ -f /usr/bin/NetworkManager ]; then
 	systemctl enable NetworkManager
 else
-	networkd_config
+	networkd_config >/dev/null 2>&1
 	systemctl enable systemd-networkd >/dev/null 2>&1
 	systemctl enable systemd-resolved >/dev/null 2>&1
 fi
 
-if [ -f /usr/bin/arduino ]; then
+[ -f /usr/bin/arduino ] && {
 	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
-	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp
-	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock
-fi
+	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
+	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
 
 [ $hostname = "killua" ] && {
-curl -sL "$repo/yarbs.d/killua.sh" > /tmp/kil.sh; source /tmp/kil.sh; power_is_suspend; }
+	curl -sL "$repo/yarbs.d/killua.sh" > /tmp/kil.sh; source /tmp/kil.sh; power_is_suspend; 
+	temps; data; enable_numlk_tty; resolv_conf; }
 
-systemctl enable gdm || agetty_set && lock_sleep
-create_swapfile
+systemctl enable gdm >/dev/null 2>&1 || agetty_set && lock_sleep
+create_swapfile >/dev/null 2>&1
 clone_dotfiles
