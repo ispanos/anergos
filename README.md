@@ -47,5 +47,6 @@ This is the alias I have in my .bashrc:
 
 `alias dot='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'`
 
-##### I'm currently looking into . 
+
+
 #### To do: Add LUKS/LVM support && Better description && ( YADM || Stow )
