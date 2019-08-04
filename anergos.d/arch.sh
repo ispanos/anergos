@@ -99,16 +99,13 @@ fi
 printf "${rpwd1}\\n${rpwd1}" | passwd >/dev/null 2>&1
 unset rpwd1 rpwd2
 
-# Create User and set password
+# Create User and set passwords
 useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
-echo "$name:$upwd1" | chpasswd
-unset upwd1 upwd2
+echo "$name:$upwd1" | chpasswd && unset upwd1 upwd2
 
-# Dependencies
 dialog --title "First things first." --infobox "Installing 'base-devel' and 'git'." 3 40
 pacman --noconfirm --needed -S  git base-devel >/dev/null 2>&1
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
-
 
 # Install Yay - Requires user.
 dialog --infobox "Installing yay..." 4 50
@@ -119,7 +116,6 @@ sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 cd yay && sudo -u ${name} makepkg --needed --noconfirm -si >/dev/null 2>&1
 cd /tmp || return
 
-
 if [ "$multi_lib_bool" ]; then
 	dialog --infobox "Enabling multilib..." 0 0
 	sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
@@ -127,7 +123,6 @@ if [ "$multi_lib_bool" ]; then
 fi
 
 for i in "$@"; do curl -Ls "$repo/programs/$i.csv" | sed '/^#/d' >> /tmp/progs.csv; done
-
 total=$(wc -l < /tmp/progs.csv)
 while IFS=, read -r tag program comment; do ((n++))
 	echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && 
@@ -142,8 +137,7 @@ done < /tmp/progs.csv
 
 dialog --infobox "Removing orphans..." 0 0
 pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
-sudo -u "$name" mkdir -p /home/"$name"/.local/
-pacman -Qq > /home/"$name"/.local/Fresh_pack_list
+sudo -u "$name" mkdir /home/"$name"/.local ; pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 
 cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 	[Trigger]
@@ -158,9 +152,15 @@ cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 	Exec = /usr/bin/paccache -rk3
 EOF
 
-grep "^Color" 	/etc/pacman.conf >/dev/null || sed -i "s/^#Color/Color/" 	/etc/pacman.conf
-grep "ILoveCandy" /etc/pacman.conf >/dev/null || sed -i "/Color/a ILoveCandy" /etc/pacman.conf
-
+sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 groupadd pacman && gpasswd -a "$name" pacman >/dev/null 2>&1
 echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
 chmod 440 /etc/sudoers.d/pacman
+
+cat > /etc/sudoers.d/wheel <<-EOF
+%wheel ALL=(ALL) ALL
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
+/usr/bin/systemctl restart systemd-networkd,/usr/bin/systemctl restart systemd-resolved,\
+/usr/bin/systemctl restart NetworkManager
+EOF
+chmod 440 /etc/sudoers.d/wheel

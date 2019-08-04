@@ -110,6 +110,7 @@ dialog --infobox "Final configs." 3 18
 	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
 	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
 	sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power >/dev/null 2>&1
+echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
 echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
@@ -131,3 +132,11 @@ systemctl enable gdm 	>/dev/null 2>&1 || agetty_set && lock_sleep
 create_swapfile 		>/dev/null 2>&1
 clone_dotfiles
 [ $hostname = "killua" ] && { power_is_suspend; temps; data; enable_numlk_tty; resolv_conf; }
+
+cat > /etc/sudoers.d/wheel <<-EOF
+%wheel ALL=(ALL) ALL
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
+/usr/bin/systemctl restart systemd-networkd,/usr/bin/systemctl restart systemd-resolved,\
+/usr/bin/systemctl restart NetworkManager
+EOF
+chmod 440 /etc/sudoers.d/wheel
