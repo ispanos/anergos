@@ -1,4 +1,4 @@
-# Yiannis' Auto-Rice Bootstraping Scripts (YARBS)
+# Yiannis' Auto-Rice Bootstraping Scripts (anergos)
 
 ## This is mostly outdated. Full description coming soon.
 
@@ -7,20 +7,20 @@ Its an "one-click" script to handle everything when I want to start fresh. Packa
 
 The first column is a "tag" that determines how the program is installed, "" (blank) for the main repository, A for via the AUR or G if the program is a git repository that is meant to be make && sudo make installed.
 
-The second column is the name of the program in the repository, or the link to the git repository, and the third comment is a description (should be a verb phrase) that describes the program. During installation, YARBS will print out this information in a grammatical sentence. It also doubles as documentation for people who read the csv or who want to install my dotfiles manually. If you include commas in your program descriptions, be sure to include double quotes around the whole description to ensure correct parsing.
+The second column is the name of the program in the repository, or the link to the git repository, and the third comment is a description (should be a verb phrase) that describes the program. During installation, anergos will print out this information in a grammatical sentence. It also doubles as documentation for people who read the csv or who want to install my dotfiles manually. If you include commas in your program descriptions, be sure to include double quotes around the whole description to ensure correct parsing.
 
-Depending on your own build, you may want to tactically order the programs in your programs file. YARBS will install from the top to the bottom.
+Depending on your own build, you may want to tactically order the programs in your programs file. anergos will install from the top to the bottom.
 
 
 ### Disclaimer: 
 #### Some may think that this is like a distro based on ArchLinux. NO. This is just a bash scrip that I made for me, but I made it as flexible as I could. Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome.
 ##### If you are not familiar with installing archlinux the recommended way, I would suggest you not to use this script. Besides the fact that I may break something in the script at any moment, you need to understand how things work and how your system is set-up. E.g. For UEFI installations I'm using `systemd-boot` and not the more traditional `GRUB 2`. This is not a script you are supposed to use as is. Download it offline or make a fork and adjust it to your needs or test it in a VM. 
 
-## [yarbs.sh](https://github.com/ispanos/YARBS/blob/master/yarbs.sh)
+## [anergos.sh](https://github.com/ispanos/anergos/blob/master/anergos.sh)
 
 Right now I'm using `dialog` to display step of the process and get user input. It looks cool and I get a better idea of how much time is needed while installing the packages. The downside is that it hides any error message that may appear and the code looks a bit ugly because of it. ( Not that I know how to write scripts better. ) Any valid variable set in the main script, will not be requested again.
 
-`yarbs.sh` is supposed to run in the chroot environment, right after you've installed the base group using pacstrap and generated the fstab. I'm using functions and splitting things up into separate files, otherwise the script would be 700 lines of bash in one file. I'm calling the other scripts using `source` so that the variables and common functions can work. 
+`anergos.sh` is supposed to run in the chroot environment, right after you've installed the base group using pacstrap and generated the fstab. I'm using functions and splitting things up into separate files, otherwise the script would be 700 lines of bash in one file. I'm calling the other scripts using `source` so that the variables and common functions can work. 
 
 [Systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot) only works if you are booted in UEFI mode, so the first step is to check, if the folder "/sys/firmware/efi" doesn't exist, it installs grub (MBR/BIOS only). To keep things simple, `esp` must be at `/boot`. If you want to change that, you'll need to modify the function named "systemd_boot", the pacman hook and anything else that might be needed.
 
@@ -47,9 +47,5 @@ This is the alias I have in my .bashrc:
 
 `alias dot='/usr/bin/git --git-dir=$HOME/.cfg/ --work-tree=$HOME'`
 
-##### I'm currently looking into YADM and Stow. 
-
-### killua.sh
-My desktop computer's hostname is "killua". I used that as a way to add some extra configurations that I only want on my desktop pc, without the need of an extra configurations later. I moved that part of the script to a different file to make the config script a bit shorter. Avoid setting your hostname as "killua" during the initial set-up. If you have a better idea, please contact me or make a PR. I think hostnames are a good variable to add system-specific configurations. I don't have a second computer, but if I did maybe Ansible would be even better.
-
-#### To do: Add LUKS/LVM support + Better description?
+##### I'm currently looking into . 
+#### To do: Add LUKS/LVM support && Better description && ( YADM || Stow )

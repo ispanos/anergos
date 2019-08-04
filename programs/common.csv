@@ -3,7 +3,7 @@
 ,pulsemixer,"is an audio controller."
 ,gnome-keyring,"takes care of the user's security credentials"
 ,polkit-gnome,"is an authentication agent."
-,ttf-inconsolata,"is the monospace font of YARBS."
+,ttf-inconsolata,"is the monospace font I use."
 ,ttf-liberation,"- Red Hats Liberation fonts"
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."

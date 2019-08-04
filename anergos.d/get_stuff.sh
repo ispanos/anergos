@@ -58,8 +58,5 @@ function get_root_pass() {
 	fi
 }
 
-get_dialog
-get_hostname
-get_userandpass
-get_root_pass
+get_dialog; get_hostname; get_userandpass; get_root_pass
 [ "$automated" = "false" ] && dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35

@@ -7,30 +7,21 @@ function enable_numlk_tty() {
 	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
 		[Unit]
 		Description=numlockOnTty
-		
 		[Service]
 		ExecStart=/usr/bin/numlockOnTty
-		
 		[Install]
 		WantedBy=multi-user.target
 	EOF
-
 	cat > /usr/bin/numlockOnTty <<-EOF
 		#!/bin/bash
-		for tty in /dev/tty{1..6}
-		do
-		    /usr/bin/setleds -D +num < "$tty";
-		done
+		for tty in /dev/tty{1..6}; do /usr/bin/setleds -D +num < "$tty"; done
 	EOF
-
 	chmod +x /usr/bin/numlockOnTty
 	systemctl enable numLockOnTty >/dev/null 2>&1
 }
 
 resolv_conf() {
 	cat > /etc/resolv.conf <<-EOF
-		# Resolver configuration file.
-		# See resolv.conf(5) for details.
 		search home
 		nameserver 192.168.1.1
 	EOF
@@ -51,10 +42,8 @@ function networkd_config() {
 		cat > /etc/systemd/network/${device}.network <<-EOF
 			[Match]
 			Name=$device
-			
 			[Network]
 			DHCP=ipv4
-			
 			[DHCP]
 			RouteMetric=$(($i * 10))
 		EOF
@@ -78,14 +67,12 @@ function lock_sleep() {
 			[Unit]
 			Description=Turning i3lock on before sleep
 			Before=sleep.target
-			
 			[Service]
 			User=%I
 			Type=forking
 			Environment=DISPLAY=:0
 			ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/${name}/.config/wall.png -t
 			ExecStartPost=/usr/bin/sleep 1
-			
 			[Install]
 			WantedBy=sleep.target
 		EOF
@@ -99,8 +86,7 @@ function clone_dotfiles() {
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
-					--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
-}
+				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore; }
 
 temps() {
 	# https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
@@ -118,28 +104,22 @@ data() {
 	EOF
 }
 
-
 dialog --infobox "Final configs." 3 18
-
+[ -f /usr/bin/arduino ] && {
+	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
+	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
+	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
+	sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power >/dev/null 2>&1
 echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
-
 echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
 echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
-
 grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || 
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-
 grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || 
 	echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
-
 sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
-
-[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-
-sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power
-
 [ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
-
+[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 if [ -f /usr/bin/NetworkManager ]; then
 	systemctl enable NetworkManager
 else
@@ -147,16 +127,7 @@ else
 	systemctl enable systemd-networkd >/dev/null 2>&1
 	systemctl enable systemd-resolved >/dev/null 2>&1
 fi
-
-[ -f /usr/bin/arduino ] && {
-	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
-	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
-	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
-
-[ $hostname = "killua" ] && {
-	curl -sL "$repo/yarbs.d/killua.sh" > /tmp/kil.sh; source /tmp/kil.sh; power_is_suspend; 
-	temps; data; enable_numlk_tty; resolv_conf; }
-
-systemctl enable gdm >/dev/null 2>&1 || agetty_set && lock_sleep
-create_swapfile >/dev/null 2>&1
+systemctl enable gdm 	>/dev/null 2>&1 || agetty_set && lock_sleep
+create_swapfile 		>/dev/null 2>&1
 clone_dotfiles
+[ $hostname = "killua" ] && { power_is_suspend; temps; data; enable_numlk_tty; resolv_conf; }

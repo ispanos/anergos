@@ -11,14 +11,14 @@ root_password=test
 multi_lib_bool=
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
-repo=https://raw.githubusercontent.com/ispanos/YARBS/master
+repo=https://raw.githubusercontent.com/ispanos/anergos/master
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 
 #for i in "$@"; do prog_files="$prog_files $repo/programs/$i.csv"; done
 
-curl -sL "$repo/yarbs.d/get_stuff.sh" 	> /tmp/get_stuff.sh && source /tmp/get_stuff.sh
-curl -sL "$repo/yarbs.d/arch.sh" 		> /tmp/arch.sh 		&& source /tmp/arch.sh
-curl -sL "$repo/yarbs.d/mpc.sh" 		> /tmp/mpc.sh 		&& source /tmp/mpc.sh
+curl -sL "$repo/anergos.d/get_stuff.sh" > /tmp/get_stuff.sh && source /tmp/get_stuff.sh
+curl -sL "$repo/anergos.d/arch.sh" 		> /tmp/arch.sh 		&& source /tmp/arch.sh
+curl -sL "$repo/anergos.d/mpc.sh" 		> /tmp/mpc.sh 		&& source /tmp/mpc.sh
 
 cat > /etc/sudoers.d/wheel <<-EOF
 %wheel ALL=(ALL) ALL

@@ -1,8 +1,8 @@
 #!/bin/bash
 # License: GNU GPLv3
 
-raw_repo=https://raw.githubusercontent.com/ispanos/YARBS/master
-# curl -LsO "$raw_repo/yarbs.d/pre-yarbs.sh" && bash pre-yarbs.sh
+raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
+# curl -LsO "$raw_repo/anergos.d/pre-anergos.sh" && bash pre-anergos.sh
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
 
@@ -28,7 +28,7 @@ clear
 
 # This part is not tested 100%. If you find a better fix please make a PR. Especially for NVME drives.
 # Unmounts the selected drive and wipes all filesystems, to make repartitioning easier.
-wipefs -a ${HARD_DRIVE}*
+wipefs -fa $HARD_DRIVE
 sleep 2
 
 # Uses fdisk to create an "EFI System" partition  (260M) and a "Linux root" partition 
@@ -64,10 +64,10 @@ mkdir -p /mnt/boot && mount ${HARD_DRIVE}1 /mnt/boot
 { [  -f /usr/share/terminfo/x/xterm-termite ] && pacstrap /mnt base termite-terminfo; } || pacstrap /mnt base
 genfstab -U /mnt >> /mnt/etc/fstab
 
-{ [ -r yarbs.sh ] && cp yarbs.sh /mnt/yarbs.sh; } || curl -sL "$raw_repo/yarbs.sh" > /mnt/yarbs.sh
+{ [ -r anergos.sh ] && cp anergos.sh /mnt/anergos.sh; } || curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
 
-arch-chroot /mnt bash yarbs.sh progs i3 common
-rm /mnt/yarbs.sh
+arch-chroot /mnt bash anergos.sh progs i3 common
+rm /mnt/anergos.sh
 
 dialog --yesno "Reboot computer?"  5 30 && reboot
 dialog --yesno "Return to chroot environment?" 6 30 && arch-chroot /mnt

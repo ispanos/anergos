@@ -1,6 +1,5 @@
 #!/bin/bash
 # License: GNU GPLv3
-dialog --infobox "Setting up Arch..." 3 20
 
 function systemd_boot() {
 	bootctl --path=/boot install >/dev/null 2>&1
@@ -65,6 +64,7 @@ function pipinstall() {
 	yes | pip install "$1"
 }
 
+dialog --infobox "Setting up Arch..." 3 20
 
 systemctl enable systemd-timesyncd.service >/dev/null 2>&1
 ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
@@ -86,7 +86,6 @@ case $(lscpu | grep Vendor | awk '{print $3}') in
 	"GenuineIntel") cpu="intel" ;;
 	"AuthenticAMD") cpu="amd" 	;;
 esac
-
 pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 
 # Install bootloader
