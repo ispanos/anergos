@@ -73,5 +73,5 @@ arduino, available
 arduino-docs, arduino-doc
 popcorntime-bin, not available or named differently.
 gtk-theme-minwaita, not available or named differently.
-sublime-text-dev, not available or named differently.
+sublime-text-dev, https://www.sublimetext.com/docs/3/linux_repositories.html#dnf or flatpak
 playerctl, available
