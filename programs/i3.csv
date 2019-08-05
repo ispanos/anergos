@@ -4,7 +4,6 @@
 ,i3lock,"is the screen lock."
 ,dmenu,"is a generic men for X."
 ,xorg-server,"is the graphical server."
-,xorg-xdpyinfo,"displays information X"
 ,xorg-xinit,"starts the graphical server."
 ,xorg-xrandr,"a cli tool for screen adjustments."
 ,xorg-xprop,"is a property displayer for X"

@@ -77,3 +77,4 @@ A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v
 ,xssstate,"times out the screen if locked."
 ,python-pywal,"is used to change X colors to match the wallpaper."
 A,interception-hideaway,"hides cursor after some time."
+,xorg-xdpyinfo,"displays information X"

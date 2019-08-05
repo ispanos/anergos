@@ -1,0 +1,77 @@
+#In progs:,
+atool, available
+bc, available
+cronie, available
+bash-completion, available
+cmake, available
+net-tools, available
+nmap, available
+ufw, available
+openssh, available
+sshfs, fuse-sshfs
+dosfstools, available
+exfat-utils, available
+ntfs-3g, available
+p7zip, available
+unrar, available
+unzip, available
+lsd, available
+calcurse, available
+highlight, available
+htop, available
+fzf, available
+youtube-dl, available
+neovim, available
+vifm, available
+w3m, available
+mediainfo, available
+docx2txt, not available or named differently.
+odt2txt, available
+inxi, available
+simple-mtpfs, available
+#,
+#In i3:,
+i3-gaps, i3
+i3blocks, not available or named differently.
+i3lock, available
+dmenu, available
+xorg-server, xorg-x11-server-Xorg
+xorg-xinit, xorg-x11-xinit
+xorg-xrandr, lxrandr
+xorg-xprop, xorg-x11-utils
+xwallpaper, not available or named differently.
+xdotool, available
+xcompmgr, available
+maim, not available or named differently.
+dunst, available
+gcolor3, not available or named differently.
+xkb-switch-git, xkb-switch
+#,
+#In common:,
+pulseaudio-alsa, not available or named differently.
+pulsemixer, not available or named differently.
+gnome-keyring, available
+polkit-gnome, available
+ttf-inconsolata, levien-inconsolata-fonts
+ttf-liberation, liberation-fonts
+libsecret, available
+libnotify, available
+termite, not available or named differently.
+imv, not available or named differently.
+mpv, available
+galculator, available
+zathura-pdf-poppler, available
+qt5ct, available
+pulseaudio-equalizer, available
+qbittorrent, available
+xarchiver, available
+pcmanfm-gtk3, pcmanfm
+gvfs-mtp, available
+gvfs-smb, available
+firefox, available
+arduino, available
+arduino-docs, arduino-doc
+popcorntime-bin, not available or named differently.
+gtk-theme-minwaita, not available or named differently.
+sublime-text-dev, not available or named differently.
+playerctl, available

@@ -107,6 +107,15 @@ dialog --title "First things first." --infobox "Installing 'base-devel' and 'git
 pacman --noconfirm --needed -S  git base-devel >/dev/null 2>&1
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
+dialog --infobox "Installing  'linux-headers' - scripts for building modules for Linux kernel." 4 70
+pacman --noconfirm --needed -S  linux-headers >/dev/null 2>&1
+
+dialog --infobox "Installing 'arch-audit' - a CVE monitoring utility." 4 70
+pacman --noconfirm --needed -S  arch-audits >/dev/null 2>&1
+
+dialog --infobox "Installing 'pacman-contrib' - provides scripts for pacman on Archlinux." 4 70
+pacman --noconfirm --needed -S  pacman-contrib >/dev/null 2>&1
+
 # Install Yay - Requires user.
 dialog --infobox "Installing yay..." 4 50
 cd /tmp && curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz

@@ -1,10 +1,7 @@
 #TAG,NAME IN REPO,PURPOSE
-,linux-headers,"are header files and scripts for building modules for Linux kernel"
 ,atool,"manages and gives information about archives."
-,arch-audit," is a CVE monitoring utility."
 ,bc,"is an arbitrary precision calculator language."
 ,cronie,"is a daemon that runs specified programs at scheduled times."
-,pacman-contrib,"provides scripts for pacman on Archlinux."
 ,bash-completion,"is what it sounds like."
 ,cmake,"is a cross-platform open-source make system."
 ,net-tools,", configuration tools for Linux networking."
