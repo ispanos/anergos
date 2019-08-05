@@ -30,7 +30,5 @@
 ,mediainfo,"shows audio and video information and is used by ranger as well."
 ,docx2txt,"enables .docx file previews in vifm."
 ,odt2txt,"enables .odt file previews in vifm."
-,smbclient,"are tools to access a server's filespace and printers via SMB."
-A,systemd-numlockontty,"is a service to turn on NumLock in the TTY."
 A,inxi,"is a CLI system information tool."
 A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."

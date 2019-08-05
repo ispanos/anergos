@@ -48,6 +48,8 @@ function networkd_config() {
 			RouteMetric=$(($i * 10))
 		EOF
 	done
+	systemctl enable systemd-networkd >/dev/null 2>&1
+	systemctl enable systemd-resolved >/dev/null 2>&1
 }
 
 function agetty_set() {
@@ -89,10 +91,11 @@ function clone_dotfiles() {
 				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore; }
 
 temps() {
-	# https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
 	dialog  --infobox "Installing it87-dkms-git." 3 40
+	[ -f /usr/bin/yay ] && {
+	# https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
 	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
-	echo "it87" > /etc/modules-load.d/it87.conf
+	echo "it87" > /etc/modules-load.d/it87.conf; }
 }
 
 data() {
@@ -109,11 +112,11 @@ dialog --infobox "Final configs." 3 18
 	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
 	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
 	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
-	sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power >/dev/null 2>&1
+sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power >/dev/null 2>&1
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
-echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
-echo "vm.swappiness=10"         >> /etc/sysctl.d/99-sysctl.conf
-echo "vm.vfs_cache_pressure=50" >> /etc/sysctl.d/99-sysctl.conf
+echo "blacklist pcspkr" 		> /etc/modprobe.d/nobeep.conf
+printf "vm.swappiness=10\nvm.vfs_cache_pressure=50\n" > /etc/sysctl.d/99-sysctl.conf
+echo "" >> /etc/sysctl.d/99-sysctl.conf
 grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || 
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || 
@@ -121,17 +124,14 @@ grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 ||
 sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
 [ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
 [ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-if [ -f /usr/bin/NetworkManager ]; then
-	systemctl enable NetworkManager
-else
-	networkd_config >/dev/null 2>&1
-	systemctl enable systemd-networkd >/dev/null 2>&1
-	systemctl enable systemd-resolved >/dev/null 2>&1
-fi
+
+systemctl enable NetworkManager >/dev/null 2>&1 && networkd_config >/dev/null 2>&1
 systemctl enable gdm 	>/dev/null 2>&1 || agetty_set && lock_sleep
 create_swapfile 		>/dev/null 2>&1
 clone_dotfiles
-[ $hostname = "killua" ] && { power_is_suspend; temps; data; enable_numlk_tty; resolv_conf; }
+
+[ $hostname = "killua" ] && { 
+	power_is_suspend; data; enable_numlk_tty; resolv_conf; temps ; }
 
 cat > /etc/sudoers.d/wheel <<-EOF
 %wheel ALL=(ALL) ALL

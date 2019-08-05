@@ -96,12 +96,12 @@ else
 fi
 
 # Set root password
-printf "${rpwd1}\\n${rpwd1}" | passwd >/dev/null 2>&1
-unset rpwd1 rpwd2
+printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
+unset root_password
 
 # Create User and set passwords
 useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
-echo "$name:$upwd1" | chpasswd && unset upwd1 upwd2
+echo "$name:$user_password" | chpasswd && unset user_password
 
 dialog --title "First things first." --infobox "Installing 'base-devel' and 'git'." 3 40
 pacman --noconfirm --needed -S  git base-devel >/dev/null 2>&1

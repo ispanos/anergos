@@ -1,7 +1,6 @@
 #!/bin/bash
 # License: GNU GPLv3
 # /*
-# it87
 # bootloader | objcopy | Preparing kernels for /EFI/Linux
 # */
 hostname=killua
@@ -12,8 +11,44 @@ multi_lib_bool=
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
 dotfilesrepo="https://github.com/ispanos/dotfiles.git"
-
 repo=https://raw.githubusercontent.com/ispanos/anergos/master
-curl -sL "$repo/anergos.d/get_stuff.sh" > /tmp/get_stuff.sh && source /tmp/get_stuff.sh
-curl -sL "$repo/anergos.d/arch.sh" 		> /tmp/arch.sh 		&& source /tmp/arch.sh
-curl -sL "$repo/anergos.d/mpc.sh" 		> /tmp/mpc.sh 		&& source /tmp/mpc.sh
+
+function get_variables() { 
+	if [ -z "$hostname" ]; then
+		hostname=$(dialog --inputbox "Please enter the hostname." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+		automated=false
+	fi
+
+	[ -z "$name" ] && name=$(dialog --inputbox "Please enter a name for a user account." 10 60 3>&1 1>&2 2>&3 3>&1) || exit
+	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
+		name=$(dialog --no-cancel --inputbox "Name not valid. Start with a letter, use lowercase letters, - or _" 10 60 3>&1 1>&2 2>&3 3>&1)
+		automated=false
+	done
+
+	if [ -z "$user_password" ]; then
+		user_password=$(dialog --no-cancel --passwordbox "Enter a password for $name." 10 60 3>&1 1>&2 2>&3 3>&1)
+		pwd=$(dialog --no-cancel --passwordbox "Retype ${name}'s password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		while ! [ "$user_password" = "$pwd" ]; do unset pwd
+			user_password=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype ${name}'s password." 10 60 3>&1 1>&2 2>&3 3>&1)
+			pwd=$(dialog --no-cancel --passwordbox "Retype ${name}'s password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		done
+		unset pwd && automated=false
+	fi
+
+	if [ -z "$root_password" ]; then 
+		root_password=$(dialog --no-cancel --passwordbox "Enter root user's password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		pwd=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		while ! [ "$root_password" = "$pwd" ]; do unset pwd
+			root_password=$(dialog --no-cancel --passwordbox "Passwords didn't match. Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
+			pwd=$(dialog --no-cancel --passwordbox "Retype root user password." 10 60 3>&1 1>&2 2>&3 3>&1)
+		done
+		unset pwd && automated=false
+	fi
+}
+clear && printf "Installing dialog, to make things look better...\n"
+pacman --noconfirm -Syyu dialog >/dev/null 2>&1
+get_variables
+[ "$automated" = "false" ] && dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35
+
+curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
+curl -sL "$repo/anergos.d/mpc.sh" 	> /tmp/mpc.sh  && source /tmp/mpc.sh

@@ -8,8 +8,6 @@ raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
 
 pacman -Sy --needed --noconfirm dialog
 timedatectl set-ntp true
-
-# Vertical list of all sata and NVME drives.
 drive_list_vert=$(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$")
 
 list_hard_drives(){
