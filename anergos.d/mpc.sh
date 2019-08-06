@@ -58,8 +58,8 @@ function agetty_set() {
 	log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \\\$TERM"
 	sed -i "s/ExecStart=.*/$log/" \
 	/usr/lib/systemd/system/getty@.service > /etc/systemd/system/getty@.service
-	systemctl daemon-reload 				>/dev/null 2>&1 
-	systemctl reenable getty@tty1.service 	>/dev/null 2>&1
+	#systemctl daemon-reload 				>/dev/null 2>&1 
+	#systemctl reenable getty@tty1.service 	>/dev/null 2>&1
 }
 
 function lock_sleep() {
