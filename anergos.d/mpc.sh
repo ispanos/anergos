@@ -131,7 +131,7 @@ create_swapfile 		>/dev/null 2>&1
 clone_dotfiles
 
 [ $hostname = "killua" ] && { 
-	power_is_suspend; data; enable_numlk_tty; resolv_conf; temps ; }
+	power_is_suspend; enable_numlk_tty; resolv_conf; temps ; }
 
 cat > /etc/sudoers.d/wheel <<-EOF
 %wheel ALL=(ALL) ALL
