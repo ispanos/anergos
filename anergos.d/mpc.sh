@@ -41,7 +41,7 @@ function networkd_config() {
 	for device in ${net_lot[*]}; do ((i++))
 		cat > /etc/systemd/network/${device}.network <<-EOF
 			[Match]
-			Name=$device
+			Name=${device}
 			[Network]
 			DHCP=ipv4
 			[DHCP]
@@ -53,11 +53,10 @@ function networkd_config() {
 }
 
 function agetty_set() {
-	log="ExecStart=-\/sbin\/agetty --skip-login --login-options $name --noclear %I \\\$TERM"
+	log="ExecStart=-\/sbin\/agetty --skip-login --login-options $name --noclear %I \$TERM"
 	[ "$1" = "auto" ] && 
-	log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \\\$TERM"
-	sed -i "s/ExecStart=.*/$log/" \
-	/usr/lib/systemd/system/getty@.service > /etc/systemd/system/getty@.service
+	log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \$TERM"
+	sed "s/ExecStart=.*/${log}/" /usr/lib/systemd/system/getty@.service > /etc/systemd/system/getty@.service
 	#systemctl daemon-reload 				>/dev/null 2>&1 
 	#systemctl reenable getty@tty1.service 	>/dev/null 2>&1
 }
@@ -114,7 +113,7 @@ dialog --infobox "Final configs." 3 18
 	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
 sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power >/dev/null 2>&1
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
-echo "blacklist pcspkr" 		> /etc/modprobe.d/nobeep.conf
+echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 printf "vm.swappiness=10\nvm.vfs_cache_pressure=50\n" > /etc/sysctl.d/99-sysctl.conf
 echo "" >> /etc/sysctl.d/99-sysctl.conf
 grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || 
@@ -131,7 +130,7 @@ create_swapfile 		>/dev/null 2>&1
 clone_dotfiles
 
 [ $hostname = "killua" ] && { 
-	power_is_suspend; enable_numlk_tty; resolv_conf; temps ; }
+	power_is_suspend; enable_numlk_tty; data; resolv_conf; temps ; }
 
 cat > /etc/sudoers.d/wheel <<-EOF
 %wheel ALL=(ALL) ALL

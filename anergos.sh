@@ -4,9 +4,9 @@
 # bootloader | objcopy | Preparing kernels for /EFI/Linux
 # */
 hostname=killua
-name=test
-user_password=test
-root_password=test
+name=yiannis
+user_password=
+root_password=
 multi_lib_bool=
 timezone="Europe/Athens"
 lang="en_US.UTF-8"
