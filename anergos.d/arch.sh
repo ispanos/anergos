@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # License: GNU GPLv3
 
 function systemd_boot() {

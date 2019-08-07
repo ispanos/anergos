@@ -1,4 +1,36 @@
 #TAG,NAME IN REPO,PURPOSE
+#CLI,,
+,atool,"manages and gives information about archives."
+,bc,"is an arbitrary precision calculator language."
+,cronie,"is a daemon that runs specified programs at scheduled times."
+,bash-completion,"is what it sounds like."
+,cmake,"is a cross-platform open-source make system."
+,net-tools,", configuration tools for Linux networking."
+,nmap,"is a network scanner."
+,ufw,"is a netfilter firewall."
+,openssh,"is a suite of security-related network utilities based on the ssh."
+,sshfs,"is a FUSE-based filesystem client for mounting remote directories over ssh."
+,dosfstools,"allows your computer to access dos-like filesystems."
+,exfat-utils,"allows management of FAT drives."
+,ntfs-3g,"allows accessing NTFS partitions."
+,p7zip,"is a tool to (de-)compress archives."
+,unrar,"is a tool to (de-)compress archives."
+,unzip,"is a tool to (de-)compress archives."
+,lsd,"is the modern ls."
+,calcurse,"is a lightweight terminal-based calendar."
+,highlight,"can highlight code output."
+,htop,"provides system usage information and displays processes."
+,fzf,"is a fuzzy finder tool."
+,youtube-dl,"can download any YouTube video (or playlist or channel) when given the link."
+,neovim,"is terminal text editor."
+,vifm,"is an extensive terminal file manager."
+,w3m,"is a terminal browser which can also view images."
+,mediainfo,"shows audio and video information and is used by ranger as well."
+,docx2txt,"enables .docx file previews in vifm."
+,odt2txt,"enables .odt file previews in vifm."
+A,inxi,"is a CLI system information tool."
+A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
+#i3,,
 ,i3-gaps,"is the main graphical user interface and window manager."
 ,i3blocks,"is the status bar."
 ,i3lock,"is the screen lock."
@@ -9,8 +41,35 @@
 ,xorg-xprop,"is a property displayer for X"
 ,xwallpaper,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
-,xcompmgr,"is for transparency and removing screen-tearing."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
 ,gcolor3,is a gtk3 color picker.
 A,xkb-switch-git,"is used by i3blocks to display what keyboard layout is being used."
+#common,,
+,pulseaudio-alsa,"is an audio interface for pulseaudio and ALSA."
+,pulsemixer,"is an audio controller."
+,gnome-keyring,"takes care of the user's security credentials"
+,polkit-gnome,"is an authentication agent."
+,ttf-inconsolata,"is the monospace font I use."
+,ttf-liberation,"- Red Hats Liberation fonts"
+,libsecret,"is a library for storing and retrieving passwords and other secrets."
+,libnotify,"allows desktop notifications."
+,termite,"is the terminal I use right now."
+,imv,is an image viewer for Wayland and X11.
+,mpv,is simple video/gif player.
+,galculator,is a simple GUI calculator.
+,zathura-pdf-poppler,is a PDF plugin for zathura based on poppler.
+,qt5ct,is used for theming qt programs.
+,pulseaudio-equalizer,is an equalizer for pulseaudio.
+,qbittorrent,is a torrent client.
+,xarchiver,is a GUI archive manager used by pcmanfm.
+,pcmanfm-gtk3,is a simple GUI file manager.
+,gvfs-mtp,"(MTP backend; Android, media player)"
+,gvfs-smb,"(SMB/CIFS backend; Windows client)"
+,firefox,"doesn't need a description."
+,arduino,"is an IDE for arduino."
+,arduino-docs,"are documents for arduino offline documentation."
+A,popcorntime-bin,"is a program that I don't use."
+A,gtk-theme-minwaita,is my current gtk theme.
+A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
+,playerctl,"provides media control for some mediaplayers."

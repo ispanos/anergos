@@ -1,10 +1,16 @@
 # ARCHIVE,,
+,virtualbox,"QT_QPA_PLATFORM= VirtualBox"
+,virtualbox-host-modules-arch,
+,virtualbox-guest-iso,
+A,virtualbox-ext-oracle,
+#,,
 ,grafana,
 #,recently used:,
 # progs,,
 ,expac,"is a pacman database extraction utility."
 ,newsboat,"is a news aggregator"
 # i3wm,,
+,xcompmgr,"is for transparency and removing screen-tearing."
 ,ttf-joypixels,"is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere."
 ,lxappearance-gtk3,"is used to set gtk themes."
 ,numlockx,"turns on NumLock when i3 starts."
@@ -24,6 +30,19 @@ A,discord,"is voice/text chat client for gamers."
 ,nvidia-utils,""
 ,lib32-nvidia-utils,""
 ,nvidia-settings,""
+#sway,,
+,sway,"is an i3 replacment of wayland."
+,swaylock,"is a screen locker for Wayland."
+,swayidle,"handles sway when its idle."
+,i3blocks,"is the status bar."
+,bemenu,"is like dmenu for wayland."
+A,j4-dmenu-desktop-git,"is a rewrite of i3-dmenu-desktop, which is much faster ."
+,xorg-server-xwayland,"is a compatibility layer for x11 apps."
+,qt5-wayland,"provides APIs for Wayland."
+,wl-clipboard,"allows copying and pasting from the command line."
+,mako,"is a notification daemon."
+,grim,"is a screenshot utility for Wayland."
+,slurp,"is a region-screenshot utility for Wayland."
 # LightDM:,,
 ,lightdm,""
 ,webkit2gtk,""

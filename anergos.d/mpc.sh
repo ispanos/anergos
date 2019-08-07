@@ -1,4 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+
+dialog --infobox "Multi platform configurations." 3 18
+
+# Needed Permissions
+echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
 function power_is_suspend() {
 	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf;}
@@ -13,8 +18,13 @@ function enable_numlk_tty() {
 		WantedBy=multi-user.target
 	EOF
 	cat > /usr/bin/numlockOnTty <<-EOF
-		#!/bin/bash
-		for tty in /dev/tty{1..6}; do /usr/bin/setleds -D +num < "$tty"; done
+		#!/usr/bin/env bash
+
+		for tty in /dev/tty{1..6}
+		do
+		    /usr/bin/setleds -D +num < "$tty";
+		done
+
 	EOF
 	chmod +x /usr/bin/numlockOnTty
 	systemctl enable numLockOnTty >/dev/null 2>&1
@@ -57,8 +67,8 @@ function agetty_set() {
 	[ "$1" = "auto" ] && 
 	log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \$TERM"
 	sed "s/ExecStart=.*/${log}/" /usr/lib/systemd/system/getty@.service > /etc/systemd/system/getty@.service
-	#systemctl daemon-reload 				>/dev/null 2>&1 
-	#systemctl reenable getty@tty1.service 	>/dev/null 2>&1
+	# systemctl daemon-reload
+	# systemctl reenable getty@tty1.service
 }
 
 function lock_sleep() {
@@ -106,32 +116,33 @@ data() {
 	EOF
 }
 
-dialog --infobox "Final configs." 3 18
-[ -f /usr/bin/arduino ] && {
-	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
-	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
-	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
-sudo -u "$name" groups | grep power >/dev/null 2>&1 || gpasswd -a $name power >/dev/null 2>&1
-echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
+
 echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 printf "vm.swappiness=10\nvm.vfs_cache_pressure=50\n" > /etc/sysctl.d/99-sysctl.conf
-echo "" >> /etc/sysctl.d/99-sysctl.conf
 grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || 
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || 
 	echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
 sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
-[ ! -f /usr/bin/Xorg ] && rm /home/${name}/.xinitrc
-[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
-systemctl enable NetworkManager >/dev/null 2>&1 && networkd_config >/dev/null 2>&1
-systemctl enable gdm 	>/dev/null 2>&1 || agetty_set && lock_sleep
-create_swapfile 		>/dev/null 2>&1
+systemctl enable NetworkManager >/dev/null 2>&1 || networkd_config >/dev/null 2>&1
+systemctl enable gdm 			>/dev/null 2>&1 || agetty_set && lock_sleep
+gpasswd -a $name power 			>/dev/null 2>&1
+create_swapfile 				>/dev/null 2>&1
 clone_dotfiles
 
-[ $hostname = "killua" ] && { 
-	power_is_suspend; enable_numlk_tty; data; resolv_conf; temps ; }
+[ $hostname = "killua" ] && { power_is_suspend; enable_numlk_tty; data; resolv_conf; temps; }
 
+
+[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+
+[ -f /usr/bin/arduino ] && {
+	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
+	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
+	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1 ; }
+
+
+# Sane Permissions
 cat > /etc/sudoers.d/wheel <<-EOF
 %wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\

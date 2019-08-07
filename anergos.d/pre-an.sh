@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # License: GNU GPLv3
 
 raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
@@ -64,7 +64,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 { [ -r anergos.sh ] && cp anergos.sh /mnt/anergos.sh; } || curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
 
-arch-chroot /mnt bash anergos.sh progs i3 common
+arch-chroot /mnt bash anergos.sh i3
 rm /mnt/anergos.sh
 
 dialog --yesno "Reboot computer?"  5 30 && reboot

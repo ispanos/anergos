@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # License: GNU GPLv3
 # /*
 # bootloader | objcopy | Preparing kernels for /EFI/Linux
