@@ -1,4 +1,7 @@
 # ARCHIVE,,
+,ttf-inconsolata,"is the monospace font I useδ."
+A,brightnessctl,"enables changing screen brightness levels."
+,,
 ,virtualbox,"QT_QPA_PLATFORM= VirtualBox"
 ,virtualbox-host-modules-arch,
 ,virtualbox-guest-iso,
