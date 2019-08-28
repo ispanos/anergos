@@ -31,9 +31,7 @@
 A,inxi,"is a CLI system information tool."
 A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 #i3,,
-,i3,"is the main graphical user interface and window manager."
-,i3blocks,"is the status bar."
-,i3lock,"is the screen lock."
+,i3,"is the main graphical user interface and window manager (group)."
 ,dmenu,"is a generic men for X."
 ,xorg-server,"is the graphical server."
 ,xorg-xinit,"starts the graphical server."
@@ -47,6 +45,7 @@ A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 ,gcolor3,is a gtk3 color picker.
 A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used."
 #common,,
+,breeze-gtk,is my current gtk theme.
 ,pulseaudio-alsa,"is an audio interface for pulseaudio and ALSA."
 ,pavucontrol,"is an audio controller."
 ,gnome-keyring,"takes care of the user's security credentials"
@@ -69,7 +68,11 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 ,firefox,"doesn't need a description."
 ,arduino,"is an IDE for arduino."
 ,arduino-docs,"are documents for arduino offline documentation."
+,linux-headers,"."
+,virtualbox-host-modules-arch,"."
+,virtualbox,"."
+,virtualbox-guest-iso,"."
+A,virtualbox-ext-oracle,"."
 A,popcorntime-bin,"is a program that I don't use."
-A,gtk-theme-minwaita,is my current gtk theme.
 A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
 ,playerctl,"provides media control for some mediaplayers."

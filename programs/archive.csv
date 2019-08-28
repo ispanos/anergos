@@ -6,6 +6,7 @@ A,brightnessctl,"enables changing screen brightness levels."
 ,virtualbox-host-modules-arch,
 ,virtualbox-guest-iso,
 A,virtualbox-ext-oracle,
+,virt-what?,
 #,,
 ,grafana,
 #,recently used:,

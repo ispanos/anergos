@@ -48,6 +48,16 @@ function arduino() {
 	fi
 }
 
+function virtualbox() {
+	if [[ $(lspci | grep VirtualBox) ]] && [ -f /usr/bin/pacman ]; then
+		pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils >/dev/null 2>&1
+	elif [ -f /usr/bin/virtualbox ]; then
+		sudo -u "$name" groups | grep vboxusers >/dev/null 2>&1 || gpasswd -a $name vboxusers >/dev/null 2>&1	
+	else
+		echo "Skipped."
+	fi
+}
+
 function networkd_config() {
 	systemctl enable NetworkManager >/dev/null 2>&1 || {
 	net_lot=$(networkctl --no-legend | grep -P "ether|wlan" | awk '{print $2}')
@@ -128,11 +138,12 @@ function enable_numlk_tty() {
 }
 
 function temps() {
-	dialog  --infobox "Installing it87-dkms-git." 3 40
-	[ -f /usr/bin/yay ] && {
-	# https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
-	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
-	echo "it87" > /etc/modules-load.d/it87.conf; }
+	if [ -f /usr/bin/yay ]; then
+		# https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
+		sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
+		echo "it87" > /etc/modules-load.d/it87.conf
+		echo "it87-dkms-git" >> /home/"name"/.local/Fresh_pack_list
+	fi
 }
 
 function data() {
@@ -159,6 +170,7 @@ office_logo
 create_swapfile 				
 clone_dotfiles
 arduino
+virtualbox
 networkd_config
 power_group
 
