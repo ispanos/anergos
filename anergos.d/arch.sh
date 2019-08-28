@@ -64,6 +64,12 @@ function pipinstall() {
 	yes | pip install "$1"
 }
 
+function flatinstall() {
+	dialog --infobox "Installing \`$1\` ($n of $total) from flathub. $1 $2" 5 70
+	command -v flatpak || pacman -S --noconfirm --needed flatpak >/dev/null 2>&1
+	sudo -u "$name" flatpak install flathub -y --noninteractive "$1" >/dev/null 2>&1
+}
+
 dialog --infobox "Setting up Arch..." 3 20
 
 systemctl enable systemd-timesyncd.service >/dev/null 2>&1
@@ -141,6 +147,7 @@ while IFS=, read -r tag program comment; do ((n++))
 		"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
 		"G") gitmakeinstall "$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
 		"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+		"F") flatinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
 	esac
 done < /tmp/progs.csv
 

@@ -31,7 +31,7 @@
 A,inxi,"is a CLI system information tool."
 A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 #i3,,
-,i3-gaps,"is the main graphical user interface and window manager."
+,i3,"is the main graphical user interface and window manager."
 ,i3blocks,"is the status bar."
 ,i3lock,"is the screen lock."
 ,dmenu,"is a generic men for X."
@@ -48,7 +48,7 @@ A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used."
 #common,,
 ,pulseaudio-alsa,"is an audio interface for pulseaudio and ALSA."
-,pulsemixer,"is an audio controller."
+,pavucontrol,"is an audio controller."
 ,gnome-keyring,"takes care of the user's security credentials"
 ,polkit-gnome,"is an authentication agent."
 ,ttf-liberation,"- Red Hats Liberation fonts"

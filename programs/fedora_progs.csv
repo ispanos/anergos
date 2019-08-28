@@ -1,6 +1,5 @@
 sshfs, fuse-sshfs
 docx2txt, not available or named differently.
-i3-gaps, i3
 i3blocks, not available or named differently.
 xorg-server, xorg-x11-server-Xorg
 xorg-xinit, xorg-x11-xinit
@@ -10,7 +9,6 @@ xwallpaper, not available or named differently.
 maim, not available or named differently.
 gcolor3, not available or named differently.
 pulseaudio-alsa, not available or named differently.
-pulsemixer, not available or named differently.
 ttf-liberation, liberation-fonts
 imv, not available or named differently.
 pcmanfm-gtk3, pcmanfm
