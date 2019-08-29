@@ -97,7 +97,8 @@ function power_group() {
 }
 
 function agetty_set() {
-	systemctl enable gdm >/dev/null 2>&1 && echo $(tput setaf 2)"GDM done (value $1)"$(tput sgr0) && return
+	systemctl enable gdm >/dev/null 2>&1 && 
+		echo $(tput setaf 2)"GDM done (value $1)"$(tput sgr0) && return
 	
 	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	if [ "$1" = "auto" ]; then
@@ -131,7 +132,8 @@ function virtualbox() {
 
 
 	elif [ -f /usr/bin/virtualbox ]; then
-		sudo -u "$name" groups | grep vboxusers >/dev/null 2>&1 || gpasswd -a $name vboxusers >/dev/null 2>&1
+		sudo -u "$name" groups | grep vboxusers >/dev/null 2>&1 || 
+			gpasswd -a $name vboxusers >/dev/null 2>&1
 		echo $(tput setaf 2)"${FUNCNAME[0]}-host done (value $1)"$(tput sgr0)
 	fi
 }
