@@ -44,11 +44,17 @@ function get_variables() {
 		done
 		unset pwd && automated=false
 	fi
+	[ "$automated" = "false" ] && dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35
 }
-clear && printf "Installing dialog, to make things look better...\n"
-pacman --noconfirm -Syyu dialog >/dev/null 2>&1
+
+clear
+
+if [ -f /usr/bin/dialog ]; then
+	printf "Installing dialog, to make things look better...\n"
+	pacman --noconfirm -Syyu dialog >/dev/null 2>&1
+fi
+
 get_variables
-[ "$automated" = "false" ] && dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35
 
 curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
 curl -sL "$repo/anergos.d/mpc.sh" 	> /tmp/mpc.sh  && source /tmp/mpc.sh

@@ -19,7 +19,8 @@ list_hard_drives(){
 	done
 }
 
-hard_drive_num=$(dialog --title "Select your Hard-drive" --menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
+hard_drive_num=$(dialog --title "Select your Hard-drive" \
+						--menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
 # Converts the number printed by dialog, to the actuall  name of the selected drive.
 HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
 clear
@@ -59,12 +60,12 @@ mount ${HARD_DRIVE}2 /mnt $root_partition
 yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
 mkdir -p /mnt/boot && mount ${HARD_DRIVE}1 /mnt/boot
 
-{ [  -f /usr/share/terminfo/x/xterm-termite ] && pacstrap /mnt base termite-terminfo; } || pacstrap /mnt base
+pacstrap /mnt base
 genfstab -U /mnt >> /mnt/etc/fstab
 
 { [ -r anergos.sh ] && cp anergos.sh /mnt/anergos.sh; } || curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
 
-arch-chroot /mnt bash anergos.sh i3
+arch-chroot /mnt bash anergos.sh $1
 rm /mnt/anergos.sh
 
 dialog --yesno "Reboot computer?"  5 30 && reboot

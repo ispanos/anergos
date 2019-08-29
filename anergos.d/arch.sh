@@ -40,12 +40,12 @@ function grub_mbr() {
 
 function maininstall() {
 	dialog --infobox "Installing \`$1\` ($n of $total). $1 $2" 5 70
-	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1
+	pacman --noconfirm --needed -S "$1" > /dev/null 2>&1 || echo "$1" >> /home/${name}/failed
 }
 
 function aurinstall() {
 	dialog  --infobox "Installing \`$1\` ($n of $total) from the AUR. $1 $2" 5 70
-	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1
+	sudo -u "$name" yay -S --noconfirm "$1" >/dev/null 2>&1 || echo "$1" >> /home/${name}/failed
 }
 
 function gitmakeinstall() {
@@ -61,7 +61,7 @@ function gitmakeinstall() {
 function pipinstall() {
 	dialog --infobox "Installing the Python package \`$1\` ($n of $total). $1 $2" 5 70
 	command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
-	yes | pip install "$1"
+	yes | pip install "$1" || echo "$1" >> /home/${name}/failed
 }
 
 function flatinstall() {
@@ -69,6 +69,20 @@ function flatinstall() {
 	command -v flatpak || pacman -S --noconfirm --needed flatpak >/dev/null 2>&1
 	sudo -u "$name" flatpak install flathub -y --noninteractive "$1" >/dev/null 2>&1
 }
+
+function set_sane_permitions() {
+cat > /etc/sudoers.d/wheel <<-EOF
+%wheel ALL=(ALL) ALL
+%wheel ALL=(ALL) NOPASSWD: /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
+/usr/bin/systemctl restart systemd-networkd,/usr/bin/systemctl restart systemd-resolved,\
+/usr/bin/systemctl restart NetworkManager
+EOF
+chmod 440 /etc/sudoers.d/wheel
+echo $(tput setaf 2)"${FUNCNAME[0]} in $0 Done!"$(tput sgr0)
+sleep 15
+}
+
+trap set_sane_permitions EXIT
 
 dialog --infobox "Setting up Arch..." 3 20
 
@@ -113,15 +127,6 @@ dialog --title "First things first." --infobox "Installing 'base-devel' and 'git
 pacman --noconfirm --needed -S  git base-devel >/dev/null 2>&1
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
-dialog --infobox "Installing  'linux-headers' - scripts for building modules for Linux kernel." 4 70
-pacman --noconfirm --needed -S  linux-headers >/dev/null 2>&1
-
-dialog --infobox "Installing 'arch-audit' - a CVE monitoring utility." 4 70
-pacman --noconfirm --needed -S  arch-audits >/dev/null 2>&1
-
-dialog --infobox "Installing 'pacman-contrib' - provides scripts for pacman on Archlinux." 4 70
-pacman --noconfirm --needed -S  pacman-contrib >/dev/null 2>&1
-
 # Install Yay - Requires user.
 dialog --infobox "Installing yay..." 4 50
 cd /tmp && curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz
@@ -129,7 +134,6 @@ sudo -u ${name} tar -xvf yay.tar.gz >/dev/null 2>&1
 grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || 
 sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 cd yay && sudo -u ${name} makepkg --needed --noconfirm -si >/dev/null 2>&1
-cd /tmp || return
 
 if [ "$multi_lib_bool" ]; then
 	dialog --infobox "Enabling multilib..." 0 0
@@ -143,11 +147,10 @@ while IFS=, read -r tag program comment; do ((n++))
 	echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && 
 	comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 	case "$tag" in
-		"")  maininstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-		"A") aurinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+		"")  maininstall 	"$program" "$comment" ;;
+		"A") aurinstall 	"$program" "$comment" ;;
 		"G") gitmakeinstall "$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-		"P") pipinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
-		"F") flatinstall 	"$program" "$comment" || echo "$program" >> /home/${name}/failed ;;
+		"P") pipinstall 	"$program" "$comment" ;;
 	esac
 done < /tmp/progs.csv
 
@@ -172,11 +175,3 @@ sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 groupadd pacman && gpasswd -a "$name" pacman >/dev/null 2>&1
 echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
 chmod 440 /etc/sudoers.d/pacman
-
-cat > /etc/sudoers.d/wheel <<-EOF
-%wheel ALL=(ALL) ALL
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
-/usr/bin/systemctl restart systemd-networkd,/usr/bin/systemctl restart systemd-resolved,\
-/usr/bin/systemctl restart NetworkManager
-EOF
-chmod 440 /etc/sudoers.d/wheel
