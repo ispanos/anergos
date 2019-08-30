@@ -249,4 +249,4 @@ power_group
 agetty_set
 lock_sleep
 
-[ $hostname = "killua" ] && { echo "killua:" virtualbox; resolv_conf; nable_numlk_tty; temps; data; }
+[ $hostname = "killua" ] && { echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; }

@@ -129,11 +129,9 @@ echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/s
 
 # Install Yay - Requires user.
 dialog --infobox "Installing yay..." 4 50
-cd /tmp && curl -sO https://aur.archlinux.org/cgit/aur.git/snapshot/yay.tar.gz
-sudo -u ${name} tar -xvf yay.tar.gz >/dev/null 2>&1
-grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 || 
+git clone https://aur.archlinux.org/yay.git
 sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-cd yay && sudo -u ${name} makepkg --needed --noconfirm -si >/dev/null 2>&1
+cd yay && sudo -u ${name} makepkg -si --noconfirm
 
 if [ "$multi_lib_bool" ]; then
 	dialog --infobox "Enabling multilib..." 0 0

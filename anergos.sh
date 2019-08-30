@@ -44,7 +44,8 @@ function get_variables() {
 		done
 		unset pwd && automated=false
 	fi
-	[ "$automated" = "false" ] && dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35
+	
+	[ "$automated" = "false" ] && dialog --title "Here we go" --yesno "Are you sure you wanna do this?" 6 35 || exit
 }
 
 clear
