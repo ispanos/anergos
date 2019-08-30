@@ -127,11 +127,12 @@ dialog --title "First things first." --infobox "Installing 'base-devel' and 'git
 pacman --noconfirm --needed -S  git base-devel >/dev/null 2>&1
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
+sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+
 # Install Yay - Requires user.
 dialog --infobox "Installing yay..." 4 50
-git clone https://aur.archlinux.org/yay.git
-sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-cd yay && sudo -u ${name} makepkg -si --noconfirm
+cd /tmp ; sudo -u "$name" git clone https://aur.archlinux.org/yay.git
+cd yay && sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
 
 if [ "$multi_lib_bool" ]; then
 	dialog --infobox "Enabling multilib..." 0 0
