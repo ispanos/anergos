@@ -48,7 +48,6 @@ A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 ,gcolor3,is a gtk3 color picker.
 A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used."
 #common,,
-,breeze-gtk,is my current gtk theme.
 ,pulseaudio-alsa,"is an audio interface for pulseaudio and ALSA."
 ,pavucontrol,"is an audio controller."
 ,gnome-keyring,"takes care of the user's security credentials"
@@ -59,6 +58,7 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 ,gnome-terminal,"is the GNOME Terminal Emulator."
 ,imv,is an image viewer for Wayland and X11.
 ,mpv,is simple video/gif player.
+,playerctl,"provides media control for some mediaplayers."
 ,galculator,is a simple GUI calculator.
 ,zathura-pdf-poppler,is a PDF plugin for zathura based on poppler.
 ,qt5ct,is used for theming qt programs.
@@ -78,4 +78,3 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 A,virtualbox-ext-oracle,"."
 A,popcorntime-bin,"is a program that I don't use."
 A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
-,playerctl,"provides media control for some mediaplayers."

@@ -49,7 +49,7 @@ function get_variables() {
 
 clear
 
-if [ -f /usr/bin/dialog ]; then
+if [ ! -f /usr/bin/dialog ]; then
 	printf "Installing dialog, to make things look better...\n"
 	pacman --noconfirm -Syyu dialog >/dev/null 2>&1
 fi
@@ -58,3 +58,4 @@ get_variables
 
 curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
 curl -sL "$repo/anergos.d/mpc.sh" 	> /tmp/mpc.sh  && source /tmp/mpc.sh
+exit

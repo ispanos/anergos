@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 function nobeep() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
 
 function all_core_make() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 &&
 	echo $(tput setaf 1)"${FUNCNAME[0]} failed - '^MAKEFLAGS' exists"$(tput sgr0) && return
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
@@ -15,20 +15,20 @@ function all_core_make() {
 }
 
 function nano_configs() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || 
 	echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
 
 function infinality(){
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
 
 function office_logo() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	[ -f /etc/libreoffice/sofficerc ] || 
 	echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc	
@@ -36,7 +36,7 @@ function office_logo() {
 }
 
 function create_swapfile() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	fallocate -l 2G /swapfile 	>/dev/null 2>&1
 	chmod 600 /swapfile
 	mkswap /swapfile 			>/dev/null 2>&1
@@ -47,7 +47,7 @@ function create_swapfile() {
 }
 
 function clone_dotfiles() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	cd /home/"$name" && echo ".cfg" >> .gitignore && rm .bash_profile .bashrc
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
@@ -57,7 +57,7 @@ function clone_dotfiles() {
 }
 
 function arduino_groups() {
-	if [ ! -f /usr/bin/arduino ] && [ $1 -eq 0 ]; then
+	if [ ! -f /usr/bin/arduino ] && [ $1 ] && [ $1 -eq 0 ]; then
 		echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	fi
 
@@ -68,7 +68,7 @@ function arduino_groups() {
 }
 
 function networkd_config() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 
 	if [ -f  /usr/bin/NetworkManager ]; then
 		systemctl enable NetworkManager >/dev/null 2>&1
@@ -94,7 +94,7 @@ function networkd_config() {
 }
 
 function power_group() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	gpasswd -a $name power >/dev/null 2>&1
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
@@ -103,7 +103,7 @@ function agetty_set() {
 	systemctl enable gdm >/dev/null 2>&1 && 
 		echo $(tput setaf 2)"GDM done (value $1)"$(tput sgr0) && return
 	
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	if [ "$1" = "auto" ]; then
 		local log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \$TERM"
 	else
@@ -116,7 +116,7 @@ function agetty_set() {
 }
 
 function lock_sleep() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	if [ -f /usr/bin/i3lock ] && [ ! -f /usr/bin/sway ]; then
 		cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
 			#/etc/systemd/system/
@@ -138,7 +138,7 @@ function lock_sleep() {
 }
 
 function virtualbox() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
 		if [ -f /usr/bin/pacman ]; then
@@ -164,13 +164,13 @@ function virtualbox() {
 }
 
 function resolv_conf() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
 
 function enable_numlk_tty() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
 		[Unit]
 		Description=numlockOnTty
@@ -194,7 +194,7 @@ function enable_numlk_tty() {
 }
 
 function temps() { # https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	[ ! -f /usr/bin/yay ] && return
 	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
@@ -203,7 +203,7 @@ function temps() { # https://aur.archlinux.org/packages/it87-dkms-git/ || https:
 }
 
 function data() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	mkdir -p /media/Data
 	cat >> /etc/fstab <<-EOF
 		# /dev/sda1 LABEL=data
@@ -214,7 +214,7 @@ function data() {
 }
 
 function powerb_is_suspend() {
-	[ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
