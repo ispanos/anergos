@@ -135,7 +135,7 @@ sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 # Install Yay - Requires user.
 dialog --infobox "Installing yay..." 4 50
 cd /tmp ; sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
-cd yay && sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
+cd yay-bin && sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
 
 if [ "$multi_lib_bool" ]; then
 	dialog --infobox "Enabling multilib..." 0 0
