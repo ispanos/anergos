@@ -41,7 +41,7 @@ A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 ,xorg-xrandr,"a cli tool for screen adjustments."
 ,xorg-xprop,"is a property displayer for X"
 ,xorg-xbacklight,"is a RandR-based backlight control application"
-,xwallpaper,"sets the wallpaper."
+,feh,"is an image viewer that also sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
@@ -56,7 +56,6 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."
 ,gnome-terminal,"is the GNOME Terminal Emulator."
-,imv,is an image viewer for Wayland and X11.
 ,mpv,is simple video/gif player.
 ,playerctl,"provides media control for some mediaplayers."
 ,galculator,is a simple GUI calculator.
@@ -78,4 +77,3 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 A,virtualbox-ext-oracle,"."
 A,popcorntime-bin,"is a program that I don't use."
 A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
-#A,gtk-theme-minwaita,is my current gtk theme.

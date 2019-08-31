@@ -20,6 +20,7 @@ A,virtualbox-ext-oracle,
 ,numlockx,"turns on NumLock when i3 starts."
 ,xclip,"allows for copying and pasting from the command line (used with mpv)."
 # common,,
+A,gtk-theme-minwaita,is my current gtk theme.
 ,noto-fonts,"Google Noto TTF fonts."
 ,noto-fonts-emoji,"provides unicode symbols and emojis."
 ,libreoffice-fresh,is an office suit.
@@ -47,6 +48,7 @@ A,j4-dmenu-desktop-git,"is a rewrite of i3-dmenu-desktop, which is much faster .
 ,mako,"is a notification daemon."
 ,grim,"is a screenshot utility for Wayland."
 ,slurp,"is a region-screenshot utility for Wayland."
+,imv,is an image viewer for Wayland and X11.
 # LightDM:,,
 ,lightdm,""
 ,webkit2gtk,""

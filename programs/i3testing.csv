@@ -48,4 +48,3 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 ,pcmanfm-gtk3,is a simple GUI file manager.
 ,firefox,"doesn't need a description."
 A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
-#A,gtk-theme-minwaita,is my current gtk theme.

@@ -3,15 +3,16 @@
 # /*
 # bootloader | objcopy | Preparing kernels for /EFI/Linux
 # */
+
+repo=https://raw.githubusercontent.com/ispanos/anergos/master
 hostname=killua
 name=yiannis
 user_password=
 root_password=
 multi_lib_bool=
-timezone="Europe/Athens"
-lang="en_US.UTF-8"
-dotfilesrepo="https://github.com/ispanos/dotfiles.git"
-repo=https://raw.githubusercontent.com/ispanos/anergos/master
+timezone=
+lang=
+dotfilesrepo=
 
 function get_variables() { 
 	if [ -z "$hostname" ]; then

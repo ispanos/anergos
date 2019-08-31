@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
+[ -z "$timezone" ] && timezone="Europe/Athens"
+[ -z "$lang" ] && lang="en_US.UTF-8"
+
 function systemd_boot() {
 	bootctl --path=/boot install >/dev/null 2>&1
 	cat > /boot/loader/loader.conf <<-EOF

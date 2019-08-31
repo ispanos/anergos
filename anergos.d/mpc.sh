@@ -1,8 +1,16 @@
 #!/usr/bin/env bash
 
+[ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+
 function nobeep() {
 	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
+}
+
+function power_group() {
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+	gpasswd -a $name power >/dev/null 2>&1
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
 
@@ -12,6 +20,32 @@ function all_core_make() {
 	echo $(tput setaf 1)"${FUNCNAME[0]} failed - '^MAKEFLAGS' exists"$(tput sgr0) && return
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
+}
+
+function networkd_config() {
+	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
+
+	if [ -f  /usr/bin/NetworkManager ]; then
+		systemctl enable NetworkManager >/dev/null 2>&1
+		echo $(tput setaf 2)"NetworkManager done"$(tput sgr0)
+
+	else
+		net_lot=$(networkctl --no-legend 2>/dev/null | grep -P "ether|wlan" | awk '{print $2}')
+		for device in ${net_lot[*]}; do ((i++))
+			cat > /etc/systemd/network/${device}.network <<-EOF
+				[Match]
+				Name=${device}
+				[Network]
+				DHCP=ipv4
+				[DHCP]
+				RouteMetric=$(($i * 10))
+			EOF
+		done
+		systemctl enable systemd-networkd >/dev/null 2>&1
+		systemctl enable systemd-resolved >/dev/null 2>&1
+		echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
+	fi 
+	
 }
 
 function nano_configs() {
@@ -67,38 +101,6 @@ function arduino_groups() {
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
 
-function networkd_config() {
-	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
-
-	if [ -f  /usr/bin/NetworkManager ]; then
-		systemctl enable NetworkManager >/dev/null 2>&1
-		echo $(tput setaf 2)"NetworkManager done"$(tput sgr0)
-
-	else
-		net_lot=$(networkctl --no-legend 2>/dev/null | grep -P "ether|wlan" | awk '{print $2}')
-		for device in ${net_lot[*]}; do ((i++))
-			cat > /etc/systemd/network/${device}.network <<-EOF
-				[Match]
-				Name=${device}
-				[Network]
-				DHCP=ipv4
-				[DHCP]
-				RouteMetric=$(($i * 10))
-			EOF
-		done
-		systemctl enable systemd-networkd >/dev/null 2>&1
-		systemctl enable systemd-resolved >/dev/null 2>&1
-		echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
-	fi 
-	
-}
-
-function power_group() {
-	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
-	gpasswd -a $name power >/dev/null 2>&1
-	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
-}
-
 function agetty_set() {
 	systemctl enable gdm >/dev/null 2>&1 && 
 		echo $(tput setaf 2)"GDM done (value $1)"$(tput sgr0) && return
@@ -109,7 +111,8 @@ function agetty_set() {
 	else
 		local log="ExecStart=-\/sbin\/agetty --skip-login --login-options $name --noclear %I \$TERM"
 	fi
-	sed "s/ExecStart=.*/${log}/" /usr/lib/systemd/system/getty@.service > /etc/systemd/system/getty@.service
+	sed "s/ExecStart=.*/${log}/" /usr/lib/systemd/system/getty@.service > \
+								/etc/systemd/system/getty@.service
 	systemctl daemon-reload 				>/dev/null 2>&1
 	systemctl reenable getty@tty1.service 	>/dev/null 2>&1
 	echo $(tput setaf 2)"${FUNCNAME[0]} done (value $1)"$(tput sgr0)
@@ -142,7 +145,8 @@ function virtualbox() {
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
 		if [ -f /usr/bin/pacman ]; then
-			pacman -S --noconfirm virtualbox-guest-modules-arch virtualbox-guest-utils >/dev/null 2>&1
+			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
+			pacman -S --noconfirm $g_utils >/dev/null 2>&1
 
 			if [ -f /usr/bin/virtualbox ]; then
 				pacman -Rns --noconfirm virtualbox >/dev/null 2>&1
@@ -193,7 +197,7 @@ function enable_numlk_tty() {
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
 }
 
-function temps() { # https://aur.archlinux.org/packages/it87-dkms-git/ || https://github.com/bbqlinux/it87
+function temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
 	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"${FUNCNAME[0]} skipped"$(tput sgr0) && return
 	[ ! -f /usr/bin/yay ] && return
 	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
@@ -207,7 +211,7 @@ function data() {
 	mkdir -p /media/Data
 	cat >> /etc/fstab <<-EOF
 		# /dev/sda1 LABEL=data
-		UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4  /media/Data    ext4 rw,noatime,nofail,user,auto    0  2
+		UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4 /media/Data ext4 rw,noatime,nofail,user,auto 0 2
 	
 	EOF
 	echo $(tput setaf 2)"${FUNCNAME[0]} done"$(tput sgr0)
@@ -236,17 +240,12 @@ trap set_sane_permitions EXIT
 # Needed Permissions
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
-nobeep
-all_core_make
-nano_configs
-infinality
-office_logo
+nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality; office_logo
 create_swapfile
 clone_dotfiles
 arduino_groups
-networkd_config
-power_group
 agetty_set
 lock_sleep
-
-[ $hostname = "killua" ] && { echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; }
+powerb_is_suspend 0
+[ $hostname = "killua" ] && { 
+					echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; }
