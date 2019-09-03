@@ -33,7 +33,6 @@ function all_core_make() {
 
 function networkd_config() {
 	chech_val $1 && return
-
 	if [ -f  /usr/bin/NetworkManager ]; then
 		systemctl enable NetworkManager >/dev/null 2>&1
 		ready " (NetworkManager)"
@@ -109,9 +108,7 @@ function arduino_groups() {
 }
 
 function agetty_set() {
-	systemctl enable gdm >/dev/null 2>&1 && 
-		ready " GDM (value $1)" && return
-	
+	systemctl enable gdm >/dev/null 2>&1 && ready " GDM (value $1)" && return
 	chech_val $1 && return
 	if [ "$1" = "auto" ]; then
 		local log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \$TERM"
@@ -150,6 +147,7 @@ function virtualbox() {
 	chech_val $1 && return
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
+		
 		if hostnamectl | grep -q "Arch Linux"; then
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
 			pacman -S --noconfirm $g_utils >/dev/null 2>&1
@@ -175,8 +173,7 @@ function virtualbox() {
 
 function resolv_conf() {
 	chech_val $1 && return
-	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf
-	ready
+	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf && ready
 }
 
 function enable_numlk_tty() {
@@ -198,8 +195,7 @@ function enable_numlk_tty() {
 		done
 
 	EOF
-	chmod +x /usr/bin/numlockOnTty
-	systemctl enable numLockOnTty >/dev/null 2>&1
+	chmod +x /usr/bin/numlockOnTty; systemctl enable numLockOnTty >/dev/null 2>&1
 	ready
 }
 
@@ -208,7 +204,7 @@ function temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.
 	[ ! -f /usr/bin/yay ] && chech_val 0 && return
 	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
-	echo "it87-dkms-git" >> /home/"$name"/.local/Fresh_pack_list
+	printf "\nit87-dkms-git\n" >> /home/"$name"/.local/Fresh_pack_list
 	ready
 }
 
