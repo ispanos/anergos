@@ -7,12 +7,10 @@ xorg-xinit, xorg-x11-xinit
 xorg-xrandr, lxrandr
 xorg-xprop, xorg-x11-utils
 xorg-xbacklight, xbacklight
-xwallpaper, feh
 maim, not available or named differently.
 gcolor3, not available or named differently.
 pulseaudio-alsa, not available or named differently.
 ttf-liberation, liberation-fonts
-imv, feh
 pcmanfm-gtk3, pcmanfm
 arduino-docs, arduino-doc
 popcorntime-bin, not available or named differently.

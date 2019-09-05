@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+[ -z "$hostname" ] && $hostname=$(hostname)
 
 function chech_val() {
 	printf $(tput setaf 3)"${FUNCNAME[1]}....\t\t - "$(tput sgr0)
@@ -13,7 +14,7 @@ function ready() {
 
 function nobeep() {
 	chech_val $1 && return
-	echo "blacklist pcspkr" > /etc/modprobe.d/nobeep.conf
+	echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf
 	ready
 }
 
@@ -237,8 +238,8 @@ echo $(tput setaf 2)"${FUNCNAME[0]}- in $0 Done!"$(tput sgr0)
 sleep 15
 }
 
+[ "$(id -nu)" != "root" ] && echo "This script must be run as root."
 trap set_sane_permitions EXIT
-
 # Needed Permissions
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
@@ -249,5 +250,5 @@ arduino_groups
 agetty_set
 lock_sleep
 powerb_is_suspend 0
-[ $hostname = "killua" ] && { 
+[ "$(hostname)" = "killua" ] && {
 					echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; }
