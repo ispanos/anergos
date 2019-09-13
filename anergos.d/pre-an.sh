@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-[ $1 ] || 1>&2 echo "No arguments passed. Please read the scripts description." && exit
+[ $1 ] || { 1>&2 echo "No arguments passed. Please read the scripts description." && exit;}
 
 raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
 # curl -LsO "$raw_repo/anergos.d/pre-anergos.sh" && bash pre-anergos.sh
@@ -23,6 +23,8 @@ list_hard_drives(){
 
 hard_drive_num=$(dialog --title "Select your Hard-drive" \
 						--menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
+
+[ ! $hard_drive_num ] && exit
 # Converts the number printed by dialog, to the actuall  name of the selected drive.
 HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
 clear
