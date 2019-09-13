@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-[ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+[ -z "$dotfilesrepo" ] 	&& dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+[ -z "$moz_repo" ] 		&& moz_repo="https://github.com/ispanos/mozzila"
+
 [ -z "$hostname" ] && $hostname=$(hostname)
 
 function detect_distro() {
@@ -15,7 +17,7 @@ function detect_distro() {
 	}
 
 function chech_val() {
-	printf $(tput setaf 3)"${FUNCNAME[1]}....\t\t - "$(tput sgr0)
+	printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0)
 	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"skipped"$(tput sgr0)
 	}
 
@@ -73,24 +75,22 @@ function nano_configs() {
 
 function infinality(){
 	chech_val $1 && return
-	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
-	ready
+	[ -r /etc/profile.d/freetype2.sh ] || echo $(tput setaf 1)"skipped"$(tput sgr0) && return
+	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh && ready
 	}
 
 function office_logo() {
 	chech_val $1 && return
-	[ -f /etc/libreoffice/sofficerc ] || 
-	chech_val 0 && return
-	sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc	
-	ready
+	[ -f /etc/libreoffice/sofficerc ] || chech_val 0 && return
+	sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc && ready
 	}
 
 function create_swapfile() {
 	chech_val $1 && return
-	fallocate -l 2G /swapfile 	>/dev/null 2>&1
+	fallocate -l 2G /swapfile
 	chmod 600 /swapfile
-	mkswap /swapfile 			>/dev/null 2>&1
-	swapon /swapfile 			>/dev/null 2>&1
+	mkswap /swapfile >/dev/null 2>&1
+	swapon /swapfile
 	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
 	printf "vm.swappiness=10\nvm.vfs_cache_pressure=50\n" > /etc/sysctl.d/99-sysctl.conf
 	ready
@@ -103,6 +103,20 @@ function clone_dotfiles() {
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
 				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
+	ready
+	}
+
+function firefox_configs() {
+	[ -z "$moz_repo" ] && chech_val 0
+	chech_val $1 && return
+	if [ ! -d "/home/$name/.mozilla/firefox" ]; then
+		mkdir -p "/home/$name/.mozilla/firefox"
+		chown -R "$name:wheel" "/home/$name/.mozilla/firefox"
+	fi
+	local dir=$(mktemp -d)
+	chown -R "$name:wheel" "$dir"
+	sudo -u "$name" git clone --depth 1 "$moz_repo" "$dir/gitrepo" &&
+	sudo -u "$name" cp -rfT "$dir/gitrepo" "/home/$name/.mozilla/firefox"
 	ready
 	}
 
@@ -277,6 +291,7 @@ echo $(tput setaf 2)"${FUNCNAME[0]}- in $0 Done!"$(tput sgr0)
 sleep 15
 }
 
+clear
 [ "$(id -nu)" != "root" ] && echo "This script must be run as root."
 trap set_sane_permitions EXIT
 # Needed Permissions
@@ -286,6 +301,7 @@ detect_distro
 nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality; office_logo
 create_swapfile
 clone_dotfiles
+firefox_configs
 arduino_groups
 agetty_set
 lock_sleep

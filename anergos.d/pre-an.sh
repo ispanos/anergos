@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
+[ $1 ] || 1>&2 echo "No arguments passed. Please read the scripts description." && exit
+
 raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
 # curl -LsO "$raw_repo/anergos.d/pre-anergos.sh" && bash pre-anergos.sh
 # setfont sun12x22 #HDPI
@@ -65,7 +67,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 { [ -r anergos.sh ] && cp anergos.sh /mnt/anergos.sh; } || curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
 
-arch-chroot /mnt bash anergos.sh $1
+arch-chroot /mnt bash anergos.sh $@
 rm /mnt/anergos.sh
 
 dialog --yesno "Reboot computer?"  5 30 && reboot

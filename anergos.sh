@@ -4,6 +4,8 @@
 # bootloader | objcopy | Preparing kernels for /EFI/Linux
 # */
 
+[ $1 ] || 1>&2 echo "No arguments passed. Please read the scripts description." && exit
+
 repo=https://raw.githubusercontent.com/ispanos/anergos/master
 hostname=killua
 name=yiannis
@@ -13,6 +15,7 @@ multi_lib_bool=
 timezone=
 lang=
 dotfilesrepo=
+moz_repo=
 
 function get_variables() { 
 	if [ -z "$hostname" ]; then

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
+[ $1 ] || 1>&2 echo "No arguments passed. Please read the script's description." && exit
+
 [ -z "$timezone" ] && timezone="Europe/Athens"
 [ -z "$lang" ] && lang="en_US.UTF-8"
 
