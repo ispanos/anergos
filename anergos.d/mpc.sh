@@ -3,34 +3,43 @@
 [ -z "$dotfilesrepo" ] && dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 [ -z "$hostname" ] && $hostname=$(hostname)
 
+function detect_distro() {
+	distro=$(hostnamectl | grep "Operating System:" \
+		| awk -F ': ' '{print  $2}' \
+		| tr [[:upper:]] [[:lower:]] | tr -d " ")
+
+	[ -z "$distro" ] && 
+		$(head -1 -q /etc/*release \
+			| sed 's/.*"\(.\+\)".*/\1/' 
+			| tr [[:upper:]] [[:lower:]] | tr -d " ")
+	}
+
 function chech_val() {
 	printf $(tput setaf 3)"${FUNCNAME[1]}....\t\t - "$(tput sgr0)
 	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"skipped"$(tput sgr0)
-}
+	}
 
 function ready() {
- echo $(tput setaf 2)"done"$@$(tput sgr0)
-}
+	echo $(tput setaf 2)"done"$@$(tput sgr0)
+	}
 
 function nobeep() {
 	chech_val $1 && return
 	echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf
 	ready
-}
+	}
 
 function power_group() {
 	chech_val $1 && return
 	gpasswd -a $name power >/dev/null 2>&1
 	ready
-}
+	}
 
 function all_core_make() {
 	chech_val $1 && return
-	grep "^MAKEFLAGS" /etc/makepkg.conf >/dev/null 2>&1 &&
-	ready "- '^MAKEFLAGS' exists" && return
-	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-	ready
-}
+	grep -q "^MAKEFLAGS" /etc/makepkg.conf && ready "- '^MAKEFLAGS' exists" && return
+	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf; ready
+	}
 
 function networkd_config() {
 	chech_val $1 && return
@@ -39,8 +48,8 @@ function networkd_config() {
 		ready " (NetworkManager)"
 
 	else
-		net_lot=$(networkctl --no-legend 2>/dev/null | grep -P "ether|wlan" | awk '{print $2}')
-		for device in ${net_lot[*]}; do ((i++))
+		net_devs=$(networkctl --no-legend 2>/dev/null | grep -P "ether|wlan" | awk '{print $2}')
+		for device in ${net_devs[*]}; do ((i++))
 			cat > /etc/systemd/network/${device}.network <<-EOF
 				[Match]
 				Name=${device}
@@ -54,21 +63,19 @@ function networkd_config() {
 		systemctl enable systemd-resolved >/dev/null 2>&1
 		ready
 	fi 
-	
-}
+	}
 
 function nano_configs() {
 	chech_val $1 && return
-	grep '^include "/usr/share/nano/*.nanorc"' /etc/nanorc >/dev/null 2>&1 || 
-	echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc
-	ready
-}
+	grep -q '^include "/usr/share/nano/*.nanorc"' /etc/nanorc 2>&1 || 
+	echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc && ready
+	}
 
 function infinality(){
 	chech_val $1 && return
 	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
 	ready
-}
+	}
 
 function office_logo() {
 	chech_val $1 && return
@@ -76,7 +83,7 @@ function office_logo() {
 	chech_val 0 && return
 	sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc	
 	ready
-}
+	}
 
 function create_swapfile() {
 	chech_val $1 && return
@@ -87,7 +94,7 @@ function create_swapfile() {
 	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
 	printf "vm.swappiness=10\nvm.vfs_cache_pressure=50\n" > /etc/sysctl.d/99-sysctl.conf
 	ready
-}
+	}
 
 function clone_dotfiles() {
 	chech_val $1 && return
@@ -97,16 +104,16 @@ function clone_dotfiles() {
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
 				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
 	ready
-}
+	}
 
 function arduino_groups() {
 	chech_val && return
 	[ ! -f /usr/bin/arduino ] && chech_val 0 && return
 	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
-	sudo -u "$name" groups | grep uucp >/dev/null 2>&1 || gpasswd -a $name uucp >/dev/null 2>&1
-	sudo -u "$name" groups | grep lock >/dev/null 2>&1 || gpasswd -a $name lock >/dev/null 2>&1
+	sudo -u "$name" groups | grep -q uucp || gpasswd -a $name uucp >/dev/null 2>&1
+	sudo -u "$name" groups | grep -q lock || gpasswd -a $name lock >/dev/null 2>&1
 	ready
-}
+	}
 
 function agetty_set() {
 	systemctl enable gdm >/dev/null 2>&1 && ready " GDM (value $1)" && return
@@ -120,7 +127,7 @@ function agetty_set() {
 								/etc/systemd/system/getty@.service
 	systemctl daemon-reload >/dev/null 2>&1; systemctl reenable getty@tty1.service >/dev/null 2>&1
 	ready " (value $1)"
-}
+	}
 
 function lock_sleep() {
 	chech_val $1 && return
@@ -142,14 +149,14 @@ function lock_sleep() {
 	fi
 	systemctl enable SleepLocki3@${name} >/dev/null 2>&1
 	ready
-}
+	}
 
 function virtualbox() {
 	chech_val $1 && return
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
-		
-		if hostnamectl | grep -q "Arch Linux"; then
+		case $distro in
+		archlinux)
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
 			pacman -S --noconfirm $g_utils >/dev/null 2>&1
 
@@ -160,22 +167,22 @@ function virtualbox() {
 				pacman -Rns --noconfirm virtualbox-guest-iso >/dev/null 2>&1 
 			fi
 			ready " - guest"
-		else
-			echo $(tput setaf 1)"- Guest is not ArchLinux"$(tput sgr0)
-		fi
-
-
+		;;
+		*)
+			echo $(tput setaf 1)"- Guest is not supported yet."$(tput sgr0)
+		;;
+		esac
 	elif [ -f /usr/bin/virtualbox ]; then
-		sudo -u "$name" groups | grep vboxusers >/dev/null 2>&1 || 
+		sudo -u "$name" groups | grep -q vboxusers || 
 			gpasswd -a $name vboxusers >/dev/null 2>&1
 		ready " - host"
 	fi
-}
+	}
 
 function resolv_conf() {
 	chech_val $1 && return
 	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf && ready
-}
+	}
 
 function enable_numlk_tty() {
 	chech_val $1 && return
@@ -198,16 +205,15 @@ function enable_numlk_tty() {
 	EOF
 	chmod +x /usr/bin/numlockOnTty; systemctl enable numLockOnTty >/dev/null 2>&1
 	ready
-}
+	}
 
 function temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
 	chech_val $1 && return
 	[ ! -f /usr/bin/yay ] && chech_val 0 && return
 	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
 	echo "it87" > /etc/modules-load.d/it87.conf
-	printf "\nit87-dkms-git\n" >> /home/"$name"/.local/Fresh_pack_list
 	ready
-}
+	}
 
 function data() {
 	chech_val $1 && return
@@ -218,13 +224,45 @@ function data() {
 	
 	EOF
 	ready
-}
+	}
 
 function powerb_is_suspend() {
 	chech_val $1 && return
 	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 	ready
-}
+	}
+
+function nvidia_driver() {
+	# Nouveau driver is broken for me at the moment.
+	chech_val $1 && return
+	case $distro in
+	archlinux)
+		pacman -S --noconfirm nvidia nvidia-settings >/dev/null 2>&1
+		if grep -q "^\[multilib\]" /etc/pacman.conf; then
+			pacman -S --noconfirm lib32-nvidia-utils >/dev/null 2>&1
+		fi
+		ready 
+	;;
+	*)
+		echo $(tput setaf 1)"- Guest is not supported yet."$(tput sgr0) 
+		return 
+	;;
+	esac
+	}
+
+function catalog() {
+	chech_val $1 && return
+	sudo -u "$name" mkdir /home/"$name"/.local
+	case $distro in 
+		archlinux)
+			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
+	 	;;
+		*)
+			echo $(tput setaf 1)"- Distro is not supported yet."$(tput sgr0)
+			return
+		;;
+	esac
+	}
 
 function set_sane_permitions() {
 cat > /etc/sudoers.d/wheel <<-EOF
@@ -234,6 +272,7 @@ cat > /etc/sudoers.d/wheel <<-EOF
 /usr/bin/systemctl restart NetworkManager
 EOF
 chmod 440 /etc/sudoers.d/wheel
+unset distro name hostname dotfilesrepo
 echo $(tput setaf 2)"${FUNCNAME[0]}- in $0 Done!"$(tput sgr0)
 sleep 15
 }
@@ -243,6 +282,7 @@ trap set_sane_permitions EXIT
 # Needed Permissions
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
+detect_distro
 nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality; office_logo
 create_swapfile
 clone_dotfiles
@@ -250,5 +290,9 @@ arduino_groups
 agetty_set
 lock_sleep
 powerb_is_suspend 0
+nvidia_driver 0
+
 [ "$(hostname)" = "killua" ] && {
-					echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; }
+	echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; nvidia_driver; }
+
+catalog

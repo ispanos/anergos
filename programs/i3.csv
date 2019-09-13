@@ -33,6 +33,7 @@
 ,odt2txt,"enables .odt file previews in vifm."
 A,inxi,"is a CLI system information tool."
 A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
+,wpa_supplicant,
 #i3,,
 ,i3,"is the main graphical user interface and window manager (group)."
 ,dmenu,"is a generic men for X."
@@ -76,4 +77,4 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 ,virtualbox-guest-iso,"."
 A,virtualbox-ext-oracle,"."
 A,popcorntime-bin,"is a program that I don't use."
-A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
+,code,

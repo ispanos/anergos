@@ -12,7 +12,7 @@ function systemd_boot() {
 		editor   no
 	EOF
 
-	id="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+	local id="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
 	cat > /boot/loader/entries/arch.conf <<-EOF
 		title   Arch Linux
 		linux   /vmlinuz-linux
@@ -52,7 +52,7 @@ function aurinstall() {
 }
 
 function gitmakeinstall() {
-	dir=$(mktemp -d)
+	local dir=$(mktemp -d)
 	dialog --infobox "Installing \`$(basename "$1")\` ($n of $total). $(basename "$1") $2" 5 70
 	git clone --depth 1 "$1" "$dir" > /dev/null 2>&1
 	cd "$dir" || exit
@@ -81,6 +81,7 @@ cat > /etc/sudoers.d/wheel <<-EOF
 /usr/bin/systemctl restart NetworkManager
 EOF
 chmod 440 /etc/sudoers.d/wheel
+unset root_password user_password timezone lang
 echo $(tput setaf 2)"${FUNCNAME[0]} in $0 Done!"$(tput sgr0)
 sleep 15
 }
@@ -120,11 +121,10 @@ fi
 
 # Set root password
 printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
-unset root_password
 
 # Create User and set passwords
 useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
-echo "$name:$user_password" | chpasswd && unset user_password
+echo "$name:$user_password" | chpasswd
 
 dialog --title "First things first." --infobox "Installing 'base-devel' and 'git'." 3 40
 pacman --noconfirm --needed -S  git base-devel >/dev/null 2>&1
