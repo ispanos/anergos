@@ -176,6 +176,6 @@ cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 EOF
 
 sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
-groupadd pacman && gpasswd -a "$name" pacman >/dev/null 2>&1
+groupadd pacman; gpasswd -a "$name" pacman >/dev/null 2>&1
 echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
 chmod 440 /etc/sudoers.d/pacman

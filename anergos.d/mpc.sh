@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 
+[ -z "$hostname" ] && $hostname=$(hostname)
+[ -z "$hostname" ] && exit 1
+[ -z "$name" ] && exit 1
+
 [ -z "$dotfilesrepo" ] 	&& dotfilesrepo="https://github.com/ispanos/dotfiles.git"
 [ -z "$moz_repo" ] 		&& moz_repo="https://github.com/ispanos/mozzila"
 
-[ -z "$hostname" ] && $hostname=$(hostname)
 
-function detect_distro() {
-	distro=$(hostnamectl | grep "Operating System:" \
-		| awk -F ': ' '{print  $2}' \
-		| tr [[:upper:]] [[:lower:]] | tr -d " ")
-
-	[ -z "$distro" ] && 
-		$(head -1 -q /etc/*release \
-			| sed 's/.*"\(.\+\)".*/\1/' 
-			| tr [[:upper:]] [[:lower:]] | tr -d " ")
+function get_distribution() {
+	lsb_dist=""
+	# Every system that we officially support has /etc/os-release
+	if [ -r /etc/os-release ]; then
+		lsb_dist="$(. /etc/os-release && echo "$ID")"
+	fi
+	# Returning an empty string here should be alright since the
+	# case statements don't act unless you provide an actual value
+	echo "$lsb_dist"
 	}
 
-function chech_val() {
-	printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0)
-	[ $1 ] && [ $1 -eq 0 ] && echo $(tput setaf 1)"skipped"$(tput sgr0)
-	}
+function chech_val() { printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
 
 function ready() {
 	echo $(tput setaf 2)"done"$@$(tput sgr0)
@@ -170,7 +170,7 @@ function virtualbox() {
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
 		case $distro in
-		archlinux)
+		arch)
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
 			pacman -S --noconfirm $g_utils >/dev/null 2>&1
 
@@ -250,7 +250,7 @@ function nvidia_driver() {
 	# Nouveau driver is broken for me at the moment.
 	chech_val $1 && return
 	case $distro in
-	archlinux)
+	arch)
 		pacman -S --noconfirm nvidia nvidia-settings >/dev/null 2>&1
 		if grep -q "^\[multilib\]" /etc/pacman.conf; then
 			pacman -S --noconfirm lib32-nvidia-utils >/dev/null 2>&1
@@ -268,7 +268,7 @@ function catalog() {
 	chech_val $1 && return
 	sudo -u "$name" mkdir /home/"$name"/.local
 	case $distro in 
-		archlinux)
+		arch)
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 	 	;;
 		*)
@@ -292,12 +292,16 @@ sleep 15
 }
 
 clear
+
 [ "$(id -nu)" != "root" ] && echo "This script must be run as root."
 trap set_sane_permitions EXIT
 # Needed Permissions
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
-detect_distro
+# perform some very rudimentary platform detection
+lsb_dist=$( get_distribution )
+lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
+
 nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality; office_logo
 create_swapfile
 clone_dotfiles
@@ -305,8 +309,8 @@ firefox_configs
 arduino_groups
 agetty_set
 lock_sleep
-powerb_is_suspend 0
-nvidia_driver 0
+#powerb_is_suspend
+#nvidia_driver
 
 [ "$(hostname)" = "killua" ] && {
 	echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; nvidia_driver; }
