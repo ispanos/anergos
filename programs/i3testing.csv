@@ -27,7 +27,7 @@ A,inxi,"is a CLI system information tool."
 ,xorg-xrandr,"a cli tool for screen adjustments."
 ,xorg-xprop,"is a property displayer for X"
 ,xorg-xbacklight,"is a RandR-based backlight control application"
-,xwallpaper,"sets the wallpaper."
+,feh,"sets the wallpaper."
 ,xdotool,"provides window action utilities on the command line (maim)."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
@@ -47,4 +47,4 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 ,xarchiver,is a GUI archive manager used by pcmanfm.
 ,pcmanfm-gtk3,is a simple GUI file manager.
 ,firefox,"doesn't need a description."
-A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
+,code,

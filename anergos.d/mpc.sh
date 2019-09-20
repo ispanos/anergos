@@ -75,8 +75,12 @@ nano_configs() {
 
 infinality(){
 	status_msg
-	[ -r /etc/profile.d/freetype2.sh ] || echo $(tput setaf 1)"skipped"$(tput sgr0) && return
-	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh && ready
+	if [ -r /etc/profile.d/freetype2.sh ]; then 
+		sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
+		ready && return
+	else
+		echo $(tput setaf 1)"skipped"$(tput sgr0) && return
+	fi
 	}
 
 office_logo() {
@@ -117,7 +121,7 @@ firefox_configs() {
 	chown -R "$name:wheel" "$dir"
 	sudo -u "$name" git clone --depth 1 "$moz_repo" "$dir/gitrepo" &&
 	sudo -u "$name" cp -rfT "$dir/gitrepo" "/home/$name/.mozilla/firefox" &&
-	ready
+	ready && return
 	echo "firefox_configs failed."
 	}
 
@@ -311,17 +315,14 @@ echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/s
 lsb_dist=$( get_distribution )
 lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 
-nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality; office_logo
-create_swapfile
-clone_dotfiles
-firefox_configs
-arduino_groups
-agetty_set
-lock_sleep
-#powerb_is_suspend
-#nvidia_driver
+nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality
+office_logo; clone_dotfiles; arduino_groups; agetty_set; lock_sleep
+# powerb_is_suspend
 
-[ "$(hostname)" = "killua" ] && {
-	echo "killua:"; virtualbox; resolv_conf; enable_numlk_tty; temps; data; nvidia_driver; }
+if [ "$(hostname)" = "killua" ]; then
+	echo "killua:"; 
+	create_swapfile; virtualbox; resolv_conf; enable_numlk_tty
+	temps; data; nvidia_driver; firefox_configs
+fi
 
 catalog
