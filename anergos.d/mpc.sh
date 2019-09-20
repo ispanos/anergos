@@ -8,7 +8,7 @@
 [ -z "$moz_repo" ] 		&& moz_repo="https://github.com/ispanos/mozzila"
 
 
-function get_distribution() {
+get_distribution() {
 	lsb_dist=""
 	# Every system that we officially support has /etc/os-release
 	if [ -r /etc/os-release ]; then
@@ -19,32 +19,32 @@ function get_distribution() {
 	echo "$lsb_dist"
 	}
 
-function chech_val() { printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
+status_msg() { printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
 
-function ready() {
+ready() {
 	echo $(tput setaf 2)"done"$@$(tput sgr0)
 	}
 
-function nobeep() {
-	chech_val $1 && return
+nobeep() {
+	status_msg
 	echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf
 	ready
 	}
 
-function power_group() {
-	chech_val $1 && return
+power_group() {
+	status_msg
 	gpasswd -a $name power >/dev/null 2>&1
 	ready
 	}
 
-function all_core_make() {
-	chech_val $1 && return
+all_core_make() {
+	status_msg
 	grep -q "^MAKEFLAGS" /etc/makepkg.conf && ready "- '^MAKEFLAGS' exists" && return
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf; ready
 	}
 
-function networkd_config() {
-	chech_val $1 && return
+networkd_config() {
+	status_msg
 	if [ -f  /usr/bin/NetworkManager ]; then
 		systemctl enable NetworkManager >/dev/null 2>&1
 		ready " (NetworkManager)"
@@ -67,26 +67,26 @@ function networkd_config() {
 	fi 
 	}
 
-function nano_configs() {
-	chech_val $1 && return
+nano_configs() {
+	status_msg
 	grep -q '^include "/usr/share/nano/*.nanorc"' /etc/nanorc 2>&1 || 
 	echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc && ready
 	}
 
-function infinality(){
-	chech_val $1 && return
+infinality(){
+	status_msg
 	[ -r /etc/profile.d/freetype2.sh ] || echo $(tput setaf 1)"skipped"$(tput sgr0) && return
 	sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh && ready
 	}
 
-function office_logo() {
-	chech_val $1 && return
-	[ -f /etc/libreoffice/sofficerc ] || chech_val 0 && return
+office_logo() {
+	status_msg
+	[ -f /etc/libreoffice/sofficerc ] || echo "Skipped - /etc/libreoffice missing" && return
 	sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc && ready
 	}
 
-function create_swapfile() {
-	chech_val $1 && return
+create_swapfile() {
+	status_msg
 	fallocate -l 2G /swapfile
 	chmod 600 /swapfile
 	mkswap /swapfile >/dev/null 2>&1
@@ -96,8 +96,8 @@ function create_swapfile() {
 	ready
 	}
 
-function clone_dotfiles() {
-	chech_val $1 && return
+clone_dotfiles() {
+	status_msg
 	cd /home/"$name" && echo ".cfg" >> .gitignore && rm .bash_profile .bashrc
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
@@ -106,9 +106,9 @@ function clone_dotfiles() {
 	ready
 	}
 
-function firefox_configs() {
-	[ -z "$moz_repo" ] && chech_val 0
-	chech_val $1 && return
+firefox_configs() {
+	status_msg
+	[ -z "$moz_repo" ] && echo "Repository not set." && return
 	if [ ! -d "/home/$name/.mozilla/firefox" ]; then
 		mkdir -p "/home/$name/.mozilla/firefox"
 		chown -R "$name:wheel" "/home/$name/.mozilla/firefox"
@@ -116,22 +116,23 @@ function firefox_configs() {
 	local dir=$(mktemp -d)
 	chown -R "$name:wheel" "$dir"
 	sudo -u "$name" git clone --depth 1 "$moz_repo" "$dir/gitrepo" &&
-	sudo -u "$name" cp -rfT "$dir/gitrepo" "/home/$name/.mozilla/firefox"
+	sudo -u "$name" cp -rfT "$dir/gitrepo" "/home/$name/.mozilla/firefox" &&
 	ready
+	echo "firefox_configs failed."
 	}
 
-function arduino_groups() {
-	chech_val && return
-	[ ! -f /usr/bin/arduino ] && chech_val 0 && return
+arduino_groups() {
+	status_msg
+	[ ! -f /usr/bin/arduino ] && echo "Skipped - /usr/bin/arduino missing." && return
 	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
 	sudo -u "$name" groups | grep -q uucp || gpasswd -a $name uucp >/dev/null 2>&1
 	sudo -u "$name" groups | grep -q lock || gpasswd -a $name lock >/dev/null 2>&1
 	ready
 	}
 
-function agetty_set() {
+agetty_set() {
 	systemctl enable gdm >/dev/null 2>&1 && ready " GDM (value $1)" && return
-	chech_val $1 && return
+	status_msg
 	if [ "$1" = "auto" ]; then
 		local log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \$TERM"
 	else
@@ -143,8 +144,8 @@ function agetty_set() {
 	ready " (value $1)"
 	}
 
-function lock_sleep() {
-	chech_val $1 && return
+lock_sleep() {
+	status_msg
 	if [ -f /usr/bin/i3lock ] && [ ! -f /usr/bin/sway ]; then
 		cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
 			#/etc/systemd/system/
@@ -165,8 +166,8 @@ function lock_sleep() {
 	ready
 	}
 
-function virtualbox() {
-	chech_val $1 && return
+virtualbox() {
+	status_msg
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
 		case $distro in
@@ -193,13 +194,13 @@ function virtualbox() {
 	fi
 	}
 
-function resolv_conf() {
-	chech_val $1 && return
+resolv_conf() {
+	status_msg
 	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf && ready
 	}
 
-function enable_numlk_tty() {
-	chech_val $1 && return
+enable_numlk_tty() {
+	status_msg
 	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
 		[Unit]
 		Description=numlockOnTty
@@ -221,16 +222,24 @@ function enable_numlk_tty() {
 	ready
 	}
 
-function temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
-	chech_val $1 && return
-	[ ! -f /usr/bin/yay ] && chech_val 0 && return
-	sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
-	echo "it87" > /etc/modules-load.d/it87.conf
-	ready
+temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
+	status_msg
+	case $lsb_dist in
+	arch)
+		[ ! -f /usr/bin/yay ] && "Skipped - yay not installed." && return
+		sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
+		echo "it87" > /etc/modules-load.d/it87.conf
+		ready 
+	;;
+	*)
+		echo $(tput setaf 1)"- Guest is not supported yet."$(tput sgr0) 
+		return 
+	;;
+	esac
 	}
 
-function data() {
-	chech_val $1 && return
+data() {
+	status_msg
 	mkdir -p /media/Data
 	cat >> /etc/fstab <<-EOF
 		# /dev/sda1 LABEL=data
@@ -240,16 +249,16 @@ function data() {
 	ready
 	}
 
-function powerb_is_suspend() {
-	chech_val $1 && return
+powerb_is_suspend() {
+	status_msg
 	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 	ready
 	}
 
-function nvidia_driver() {
+nvidia_driver() {
 	# Nouveau driver is broken for me at the moment.
-	chech_val $1 && return
-	case $distro in
+	status_msg
+	case $lsb_dist in
 	arch)
 		pacman -S --noconfirm nvidia nvidia-settings >/dev/null 2>&1
 		if grep -q "^\[multilib\]" /etc/pacman.conf; then
@@ -264,10 +273,10 @@ function nvidia_driver() {
 	esac
 	}
 
-function catalog() {
-	chech_val $1 && return
+catalog() {
+	status_msg
 	sudo -u "$name" mkdir /home/"$name"/.local
-	case $distro in 
+	case $lsb_dist in 
 		arch)
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 	 	;;
@@ -278,7 +287,7 @@ function catalog() {
 	esac
 	}
 
-function set_sane_permitions() {
+set_sane_permitions() {
 cat > /etc/sudoers.d/wheel <<-EOF
 %wheel ALL=(ALL) ALL
 %wheel ALL=(ALL) NOPASSWD: /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
