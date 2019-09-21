@@ -19,7 +19,7 @@ get_distribution() {
 	echo "$lsb_dist"
 	}
 
-status_msg() { printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
+status_msg() { printf "%20s\n" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
 
 ready() {
 	echo $(tput setaf 2)"done"$@$(tput sgr0)
@@ -306,23 +306,25 @@ sleep 15
 
 clear
 
-[ "$(id -nu)" != "root" ] && echo "This script must be run as root."
-trap set_sane_permitions EXIT
-# Needed Permissions
-echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
+[ "$(id -nu)" != "root" ] && echo "This script must be run as root." && exit
 
 # perform some very rudimentary platform detection
 lsb_dist=$( get_distribution )
 lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
+printf "$(tput setaf 3)Distribution	- $lsb_dist\n\n$(tput sgr0)"
+
+
+trap set_sane_permitions EXIT
+# Needed Permissions
+echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
 nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality
 office_logo; clone_dotfiles; arduino_groups; agetty_set; lock_sleep
-# powerb_is_suspend
 
 if [ "$(hostname)" = "killua" ]; then
 	echo "killua:"; 
 	create_swapfile; virtualbox; resolv_conf; enable_numlk_tty
-	temps; data; nvidia_driver; firefox_configs
+	temps; data; nvidia_driver; firefox_configs; powerb_is_suspend
 fi
 
 catalog
