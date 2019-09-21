@@ -6,18 +6,12 @@
 ,sshfs,"is a FUSE-based filesystem client for mounting remote directories over ssh."
 ,dosfstools,"allows your computer to access dos-like filesystems."
 ,exfat-utils,"allows management of FAT drives."
-,ntfs-3g,"allows accessing NTFS partitions."
 ,p7zip,"is a tool to (de-)compress archives."
 ,unrar,"is a tool to (de-)compress archives."
 ,unzip,"is a tool to (de-)compress archives."
 ,lsd,"is the modern ls."
-,highlight,"can highlight code output."
 ,htop,"provides system usage information and displays processes."
-,fzf,"is a fuzzy finder tool."
 ,neovim,"is terminal text editor."
-,vifm,"is an extensive terminal file manager."
-,docx2txt,"enables .docx file previews in vifm."
-,odt2txt,"enables .odt file previews in vifm."
 A,inxi,"is a CLI system information tool."
 #i3,,
 ,i3,"is the main graphical user interface and window manager (group)."
@@ -28,23 +22,16 @@ A,inxi,"is a CLI system information tool."
 ,xorg-xprop,"is a property displayer for X"
 ,xorg-xbacklight,"is a RandR-based backlight control application"
 ,feh,"sets the wallpaper."
-,xdotool,"provides window action utilities on the command line (maim)."
 ,maim,"can take quick screenshots at your request."
 ,dunst,"is a suckless notification system."
 A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used."
 #common,,
-,pulseaudio-alsa,"is an audio interface for pulseaudio and ALSA."
-,pavucontrol,"is an audio controller."
 ,gnome-keyring,"takes care of the user's security credentials"
 ,polkit-gnome,"is an authentication agent."
 ,ttf-liberation,"- Red Hats Liberation fonts"
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."
 ,gnome-terminal,"is the GNOME Terminal Emulator."
-,imv,is an image viewer for Wayland and X11.
-,mpv,is simple video/gif player.
-,zathura-pdf-poppler,is a PDF plugin for zathura based on poppler.
-,xarchiver,is a GUI archive manager used by pcmanfm.
 ,pcmanfm-gtk3,is a simple GUI file manager.
 ,firefox,"doesn't need a description."
 ,code,
