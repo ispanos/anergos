@@ -69,12 +69,14 @@ A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used.
 ,gvfs-mtp,"(MTP backend; Android, media player)"
 ,gvfs-smb,"(SMB/CIFS backend; Windows client)"
 ,firefox,"doesn't need a description."
-,arduino,"is an IDE for arduino."
-,arduino-avr-core," - archlinux upstream avr-gcc."
-,arduino-docs,"are documents for arduino offline documentation."
 ,virtualbox-host-modules-arch,"."
 ,virtualbox,"."
 ,virtualbox-guest-iso,"."
 A,virtualbox-ext-oracle,"."
 A,popcorntime-bin,"is a program that I don't use."
+#dev,,
+,arduino,"is an IDE for arduino."
+,arduino-avr-core," - archlinux upstream avr-gcc."
+,arduino-docs,"are documents for arduino offline documentation."
+,python-pip,
 ,code,

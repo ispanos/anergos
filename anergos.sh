@@ -60,7 +60,7 @@ if [ ! -f /usr/bin/dialog ]; then
 fi
 
 get_variables
-
+clear
 curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
 curl -sL "$repo/anergos.d/mpc.sh" 	> /tmp/mpc.sh  && source /tmp/mpc.sh
 exit

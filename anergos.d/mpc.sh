@@ -19,7 +19,7 @@ get_distribution() {
 	echo "$lsb_dist"
 	}
 
-status_msg() { printf "%20s\n" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
+status_msg() { echo; printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
 
 ready() {
 	echo $(tput setaf 2)"done"$@$(tput sgr0)
@@ -279,9 +279,12 @@ nvidia_driver() {
 
 catalog() {
 	status_msg
-	sudo -u "$name" mkdir /home/"$name"/.local
+	[ ! -d /home/"$name"/.local ] && sudo -u "$name" mkdir /home/"$name"/.local
 	case $lsb_dist in 
 		arch)
+			printf "Removing orphans..."
+			pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
+			sudo -u "$name" mkdir /home/"$name"/.local
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 	 	;;
 		*)
