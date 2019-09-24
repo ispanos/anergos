@@ -125,7 +125,7 @@ install_devel_yay() {
 	echo "Installing - yay-bin" # Requires user (core_arch_install).
 	cd /tmp ; sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
 	cd yay-bin && sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
-}
+	}
 
 install_progs() {
 	total=$(wc -l < /tmp/progs.csv)
@@ -162,7 +162,7 @@ install_progs() {
 		esac
 		echo "."
 	done < /tmp/progs.csv
-}
+	}
 
 trap set_sane_permitions EXIT
 
