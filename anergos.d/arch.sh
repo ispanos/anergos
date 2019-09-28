@@ -1,9 +1,51 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
+# Usefull variables for arch.sh
+# multi_lib_bool=
+# user_password=
+# root_password=
+# multi_lib_bool=
+# timezone=
+# lang=
+
 [ -z "$timezone" ] && timezone="Europe/Athens"
 [ -z "$lang" ] && lang="en_US.UTF-8"
-multi_lib_bool=
+
+get_hostname() { 
+	if [ -z "$hostname" ]; then
+	    read -rsep $'Enter computer\'s hostname: \n' hostname
+	fi
+	}
+
+get_username() { 
+	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
+	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
+		read -rsep $'Name not valid. Start with a letter, use lowercase letters, - or _ : \n' name
+	done
+	}
+
+get_passwords() {
+    if [ -z "$user_password" ]; then
+        read -rsep $'Enter a password for $name: \n' user_password
+        read -rsep $'Retype ${name}\'s password: \n' check_4_pass
+        while ! [ "$user_password" = "$check_4_pass" ]; do unset check_4_pass
+            read -rsep $'Passwords didn\'t match. Retype ${name}\'s password: \n' user_password
+            read -rsep $'Retype ${name}\'s password: \n' check_4_pass
+        done
+        unset check_4_pass
+    fi
+
+    if [ -z "$root_password" ]; then
+        read -rsep $'Enter root\'s password: \n' root_password
+        read -rsep $'Retype root user password: \n' check_4_pass
+        while ! [ "$root_password" = "$check_4_pass" ]; do unset check_4_pass
+            read -rsep $'Passwords didn\'t match. Retype root user password: \n' root_password
+            read -rsep $'Retype root user password: \n' check_4_pass
+        done
+        unset check_4_pass
+    fi
+	}
 
 set_sane_permitions() {
 grep -q "NOPASSWD: ALL" /etc/sudoers.d/wheel || return
@@ -110,7 +152,9 @@ pacman_managing() {
 		Exec = /usr/bin/paccache -rk3
 	EOF
 	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
-	groupadd pacman; gpasswd -a "$name" pacman >/dev/null 2>&1
+	# groupadd pacman; gpasswd -a "$name" pacman >/dev/null 2>&1
+	# echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
+	# chmod 440 /etc/sudoers.d/pacman
 	}
 
 install_devel_yay() {
@@ -166,6 +210,9 @@ install_progs() {
 
 trap set_sane_permitions EXIT
 
+get_hostname
+get_username
+get_passwords
 core_arch_install
 pacman_managing
 install_devel_yay
@@ -177,5 +224,4 @@ done
 
 install_progs
 
-echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
-chmod 440 /etc/sudoers.d/pacman
+
