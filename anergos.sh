@@ -61,6 +61,8 @@ fi
 
 get_variables
 clear
+
+[ "$(hostname)" = "archiso" ] &&
 curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
 curl -sL "$repo/anergos.d/mpc.sh" 	> /tmp/mpc.sh  && source /tmp/mpc.sh
 exit
