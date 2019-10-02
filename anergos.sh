@@ -14,13 +14,6 @@ name=yiannis
 # timezone=
 # lang=
 
-# Archlinux installation. Not the greatest way to detect if arch.sh should run.
-if [ "$(hostname)" = "archiso" ]; then
-    curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
-fi
-# This must be set after sourcing arch.sh
-[ -z "$hostname" ] && $hostname=$(hostname)
-
 get_username() { 
 	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
 	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
@@ -36,6 +29,7 @@ get_distribution() {
 	fi
 	# Returning an empty string here should be alright since the
 	# case statements don't act unless you provide an actual value
+	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 	echo "$lsb_dist"
 	}
 
@@ -304,7 +298,6 @@ catalog() {
 		arch)
 			printf "Removing orphans..."
 			pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
-			sudo -u "$name" mkdir /home/"$name"/.local
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 	 	;;
 		*)
@@ -332,24 +325,36 @@ clear
 [ "$(id -nu)" != "root" ] && echo "This script must be run as root." && exit
 echo "Wellcome to Anergos!"
 
-# perform some very rudimentary platform detection
-lsb_dist=$( get_distribution )
-lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
-printf "$(tput setaf 3)Distribution	- $lsb_dist\n\n$(tput sgr0)"
-get_username
+# Archlinux installation. Not the greatest way to detect if arch.sh should run.
+if [ "$(hostname)" = "archiso" ]; then
+    curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
+else
+	hostname=$(hostname)
+fi
 
 trap set_sane_permitions EXIT
 # Needed Permissions
 echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/sudoers.d/wheel
 
+get_username
+
+# perform some very rudimentary platform detection
+lsb_dist=$( get_distribution )
+printf "$(tput setaf 3)Distribution	- $lsb_dist\n\n$(tput sgr0)"
+
 nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality
 office_logo; clone_dotfiles; arduino_groups; agetty_set; lock_sleep
 
-if [ "$(hostname)" = "killua" ]; then
-	echo "killua:"; 
-	create_swapfile; 	enable_numlk_tty; 	resolv_conf; 	virtualbox;
-	powerb_is_suspend; 	firefox_configs; 	nvidia_driver;  temps; data;
-fi
+case $hostname in 
+	killua)
+		echo "killua:"
+		create_swapfile; 	enable_numlk_tty; 	resolv_conf; 	virtualbox;
+		powerb_is_suspend; 	firefox_configs; 	nvidia_driver;  temps; data;
+	;;
+	*)
+		echo "Unknown hostname"
+	;;
+esac
 
 catalog
 exit

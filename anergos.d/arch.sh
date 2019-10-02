@@ -220,4 +220,4 @@ core_arch_install
 pacman_managing
 trap set_sane_permitions EXIT
 install_devel_yay
-install_progs
+install_progs "$@"
