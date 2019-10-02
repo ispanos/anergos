@@ -2,15 +2,11 @@
 # License: GNU GPLv3
 
 # Usefull variables for arch.sh
-# multi_lib_bool=
 # user_password=
 # root_password=
-# multi_lib_bool=
-# timezone=
-# lang=
-
-[ -z "$timezone" ] && timezone="Europe/Athens"
-[ -z "$lang" ] && lang="en_US.UTF-8"
+[ -z "$multi_lib_bool" ] 	&& multi_lib_bool=true
+[ -z "$timezone" ] 			&& timezone="Europe/Athens"
+[ -z "$lang" ] 				&& lang="en_US.UTF-8"
 
 get_hostname() { 
 	if [ -z "$hostname" ]; then
@@ -172,14 +168,23 @@ install_devel_yay() {
 	}
 
 install_progs() {
-	total=$(wc -l < /tmp/progs.csv)
+	if [ ! "$1" ]; then
+		1>&2 echo "No arguments passed. No exta programs will be installed."
+		return 1
+	fi
+
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-	[ "$multi_lib_bool" ] && sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
+	[ "$multi_lib_bool" = true  ] && sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
+
+	for i in "$@"; do 
+		curl -Ls "$repo/programs/$i.csv" | sed '/^#/d' >> /tmp/progs.csv
+	done
+	total=$(wc -l < /tmp/progs.csv)
+
 	while IFS=, read -r tag program comment; do ((n++))
-		echo "$comment" | grep "^\".*\"$" >/dev/null 2>&1 && 
+		echo "$comment" | grep -q "^\".*\"$" && 
 		comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
-		program=$(basename "$program")
-		printf "Installing - ($n of $total) - $program - $comment "
+		printf "Installing - ($n of $total) - $(basename "$program") - $comment "
 		case "$tag" in
 			"")  
 				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 ||
@@ -204,24 +209,15 @@ install_progs() {
 				yes | pip install "$program" || echo "$program" >> /home/${name}/failed
 			;;
 		esac
-		echo "."
+		echo " "
 	done < /tmp/progs.csv
 	}
-
-trap set_sane_permitions EXIT
 
 get_hostname
 get_username
 get_passwords
 core_arch_install
 pacman_managing
+trap set_sane_permitions EXIT
 install_devel_yay
-
-[ $1 ] || { 1>&2 echo "No arguments passed. No exta programs will be installed." ;}
-for i in "$@"; do 
-	curl -Ls "$repo/programs/$i.csv" | sed '/^#/d' >> /tmp/progs.csv
-done
-
 install_progs
-
-
