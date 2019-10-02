@@ -14,11 +14,7 @@ name=yiannis
 # timezone=
 # lang=
 
-clear
-[ "$(id -nu)" != "root" ] && echo "This script must be run as root." && exit
-echo "Wellcome to Anergos!"; get_username
-
-# Archlinux installation. Not the greatest way to detect if the arch,sh should run.
+# Archlinux installation. Not the greatest way to detect if arch.sh should run.
 if [ "$(hostname)" = "archiso" ]; then
     curl -sL "$repo/anergos.d/arch.sh" 	> /tmp/arch.sh && source /tmp/arch.sh
 fi
@@ -43,7 +39,7 @@ get_distribution() {
 	echo "$lsb_dist"
 	}
 
-status_msg() { echo; printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
+status_msg() { printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
 
 ready() {
 	echo $(tput setaf 2)"done"$@$(tput sgr0)
@@ -327,10 +323,14 @@ cat > /etc/sudoers.d/wheel <<-EOF
 /usr/bin/systemctl restart NetworkManager
 EOF
 chmod 440 /etc/sudoers.d/wheel
-unset distro name hostname dotfilesrepo
 echo $(tput setaf 2)"${FUNCNAME[0]}- in $0 Done!"$(tput sgr0)
-sleep 15
+sleep 5
 }
+
+
+clear
+[ "$(id -nu)" != "root" ] && echo "This script must be run as root." && exit
+echo "Wellcome to Anergos!"
 
 # perform some very rudimentary platform detection
 lsb_dist=$( get_distribution )
@@ -347,8 +347,8 @@ office_logo; clone_dotfiles; arduino_groups; agetty_set; lock_sleep
 
 if [ "$(hostname)" = "killua" ]; then
 	echo "killua:"; 
-	create_swapfile; virtualbox; resolv_conf; enable_numlk_tty
-	temps; data; nvidia_driver; firefox_configs; powerb_is_suspend
+	create_swapfile; 	enable_numlk_tty; 	resolv_conf; 	virtualbox;
+	powerb_is_suspend; 	firefox_configs; 	nvidia_driver;  temps; data;
 fi
 
 catalog
