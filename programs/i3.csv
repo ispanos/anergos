@@ -83,10 +83,10 @@ A,xkb-switch,used by i3blocks to display what keyboard layout is being used.
 ,firefox,web browser.
 ,hunspell-en_US,dicttianery
 ,hunspell-el,Gerek dicttianery.
-,virtualbox-host-modules-arch,.
-,virtualbox,.
-,virtualbox-guest-iso,.
-A,virtualbox-ext-oracle,.
+,virtualbox-host-modules-arch,
+,virtualbox,
+,virtualbox-guest-iso,
+A,virtualbox-ext-oracle,
 A,popcorntime-bin,program that I don't use.
 #dev,,
 ,arduino,IDE for arduino.
