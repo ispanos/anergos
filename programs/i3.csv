@@ -1,96 +1,96 @@
 #TAG,NAME IN REPO,PURPOSE
 #CLI,,
-,arch-audit,a CVE monitoring utility.
-,linux-headers,scripts for building modules for Linux kernel.
-,pacman-contrib,provides scripts for pacman on Archlinux.
-,expac,pacman database extraction utility.
-,atool,manages and gives information about archives.
-,bc,arbitrary precision calculator language.
-,cronie,daemon that runs specified programs at scheduled times.
-,bash-completion,is what it sounds like.
-,cmake,cross-platform open-source make system.
-,net-tools,configuration tools for Linux networking.
-,nmap,network scanner.
-,ufw,netfilter firewall.
-,openssh,suite of security-related network utilities based on the ssh.
-,sshfs,FUSE-based filesystem client for mounting remote directories over ssh.
-,dosfstools,allows your computer to access dos-like filesystems.
-,exfat-utils,allows management of FAT drives.
-,ntfs-3g,allows accessing NTFS partitions.
-,p7zip,tool to (de-)compress archives.
-,unrar,tool to (de-)compress archives.
-,unzip,tool to (de-)compress archives.
-,lsd,the modern ls.
-,findutils,basic file searching utilities to search directories and files.
-,lshw,lists all hardware on the system.
-,glances,task viewer.
-,calcurse,lightweight terminal-based calendar.
-,highlight,highlight code output.
-,htop,system usage information and displays processes.
-,fzf,fuzzy finder tool.
-,youtube-dl,download any YouTube video (or playlist or channel) when given the link.
-,neofetch,dispays basic system information.
-,neovim,terminal text editor.
-,vifm,extensive terminal file manager.
-,w3m,terminal browser which can also view images.
-,mediainfo,shows audio and video information and is used by ranger as well.
-,tmux,terminal multiplexer.
-,docx2txt,enables .docx file previews in vifm.
-,odt2txt,enables .odt file previews in vifm.
-A,sc-im,terminal spreadsheet manager.
-A,inxi,CLI system information tool.
-A,simple-mtpfs,enables the mounting of cell phones outside of pcmanfm.
-,wpa_supplicant,a utility providing key negotiation for WPA wireless networks.
+,arch-audit,a CVE monitoring utility
+,linux-headers,scripts for building modules for Linux kernel
+,pacman-contrib,provides scripts for pacman on Archlinux
+,expac,pacman database extraction utility
+,atool,manages and gives information about archives
+,bc,arbitrary precision calculator language
+,cronie,daemon that runs specified programs at scheduled times
+,bash-completion,is what it sounds like
+,cmake,cross-platform open-source make system
+,net-tools,configuration tools for Linux networking
+,nmap,network scanner
+,ufw,netfilter firewall
+,openssh,suite of security-related network utilities based on the ssh
+,sshfs,FUSE-based filesystem client for mounting remote directories over ssh
+,dosfstools,allows your computer to access dos-like filesystems
+,exfat-utils,allows management of FAT drives
+,ntfs-3g,allows accessing NTFS partitions
+,p7zip,tool to (de-)compress archives
+,unrar,tool to (de-)compress archives
+,unzip,tool to (de-)compress archives
+,lsd,the modern ls
+,findutils,basic file searching utilities to search directories and files
+,lshw,lists all hardware on the system
+,glances,task viewer
+,calcurse,lightweight terminal-based calendar
+,highlight,highlight code output
+,htop,system usage information and displays processes
+,fzf,fuzzy finder tool
+,youtube-dl,download any YouTube video (or playlist or channel) when given the link
+,neofetch,dispays basic system information
+,neovim,terminal text editor
+,vifm,extensive terminal file manager
+,w3m,terminal browser which can also view images
+,mediainfo,shows audio and video information and is used by ranger as well
+,tmux,terminal multiplexer
+,docx2txt,enables .docx file previews in vifm
+,odt2txt,enables .odt file previews in vifm
+A,sc-im,terminal spreadsheet manager
+A,inxi,CLI system information tool
+A,simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
+,wpa_supplicant,a utility providing key negotiation for WPA wireless networks
 #i3,,
-,i3,window manager (group).
-,dmenu,generic men for X.
-,xorg-server,graphical server.
-,xorg-xinit,starts the graphical server.
-,xorg-xrandr,cli tool for screen adjustments.
+,i3,window manager (group)
+,dmenu,generic men for X
+,xorg-server,graphical server
+,xorg-xinit,starts the graphical server
+,xorg-xrandr,cli tool for screen adjustments
 ,xorg-xprop,property displayer for X
 ,xorg-xbacklight,RandR-based backlight control application
 ,xorg-xdpyinfo,displays information X
-,compton,X compositor that may fix tearing issues.
-,xdotool,window action utilities on the command line (maim).
-,numlockx,turns on NumLock when you login.
-,feh,image viewer that also sets the wallpaper.
-,maim,can take quick screenshots at your request.
-,dunst,suckless notification system.
-A,xkb-switch,used by i3blocks to display what keyboard layout is being used.
+,compton,X compositor that may fix tearing issues
+,xdotool,window action utilities on the command line (maim)
+,numlockx,turns on NumLock when you login
+,feh,image viewer that also sets the wallpaper
+,maim,can take quick screenshots at your request
+,dunst,suckless notification system
+A,xkb-switch,used by i3blocks to display what keyboard layout is being used
 #common,,
-,pulseaudio-alsa,audio interface for pulseaudio and ALSA.
-,paprefs,advanced pulseaudio settings.
-,pavucontrol,audio controller.
+,pulseaudio-alsa,audio interface for pulseaudio and ALSA
+,paprefs,advanced pulseaudio settings
+,pavucontrol,audio controller
 ,gnome-keyring,takes care of the user's security credentials
-,polkit-gnome,authentication agent.
+,polkit-gnome,authentication agent
 ,ttf-liberation,Red Hats Liberation fonts
-,libsecret,library for storing and retrieving passwords and other secrets.
-,libnotify,desktop notifications.
-,gnome-terminal,the GNOME Terminal Emulator.
+,libsecret,library for storing and retrieving passwords and other secrets
+,libnotify,desktop notifications
+,gnome-terminal,the GNOME Terminal Emulator
 ,gnome-podcasts,Podcast application for GNOME
-,gcolor3,color picker for GNOME.
-,mpv,simple video/gif player.
-,playerctl,media control for some mediaplayers.
-,galculator,simple GUI calculator.
-,zathura-pdf-poppler,PDF plugin for zathura based on poppler.
-,qt5ct,used for theming qt programs.
-,pulseaudio-equalizer,equalizer for pulseaudio.
-,qbittorrent,torrent client.
-,xarchiver,GUI archive manager used by pcmanfm.
-,pcmanfm-gtk3,simple GUI file manager.
+,gcolor3,color picker for GNOME
+,mpv,simple video/gif player
+,playerctl,media control for some mediaplayers
+,galculator,simple GUI calculator
+,zathura-pdf-poppler,PDF plugin for zathura based on poppler
+,qt5ct,used for theming qt programs
+,pulseaudio-equalizer,equalizer for pulseaudio
+,qbittorrent,torrent client
+,xarchiver,GUI archive manager used by pcmanfm
+,pcmanfm-gtk3,simple GUI file manager
 ,gvfs-mtp,MTP backend; Android & media player
 ,gvfs-smb,SMB/CIFS backend; Windows client
-,firefox,web browser.
+,firefox,web browser
 ,hunspell-en_US,dicttianery
-,hunspell-el,Gerek dicttianery.
+,hunspell-el,Gerek dicttianery
 ,virtualbox-host-modules-arch,
 ,virtualbox,
 ,virtualbox-guest-iso,
 A,virtualbox-ext-oracle,
-A,popcorntime-bin,program that I don't use.
+A,popcorntime-bin,program that I don't use
 #dev,,
-,arduino,IDE for arduino.
-,arduino-avr-core,archlinux upstream avr-gcc.
-,arduino-docs,are documents for arduino offline documentation.
+,arduino,IDE for arduino
+,arduino-avr-core,archlinux upstream avr-gcc
+,arduino-docs,are documents for arduino offline documentation
 ,python-pip,
 ,code,
