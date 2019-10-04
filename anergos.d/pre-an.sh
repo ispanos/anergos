@@ -77,7 +77,7 @@ format_mount_parts() {
 
 run_anergos() {
 	if [ -r anergos.sh ]; then
-		cp anergos.sh /mnt/anergos.sh; }
+		cp anergos.sh /mnt/anergos.sh
 	else
 		curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
 	fi
