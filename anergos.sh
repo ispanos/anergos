@@ -17,7 +17,7 @@ name=yiannis
 get_username() { 
 	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
 	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-		read -rsep $'Name not valid. Start with a letter, use lowercase letters, - or _ : \n' name
+		read -rsep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' name
 	done
 	}
 
@@ -49,12 +49,6 @@ power_group() {
 	status_msg
 	gpasswd -a $name power >/dev/null 2>&1
 	ready
-	}
-
-all_core_make() {
-	status_msg
-	grep -q "^MAKEFLAGS" /etc/makepkg.conf && ready "- '^MAKEFLAGS' exists" && return
-	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf; ready
 	}
 
 networkd_config() {
@@ -93,7 +87,7 @@ infinality(){
 		sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
 		ready && return
 	else
-		echo $(tput setaf 1)"skipped"$(tput sgr0) && return
+		echo $(tput setaf 1)"skipped (freetype2 is not installed)"$(tput sgr0) && return
 	fi
 	}
 
@@ -188,7 +182,7 @@ virtualbox() {
 	status_msg
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
-		case $distro in
+		case $lsb_dist in
 		arch)
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
 			pacman -S --noconfirm $g_utils >/dev/null 2>&1
@@ -321,9 +315,12 @@ sleep 5
 }
 
 
-clear
 [ "$(id -nu)" != "root" ] && echo "This script must be run as root." && exit
-echo "Wellcome to Anergos!"
+clear
+# perform some very rudimentary platform detection
+lsb_dist=$( get_distribution )
+
+printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 
 # Archlinux installation. Not the greatest way to detect if arch.sh should run.
 if [ "$(hostname)" = "archiso" ]; then
@@ -338,12 +335,8 @@ echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/s
 
 get_username
 
-# perform some very rudimentary platform detection
-lsb_dist=$( get_distribution )
-printf "$(tput setaf 3)Distribution	- $lsb_dist\n\n$(tput sgr0)"
-
-nobeep; power_group; all_core_make; networkd_config; nano_configs; infinality
-office_logo; clone_dotfiles; arduino_groups; agetty_set; lock_sleep
+nobeep; power_group; networkd_config; nano_configs; infinality;
+office_logo; clone_dotfiles; arduino_groups; agetty_set; lock_sleep;
 
 case $hostname in 
 	killua)

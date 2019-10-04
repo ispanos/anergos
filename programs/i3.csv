@@ -13,7 +13,7 @@
 ,nmap,network scanner
 ,ufw,netfilter firewall
 ,openssh,suite of security-related network utilities based on the ssh
-,sshfs,FUSE-based filesystem client for mounting remote directories over ssh
+,sshfs,FUSE-based filesystem client for mounting remote directories
 ,dosfstools,allows your computer to access dos-like filesystems
 ,exfat-utils,allows management of FAT drives
 ,ntfs-3g,allows accessing NTFS partitions
@@ -28,7 +28,7 @@
 ,highlight,highlight code output
 ,htop,system usage information and displays processes
 ,fzf,fuzzy finder tool
-,youtube-dl,download any YouTube video (or playlist or channel) when given the link
+,youtube-dl,download any YouTube video/playlist/channel) when given the link
 ,neofetch,dispays basic system information
 ,neovim,terminal text editor
 ,vifm,extensive terminal file manager

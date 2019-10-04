@@ -4,73 +4,95 @@
 [ $1 ] || { 1>&2 echo "No arguments passed. Please read the scripts description." && exit;}
 
 raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
-# curl -LsO "$raw_repo/anergos.d/pre-anergos.sh" && bash pre-anergos.sh
+# curl -LsO "https://raw.githubusercontent.com/ispanos/anergos/master/anergos.d/pre-anergos.sh"
+# bash pre-anergos.sh
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
 
-pacman -Sy --needed --noconfirm dialog
-timedatectl set-ntp true
-drive_list_vert=$(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$")
+get_drive() {
+    # Sata and NVME drives array
+    drives=( $(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$") )
 
-list_hard_drives(){
-	# Sata and NVME drives listed in one line, with a number infront of them.
-	# This creates the list for the dialog prompt.
-	for i in $drive_list_vert ; do
-		local -i n+=1
-		printf " $n $i"
+	# "NUM drive" for dialog prompt. Starts from 0 for compatibility with arrays
+    local -i n=0
+	for i in "${drives[@]}" ; do
+		dialog_prompt="$dialog_prompt $n $i"
+        ((n++))
 	done
-}
 
-hard_drive_num=$(dialog --title "Select your Hard-drive" \
-						--menu "$(lsblk)" 0 0 0 $(list_hard_drives) 3>&1 1>&2 2>&3 3>&1)
+    # Prompts user to select one of the available sda or nvme drives.
+    local dialogOUT
+    dialogOUT=$(dialog --title "Select your Hard-drive" \
+            --menu "$(lsblk)" 0 0 0 $dialog_prompt 3>&1 1>&2 2>&3 3>&1 ) || exit
 
-[ ! $hard_drive_num ] && exit
-# Converts the number printed by dialog, to the actuall  name of the selected drive.
-HARD_DRIVE="/dev/"$( echo $drive_list_vert | tr " " "\n" | sed -n ${hard_drive_num}p)
-clear
+    # Converts dialog output to the actuall name of the selected drive.
+    echo "/dev/${drives[$dialogOUT]}"
+    }
 
-# This part is not tested 100%. If you find a better fix please make a PR. Especially for NVME drives.
-# Unmounts the selected drive and wipes all filesystems, to make repartitioning easier.
-wipefs -fa $HARD_DRIVE
-sleep 2
+partition_drive() {
+	# This part is not tested 100%. If you find a better fix please make a PR. 
+	# Wipes all filesystems, to make repartitioning easier.
+	wipefs -fa $HARD_DRIVE
 
-# Uses fdisk to create an "EFI System" partition  (260M) and a "Linux root" partition 
-# that takes up the rest of the drive's space.
-cat <<EOF | fdisk $HARD_DRIVE
-g
-n
+	# Uses fdisk to create an "EFI System" partition  (260M) and a "Linux root" partition 
+	# that takes up the rest of the drive's space.
+	cat <<-EOF | fdisk $1
+		g
+		n
+		1
+
+		+260M
+		t
+		1
+		n
+		2
+
+		+25G
+		t
+		2
+		24
+		n
+		3
 
 
-+260M
-t
-1
-n
+		t
+		3
+		28
+		w
+	EOF
+	}
 
+format_mount_parts() {
+	[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${HARD_DRIVE}p"
 
+	yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}2
+	mount ${HARD_DRIVE}2 /mnt
 
-t
+	yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
+	mkdir /mnt/boot && mount ${HARD_DRIVE}1 /mnt/boot
 
-24
-w
-EOF
+	yes | mkfs.ext4 -L "Home" /dev/sda3
+	mkdir /mnt/home && mount ${HARD_DRIVE}3 /mnt/home
+	}
 
-sleep 2
+run_anergos() {
+	if [ -r anergos.sh ]; then
+		cp anergos.sh /mnt/anergos.sh; }
+	else
+		curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
+	fi
 
-[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${HARD_DRIVE}p"
+	arch-chroot /mnt bash anergos.sh "$@"
+	rm /mnt/anergos.sh
+	}
 
-yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}2
-mount ${HARD_DRIVE}2 /mnt $root_partition
-
-yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
-mkdir -p /mnt/boot && mount ${HARD_DRIVE}1 /mnt/boot
-
+pacman -Sy --needed --noconfirm dialog
+HARD_DRIVE=$( get_drive )
+timedatectl set-ntp true
+partition_drive $HARD_DRIVE
+format_mount_parts
 pacstrap /mnt base
 genfstab -U /mnt >> /mnt/etc/fstab
-
-{ [ -r anergos.sh ] && cp anergos.sh /mnt/anergos.sh; } || curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
-
-arch-chroot /mnt bash anergos.sh $@
-rm /mnt/anergos.sh
-
+run_anergos "$@"
 dialog --yesno "Reboot computer?"  5 30 && reboot
 dialog --yesno "Return to chroot environment?" 6 30 && arch-chroot /mnt

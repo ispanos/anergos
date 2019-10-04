@@ -4,6 +4,7 @@
 # Usefull variables for arch.sh
 # user_password=
 # root_password=
+repo=https://raw.githubusercontent.com/ispanos/anergos/master
 [ -z "$multi_lib_bool" ] 	&& multi_lib_bool=true
 [ -z "$timezone" ] 			&& timezone="Europe/Athens"
 [ -z "$lang" ] 				&& lang="en_US.UTF-8"
@@ -17,17 +18,17 @@ get_hostname() {
 get_username() { 
 	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
 	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-		read -rsep $'Name not valid. Start with a letter, use lowercase letters, - or _ : \n' name
+		read -rsep $"$name is not valid. Start with a letter, use lowercase letters, - or _ : \n" name
 	done
 	}
 
 get_passwords() {
     if [ -z "$user_password" ]; then
-        read -rsep $'Enter a password for $name: \n' user_password
-        read -rsep $'Retype ${name}\'s password: \n' check_4_pass
+        read -rsep $"Enter a password for $name: " user_password && echo
+        read -rsep $"Retype ${name}s password: " check_4_pass && echo
         while ! [ "$user_password" = "$check_4_pass" ]; do unset check_4_pass
-            read -rsep $'Passwords didn\'t match. Retype ${name}\'s password: \n' user_password
-            read -rsep $'Retype ${name}\'s password: \n' check_4_pass
+            read -rsep $"Passwords didn't match. Retype ${name}'s password: " user_password  && echo
+            read -rsep $"Retype ${name}'s password: " check_4_pass  && echo
         done
         unset check_4_pass
     fi
@@ -174,17 +175,19 @@ install_progs() {
 	fi
 
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-	[ "$multi_lib_bool" = true  ] && sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
+	
+	[ "$multi_lib_bool" = true  ] && sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf &&
+	echo ":: Synchronizing package databases..." && pacman -Sy >/dev/null 2>&1
 
 	for i in "$@"; do 
 		curl -Ls "$repo/programs/$i.csv" | sed '/^#/d' >> /tmp/progs.csv
 	done
 	total=$(wc -l < /tmp/progs.csv)
-
+	echo  "Installing packages from csv file(s): $@"
 	while IFS=, read -r tag program comment; do ((n++))
 		echo "$comment" | grep -q "^\".*\"$" && 
 		comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
-		printf "Installing - ($n of $total) - $(basename "$program") - $comment "
+		printf "%07s %-23s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
 		case "$tag" in
 			"")  
 				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 ||
@@ -199,8 +202,7 @@ install_progs() {
 				local dir=$(mktemp -d)
 				git clone --depth 1 "$program" "$dir" > /dev/null 2>&1
 				cd "$dir" && make >/dev/null 2>&1
-				make install >/dev/null 2>&1 ||
-				echo "$program" >> /home/${name}/failed 
+				make install >/dev/null 2>&1 || echo "$program" >> /home/${name}/failed 
 				cd /tmp
 			;;
 			"P")
