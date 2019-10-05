@@ -22,37 +22,25 @@ get_username() {
 	}
 
 get_distribution() {
-	lsb_dist=""
 	# Every system that we officially support has /etc/os-release
-	if [ -r /etc/os-release ]; then
-		lsb_dist="$(. /etc/os-release && echo "$ID")"
-	fi
+	[ -r /etc/os-release ] && lsb_dist="$(. /etc/os-release && echo "$ID")"
 	# Returning an empty string here should be alright since the
 	# case statements don't act unless you provide an actual value
-	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
 	echo "$lsb_dist"
 	}
 
-status_msg() { printf "%20s" $(tput setaf 3)"${FUNCNAME[1]}.... - "$(tput sgr0); }
+status_msg() { printf "%-25s %2s" $(tput setaf 3)"${FUNCNAME[1]}...." "- "$(tput sgr0); }
 
-ready() {
-	echo $(tput setaf 2)"done"$@$(tput sgr0)
-	}
+ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
 
-nobeep() {
-	status_msg
-	echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf
-	ready
-	}
+nobeep() { status_msg; echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf; ready; }
 
-power_group() {
-	status_msg
-	gpasswd -a $name power >/dev/null 2>&1
-	ready
-	}
+power_group() { status_msg; gpasswd -a $name power >/dev/null 2>&1; ready; }
 
 networkd_config() {
 	status_msg
+	systemctl stop dhcpcd 		>/dev/null 2>&1
+	systemctl disable dhcpcd 	>/dev/null 2>&1
 	if [ -f  /usr/bin/NetworkManager ]; then
 		systemctl enable NetworkManager >/dev/null 2>&1
 		ready " (NetworkManager)"
@@ -75,19 +63,13 @@ networkd_config() {
 	fi 
 	}
 
-nano_configs() {
-	status_msg
-	grep -q '^include "/usr/share/nano/*.nanorc"' /etc/nanorc 2>&1 || 
-	echo 'include "/usr/share/nano/*.nanorc"' >> /etc/nanorc && ready
-	}
-
 infinality(){
 	status_msg
 	if [ -r /etc/profile.d/freetype2.sh ]; then 
-		sed -i 's/^#exp/exp/;s/version=40"$/version=38"$/' /etc/profile.d/freetype2.sh
-		ready && return
+		sed -i 's/^#exp/exp/;s/version=40"$/version=38"/' /etc/profile.d/freetype2.sh
+		ready
 	else
-		echo $(tput setaf 1)"skipped (freetype2 is not installed)"$(tput sgr0) && return
+		echo $(tput setaf 1)"skipped (freetype2 is not installed)"$(tput sgr0)
 	fi
 	}
 
@@ -119,6 +101,7 @@ clone_dotfiles() {
 	}
 
 firefox_configs() {
+	[ ! -f /usr/bin/firefox ] && return
 	status_msg
 	[ -z "$moz_repo" ] && echo "Repository not set." && return
 	if [ ! -d "/home/$name/.mozilla/firefox" ]; then
@@ -153,7 +136,7 @@ agetty_set() {
 	sed "s/ExecStart=.*/${log}/" /usr/lib/systemd/system/getty@.service > \
 								/etc/systemd/system/getty@.service
 	systemctl daemon-reload >/dev/null 2>&1; systemctl reenable getty@tty1.service >/dev/null 2>&1
-	ready " (value $1)"
+	ready "$1"
 	}
 
 lock_sleep() {
@@ -185,7 +168,7 @@ virtualbox() {
 		case $lsb_dist in
 		arch)
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
-			pacman -S --noconfirm $g_utils >/dev/null 2>&1
+			pacman -S --noconfirm --needed $g_utils >/dev/null 2>&1
 
 			if [ -f /usr/bin/virtualbox ]; then
 				printf "Removing VirtualBox... "
@@ -200,8 +183,7 @@ virtualbox() {
 		;;
 		esac
 	elif [ -f /usr/bin/virtualbox ]; then
-		sudo -u "$name" groups | grep -q vboxusers || 
-			gpasswd -a $name vboxusers >/dev/null 2>&1
+		sudo -u "$name" groups | grep -q vboxusers || gpasswd -a $name vboxusers >/dev/null 2>&1
 		ready " - host"
 	fi
 	}
@@ -211,7 +193,7 @@ resolv_conf() {
 	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf && ready
 	}
 
-enable_numlk_tty() {
+numlockTTY() {
 	status_msg
 	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
 		[Unit]
@@ -239,7 +221,7 @@ temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqli
 	case $lsb_dist in
 	arch)
 		[ ! -f /usr/bin/yay ] && "Skipped - yay not installed." && return
-		sudo -u "$name" yay -S --noconfirm it87-dkms-git >/dev/null 2>&1
+		sudo -u "$name" yay -S --noconfirm --needed it87-dkms-git >/dev/null 2>&1
 		echo "it87" > /etc/modules-load.d/it87.conf
 		ready 
 	;;
@@ -261,20 +243,21 @@ data() {
 	ready
 	}
 
-powerb_is_suspend() {
+power_to_sleep() {
 	status_msg
 	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
 	ready
 	}
 
-nvidia_driver() {
+nvidia_drivers() {
+	[[ $(lspci | grep VirtualBox) ]] && return
 	# Nouveau driver is broken for me at the moment.
 	status_msg
 	case $lsb_dist in
 	arch)
-		pacman -S --noconfirm nvidia nvidia-settings >/dev/null 2>&1
+		pacman -S --noconfirm --needed nvidia nvidia-settings >/dev/null 2>&1
 		if grep -q "^\[multilib\]" /etc/pacman.conf; then
-			pacman -S --noconfirm lib32-nvidia-utils >/dev/null 2>&1
+			pacman -S --noconfirm --needed lib32-nvidia-utils >/dev/null 2>&1
 		fi
 		ready 
 	;;
@@ -335,14 +318,13 @@ echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel && chmod 440 /etc/s
 
 get_username
 
-nobeep; power_group; networkd_config; nano_configs; infinality;
-office_logo; clone_dotfiles; arduino_groups; agetty_set; lock_sleep;
-
 case $hostname in 
 	killua)
 		echo "killua:"
-		create_swapfile; 	enable_numlk_tty; 	resolv_conf; 	virtualbox;
-		powerb_is_suspend; 	firefox_configs; 	nvidia_driver;  temps; data;
+		numlockTTY; power_to_sleep; power_group; infinality; nobeep;   
+		virtualbox; clone_dotfiles; office_logo; firefox_configs;
+		agetty_set; arduino_groups; resolv_conf; create_swapfile;
+		lock_sleep; nvidia_drivers; temps; data; networkd_config;
 	;;
 	*)
 		echo "Unknown hostname"

@@ -32,11 +32,11 @@ get_drive() {
 partition_drive() {
 	# This part is not tested 100%. If you find a better fix please make a PR. 
 	# Wipes all filesystems, to make repartitioning easier.
-	wipefs -fa $HARD_DRIVE
+	#wipefs -fa $HARD_DRIVE
 
 	# Uses fdisk to create an "EFI System" partition  (260M) and a "Linux root" partition 
 	# that takes up the rest of the drive's space.
-	cat <<-EOF | fdisk $1
+	cat <<-EOF | fdisk --wipe-partitions always $1
 		g
 		n
 		1

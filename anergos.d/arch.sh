@@ -135,25 +135,6 @@ core_arch_install() {
 	echo "$name:$user_password" | chpasswd
 	}
 
-pacman_managing() {
-	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
-		[Trigger]
-		Type = Package
-		Operation = Remove
-		Operation = Install
-		Operation = Upgrade
-		Target = *
-		[Action]
-		Description = Keeps only the latest 3 versions of packages
-		When = PostTransaction
-		Exec = /usr/bin/paccache -rk3
-	EOF
-	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
-	# groupadd pacman; gpasswd -a "$name" pacman >/dev/null 2>&1
-	# echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
-	# chmod 440 /etc/sudoers.d/pacman
-	}
-
 install_devel_yay() {
 	echo "Installing - base-devel"
 	pacman --noconfirm --needed -S base-devel >/dev/null 2>&1
@@ -175,7 +156,7 @@ install_progs() {
 	fi
 
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-	
+
 	[ "$multi_lib_bool" = true  ] && sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf &&
 	echo ":: Synchronizing package databases..." && pacman -Sy >/dev/null 2>&1
 
@@ -215,11 +196,31 @@ install_progs() {
 	done < /tmp/progs.csv
 	}
 
+extra_configs() {
+	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
+		[Trigger]
+		Type = Package
+		Operation = Remove
+		Operation = Install
+		Operation = Upgrade
+		Target = *
+		[Action]
+		Description = Keeps only the latest 3 versions of packages
+		When = PostTransaction
+		Exec = /usr/bin/paccache -rk3
+	EOF
+	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
+	printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
+	# groupadd pacman; gpasswd -a "$name" pacman >/dev/null 2>&1
+	# echo "%pacman ALL=(ALL) NOPASSWD: /usr/bin/pacman -Syu" > /etc/sudoers.d/pacman
+	# chmod 440 /etc/sudoers.d/pacman
+	}
+
 get_hostname
 get_username
 get_passwords
 core_arch_install
-pacman_managing
 trap set_sane_permitions EXIT
 install_devel_yay
 install_progs "$@"
+extra_configs
