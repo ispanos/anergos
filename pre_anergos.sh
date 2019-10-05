@@ -4,7 +4,7 @@
 [ $1 ] || { 1>&2 echo "No arguments passed. Please read the scripts description." && exit;}
 
 raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
-# curl -LsO "https://raw.githubusercontent.com/ispanos/anergos/master/anergos.d/pre-anergos.sh"
+# curl -LsO "https://raw.githubusercontent.com/ispanos/anergos/master/pre-anergos.sh"
 # bash pre-anergos.sh
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
