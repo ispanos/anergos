@@ -4,20 +4,20 @@
 It's an "one-click" script to handle everything when I want to start fresh. [anergos.sh](https://github.com/ispanos/anergos/blob/master/anergos.sh) contains most, if not all, of the configurations I need. 
 
 ## For ArchLinux:
-It can be used in the chroot environment of archlinux with just the `base` group installed. In the beginning of the script it checks if the hostname of the computer is "archiso" and sources (`source /tmp/arch.sh`) my install script for arch. [anergos.d/arch.sh](https://github.com/ispanos/anergos/blob/master/anergos.d/arch.sh) will ask you for a new hostname, user name, user and root password if those variables are not already set in the script. 
+It can be used in the chroot environment of archlinux with just the `base` group installed. In the beginning of the script it checks if the hostname of the computer is "archiso". If so, will be asked for a new hostname, user name, user and root password if those variables are not already set in the script. 
 
 Installs bootloader.
 If you are booted in UEFI mode it will set-up [Systemd-boot](https://wiki.archlinux.org/index.php/Systemd-boot), otherwise it will install grub.To keep things simple, `esp` must be at `/boot`. If you want to change that, you'll need to modify the function named "systemd_boot", the pacman hook and anything else that might be needed. The grub option is not tested and should only work on MBR partition tables, avoid using it as is.
 
 It will also set the new hostname and root password, create your new user and install `git`, `base-group` and `yay-bin`.
 
-You can use one or more arguments passed in to `anergos.sh` or `arch.sh` for every list of packages you want to be installed. Those lists are located in programs/\*.csv and you only need to write the name of the file in the `programs/` folder without the suffix (i.e. `bash anergos.sh i3 gnome` ). For more details about the csv files keep reading. 
+You can use one or more arguments passed in to `anergos.sh` for every list of packages you want to be installed. Those lists are located in programs/\*.csv and you only need to write the name of the file in the `programs/` folder without the suffix (i.e. `bash anergos.sh i3 gnome` ). For more details about the csv files keep reading. 
 
-For my arch installation I'm using [anergos.d/pre-an.sh](https://github.com/ispanos/anergos/blob/master/anergos.d/pre-an.sh) to format my hardrive and all arguments are passed to `anergos.sh`. I don't recommend using this script, unless you know what exactly it's doing.
+For my arch installation I'm using [pre-anergos.sh](https://github.com/ispanos/anergos/blob/master/pre-anergos.sh) to format my hardrive and all arguments are passed to `anergos.sh`. I don't recommend using this script, unless you know what exactly it's doing.
 
-`arch.sh` also creates a pacman hook to run `paccache -rk3` every time you use pacman, edits  `makepkg.conf` to use all cores, adds color to pacman, enables pacman Easter-egg.
+During the arch installation a pacman hook is created to run `paccache -rk3` every time you use pacman, `makepkg.conf` is modified to use all cores, adds color to pacman, enables pacman Easter-egg.
 
-To enable \[multilib\] set `multi_lib_bool=true`. Variables `timezone` and `lang` can also be edited according to your needs. This isn't an arch installer for everyone out-of-the-box. Some compromises like that were made to make the installation process faster for me. 
+To disable \[multilib\] unset `multi_lib_bool=`. Variables `timezone` and `lang` can also be edited according to your needs. This isn't an arch installer for everyone out-of-the-box. Some compromises like that were made to make the installation process faster for me. 
 
 ### About the csv files in the programs/ folder:
 The first column is a "tag" that determines how the program is installed, "" (blank) for the main repository, A for via the AUR or G if the program is a git repository that is meant to be make && sudo make installed.
@@ -39,6 +39,6 @@ This is the alias I have in my .bashrc:
 #### To do: Add LUKS/LVM support && Better description && ( YADM || Stow )
 
 ## Disclaimer: 
-#### Some may think that this is like a distro based on ArchLinux. NO. This is just a bash scrip that I made for me, but I made it as flexible as I could. Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome. I made it this way to make it easy and fast for me. The recommended way to use this script is to fork this repo add a csv file with all the programs you want and keep/add/remove any parts you want. To test it in a VM just download [anergos.d/pre-an.sh](https://github.com/ispanos/anergos/blob/master/anergos.d/pre-an.sh) and run `bash pre-an.sh i3` or `bash pre-an.sh i3testing` to see if you like the way it works.
+#### Some may think that this is like a distro based on ArchLinux. NO. This is just a bash scrip that I made for me, but I made it as flexible as I could. Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome. I made it this way to make it easy and fast for me. The recommended way to use this script is to fork this repo add a csv file with all the programs you want and keep/add/remove any parts you want. To test it in a VM just download [pre-anergossh](https://github.com/ispanos/anergos/blob/master/pre-anergos.sh) and run `bash pre-anergos.sh i3` or `bash pre-anergos.sh i3testing` to see if you like the way it works.
 
 ##### If you are not familiar with installing archlinux the recommended way, I would suggest you not to use this script. Besides the fact that I may break something in the script at any moment, you need to understand how things work and how your system is set-up. E.g. For UEFI installations I'm using `systemd-boot` and not the more traditional `GRUB 2`. This is not a script you are supposed to use as is. Download it offline or make a fork and adjust it to your needs or test it in a VM. 
