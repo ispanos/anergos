@@ -1,36 +1,5 @@
 #TAG,NAME IN REPO,PURPOSE
-#CLI,,
-,atool,"manages and gives information about archives."
-,bc,"is an arbitrary precision calculator language."
-,cronie,"is a daemon that runs specified programs at scheduled times."
-,bash-completion,"is what it sounds like."
-,cmake,"is a cross-platform open-source make system."
-,net-tools,", configuration tools for Linux networking."
-,nmap,"is a network scanner."
-,ufw,"is a netfilter firewall."
-,openssh,"is a suite of security-related network utilities based on the ssh."
-,sshfs,"is a FUSE-based filesystem client for mounting remote directories over ssh."
-,dosfstools,"allows your computer to access dos-like filesystems."
-,exfat-utils,"allows management of FAT drives."
-,ntfs-3g,"allows accessing NTFS partitions."
-,p7zip,"is a tool to (de-)compress archives."
-,unrar,"is a tool to (de-)compress archives."
-,unzip,"is a tool to (de-)compress archives."
-,lsd,"is the modern ls."
-,calcurse,"is a lightweight terminal-based calendar."
-,highlight,"can highlight code output."
-,htop,"provides system usage information and displays processes."
-,fzf,"is a fuzzy finder tool."
-,youtube-dl,"can download any YouTube video (or playlist or channel) when given the link."
-,neovim,"is terminal text editor."
-,vifm,"is an extensive terminal file manager."
-,w3m,"is a terminal browser which can also view images."
-,mediainfo,"shows audio and video information and is used by ranger as well."
-,docx2txt,"enables .docx file previews in vifm."
-,odt2txt,"enables .odt file previews in vifm."
-A,inxi,"is a CLI system information tool."
-A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
-#gnome,,
+,gdm,"is Gnome's display manager and login screen"
 ,gnome-shell,"provides gnome desktop environment."
 ,gnome-control-center,"is the main interface to configure various aspects of the desktop."
 ,gnome-tweaks,"provides advanced settings for Gnome."
@@ -38,46 +7,16 @@ A,simple-mtpfs,"enables the mounting of cell phones outside of pcmanfm."
 ,chrome-gnome-shell,"is anative browser connector for integration with extensions.gnome.org"
 ,gnome-menus,"- GNOME menu specifications."
 ,gnome-terminal,"is the default terminal for Gnome."
-,networkmanager,"is what is sounds like."
-,network-manager-applet,"provides tray icon for networkmanager."
 ,gnome-clocks,"provides clocks applications for Gnome"
 ,gnome-calendar,"is a calendar application."
 ,gnome-screenshot,"is a gui screenshot utility."
 ,gnome-keyring,"takes care of the user's security credentials"
-,libsecret,"is a library for storing and retrieving passwords and other secrets."
-,libnotify,"allows desktop notifications."
-,ttf-inconsolata,"is the monospace font I use."
-,noto-fonts,"provides the sans and serif fonts  I use."
-,noto-fonts-emoji,"provides unicode symbols and emojis."
-,gdm,"is Gnome's display manager and login screen"
-,firefox,"doesn't need a description."
-,gvfs-gphoto2,"Virtual filesystem implementation for GIO (gphoto2 backend; PTP camera, MTP media player)."
-,gvfs-mtp,"Virtual filesystem implementation for GIO (MTP backend; Android, media player)."
-,gvfs-nfs,"Virtual filesystem implementation for GIO (NFS backend)."
+A,gnome-shell-extension-gsconnect,
 ,gthumb,"is an image viewer I use for cropping images."
 ,gparted,"is a GUI disc manager."
-,pamac,"is a GUI package manager mainly for Manjaro."
-,polkit-gnome,"is an authentication agent."
-,gksu-polkit,""
-,ttf-liberation,"- Red Hats Liberation fonts"
-A,gtk-theme-minwaita,is my current gtk theme.
-,imv,is an image viewer for Wayland and X11.
-,mpv,is simple video/gif player.
-,galculator,is a simple GUI calculator.
-,zathura-pdf-poppler,is a PDF plugin for zathura based on poppler.
-,qt5ct,is used for theming qt programs.
-,pulseaudio-equalizer,is an equalizer for pulseaudio.
-,qbittorrent,is a torrent client.
-A,sublime-text-dev,is a gtk3 text editor I use. Its not free.
-,playerctl,provides media control for some mediaplayers.
-A,spotify,is a music app. Its not free.
-,xarchiver,is a GUI archive manager used by pcmanfm.
-,pcmanfm-gtk3,is a simple GUI file manager.
-,gcolor3,is a gtk3 color picker.
-,libreoffice-fresh,is an office suit.
-,hunspell-en_US,is a dicttianery for liberofice
-,hunspell-el,is a Gerek dicttianery for liberofice
-A,popcorntime,"is a program that I don't use."
+,polkit-gnome,authentication agent
+,libsecret,library for storing and retrieving passwords and other secrets
+,libnotify,desktop notifications
 ,,
 ,,
 #,Arcive list of addon, I haven't used gnome for a long time.

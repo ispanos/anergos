@@ -26,8 +26,6 @@ A,inxi,"is a CLI system information tool."
 ,dunst,"is a suckless notification system."
 A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used."
 #common,,
-,gnome-keyring,"takes care of the user's security credentials"
-,polkit-gnome,"is an authentication agent."
 ,ttf-liberation,"- Red Hats Liberation fonts"
 ,libsecret,"is a library for storing and retrieving passwords and other secrets."
 ,libnotify,"allows desktop notifications."

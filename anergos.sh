@@ -10,36 +10,47 @@ name=yiannis
 [ -z "$multi_lib_bool" ] 	&& multi_lib_bool=true
 [ -z "$timezone" ] 			&& timezone="Europe/Athens"
 [ -z "$lang" ] 				&& lang="en_US.UTF-8"
+[ -r /etc/os-release ] 		&& lsb_dist="$(. /etc/os-release && echo "$ID")"
+[ "$(id -nu)" != "root" ] 	&& echo "This script must be run as root." && exit
+clear
 
-get_username() { 
+get_username() {
 	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
+	
 	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
 		read -rsep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' name
 	done
 	}
 
 ## Archlinux installation
-get_user_info() { 
+get_user_info() {
 	if [ -z "$hostname" ]; then
 	    read -rsep $'Enter computer\'s hostname: \n' hostname
 	fi
+
 	get_username
+
     if [ -z "$user_password" ]; then
         read -rsep $"Enter a password for $name: " user_password && echo
         read -rsep $"Retype ${name}s password: " check_4_pass && echo
+
         while ! [ "$user_password" = "$check_4_pass" ]; do unset check_4_pass
             read -rsep $"Passwords didn't match. Retype ${name}'s password: " user_password && echo
             read -rsep $"Retype ${name}'s password: " check_4_pass  && echo
         done
+
         unset check_4_pass
     fi
+
     if [ -z "$root_password" ]; then
         read -rsep $'Enter root\'s password: \n' root_password
         read -rsep $'Retype root user password: \n' check_4_pass
+
         while ! [ "$root_password" = "$check_4_pass" ]; do unset check_4_pass
             read -rsep $'Passwords didn\'t match. Retype root user password: \n' root_password
             read -rsep $'Retype root user password: \n' check_4_pass
         done
+
         unset check_4_pass
     fi
 	}
@@ -63,7 +74,6 @@ systemd_boot() {
 		options root=UUID=${root_id} rw quiet
 	EOF
 
-	mkdir -p /etc/pacman.d/hooks
 	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
 		[Trigger]
 		Type = Package
@@ -85,31 +95,45 @@ grub_mbr() {
 
 core_arch_install() {
 	echo ":: Setting up Arch..."
+	
 	systemctl enable systemd-timesyncd.service >/dev/null 2>&1
 	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
+	
 	hwclock --systohc
+	
 	sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
 	locale-gen > /dev/null 2>&1
+	
 	echo 'LANG="'$lang'"' > /etc/locale.conf
+	
+	
 	echo $hostname > /etc/hostname
+	
 	cat > /etc/hosts <<-EOF
 		#<ip-address>   <hostname.domain.org>    <hostname>
 		127.0.0.1       localhost.localdomain    localhost
 		::1             localhost.localdomain    localhost
 		127.0.1.1       ${hostname}.localdomain  $hostname
 	EOF
+	
 	# Install cpu microcode.
 	case $(lscpu | grep Vendor | awk '{print $3}') in
 		"GenuineIntel") cpu="intel" ;;
 		"AuthenticAMD") cpu="amd" 	;;
 	esac
 	pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
+	
+	# This folder is needed for pacman hooks. (needed for systemd-boot)
+	mkdir -p /etc/pacman.d/hooks
+
 	# Install bootloader
 	if [ -d "/sys/firmware/efi" ]; then
-		systemd_boot && pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
+		systemd_boot
+		pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
 	else
 		grub_mbr
 	fi
+	
 	# Set root password, create user and set user password.
 	printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
@@ -279,16 +303,20 @@ clone_dotfiles() {
 firefox_configs() {
 	[ ! -f /usr/bin/firefox ] && return
 	status_msg
+
 	[ -z "$moz_repo" ] && echo "Repository not set." && return
+
 	if [ ! -d "/home/$name/.mozilla/firefox" ]; then
 		mkdir -p "/home/$name/.mozilla/firefox"
 		chown -R "$name:wheel" "/home/$name/.mozilla/firefox"
 	fi
+
 	local dir=$(mktemp -d)
 	chown -R "$name:wheel" "$dir"
 	sudo -u "$name" git clone --depth 1 "$moz_repo" "$dir/gitrepo" &&
 	sudo -u "$name" cp -rfT "$dir/gitrepo" "/home/$name/.mozilla/firefox" &&
 	ready && return
+
 	echo "firefox_configs failed."
 	}
 
@@ -322,6 +350,7 @@ agetty_set() {
 
 lock_sleep() {
 	status_msg
+
 	if [ -f /usr/bin/i3lock ]; then
 		cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
 			#/etc/systemd/system/
@@ -346,8 +375,10 @@ lock_sleep() {
 
 virtualbox() {
 	status_msg
+
 	if [[ $(lspci | grep VirtualBox) ]]; then
 		printf "Guest -"
+
 		case $lsb_dist in
 		arch)
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
@@ -374,6 +405,7 @@ virtualbox() {
 
 numlockTTY() {
 	status_msg
+
 	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
 		[Unit]
 		Description=numlockOnTty
@@ -382,6 +414,7 @@ numlockTTY() {
 		[Install]
 		WantedBy=multi-user.target
 	EOF
+
 	cat > /usr/bin/numlockOnTty <<-EOF
 		#!/usr/bin/env bash
 
@@ -391,12 +424,15 @@ numlockTTY() {
 		done
 
 	EOF
+
 	chmod +x /usr/bin/numlockOnTty; systemctl enable numLockOnTty >/dev/null 2>&1
 	ready
 	}
 
-temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
+temps() { 
+	# https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
 	status_msg
+
 	case $lsb_dist in
 	arch)
 		[ ! -f /usr/bin/yay ] && "Skipped - yay not installed." && return
@@ -414,11 +450,13 @@ temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqli
 data() {
 	status_msg
 	mkdir -p /media/Data
+
 	cat >> /etc/fstab <<-EOF
 		# /dev/sda1 LABEL=data
 		UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4 /media/Data ext4 rw,noatime,nofail,user,auto 0 2
 	
 	EOF
+
 	ready
 	}
 
@@ -429,9 +467,10 @@ power_to_sleep() {
 	}
 
 nvidia_drivers() {
+	# returns if the installation is in VirutalBox. 
 	[[ $(lspci | grep VirtualBox) ]] && return
-	# Nouveau driver is broken for me at the moment.
 	status_msg
+
 	case $lsb_dist in
 	arch)
 		pacman -S --noconfirm --needed nvidia nvidia-settings >/dev/null 2>&1
@@ -450,18 +489,19 @@ nvidia_drivers() {
 catalog() {
 	status_msg
 	[ ! -d /home/"$name"/.local ] && sudo -u "$name" mkdir /home/"$name"/.local
+	
 	case $lsb_dist in 
 		arch)
-			printf "Removing orphans "
 			pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
-			ready
 	 	;;
 		*)
-			echo $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
+			printf $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
 			return
 		;;
 	esac
+
+	ready
 	}
 
 set_needed_perms() {
@@ -484,15 +524,13 @@ echo "All done! - exiting..."
 sleep 5
 }
 
-clear
-[ "$(id -nu)" != "root" ] && echo "This script must be run as root." && exit
-[ -r /etc/os-release ] && lsb_dist="$(. /etc/os-release && echo "$ID")"
-printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
-
+# Sets sensible permitions when script exits.
 trap set_sane_perms EXIT
 
+printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
+
 if [ "$(hostname)" = "archiso" ]; then
-	# Archlinux installation. Not the greatest way to detect if arch.sh should run.
+	# Archlinux installation.
 	get_user_info
 	core_arch_install
 	install_devel_git
@@ -501,11 +539,13 @@ if [ "$(hostname)" = "archiso" ]; then
 	install_progs "$@"
 	extra_arch_configs
 else
+	# Non Archlinux settings.
 	hostname=$(hostname)
 	get_username
 	set_needed_perms
 fi
 
+# The rest of the configurations are picked according to the hostname of the computer.
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"

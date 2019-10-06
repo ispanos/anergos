@@ -10,8 +10,7 @@ A,urlscan,"parses URLs in the terminal allowing keyboard-based selection."
 A,cydia-impactor,"is a GUI tool for working with mobile devices. -cydiaimpactor.com"
 A,task-spooler,"queues commands or files for download."
 ,gparted,"is a GUI disc manager."
-,pamac,"is a GUI package manager mainly for Manjaro."
-,gksu-polkit,""
+,pamac-gtk,"is a GUI package manager mainly for Manjaro."
 ,gnucash,""
 A,multibootusb,""
 ,filezilla,""
@@ -92,3 +91,11 @@ A,ttf-ms-fonts,"are Microsoft fonts."
 ,lightdm,""
 ,webkit2gtk,""
 ,lightdm-webkit-theme-litarvan,""
+,,
+# Networkmanager,,
+,networkmanager,"is what is sounds like."
+,networkmanager-openconnect,
+,networkmanager-openvpn,
+,networkmanager-pptp,
+,networkmanager-vpnc,
+,network-manager-applet,"provides tray icon for networkmanager."

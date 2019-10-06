@@ -90,12 +90,15 @@ run_anergos() {
 	}
 
 pacman -Sy --needed --noconfirm dialog
-HARD_DRIVE=$( get_drive )
 timedatectl set-ntp true
+
+HARD_DRIVE=$( get_drive )
 partition_drive $HARD_DRIVE
 format_mount_parts
+
 pacstrap /mnt base
 genfstab -U /mnt >> /mnt/etc/fstab
+
 run_anergos "$@"
 dialog --yesno "Reboot computer?"  5 30 && reboot
 dialog --yesno "Return to chroot environment?" 6 30 && arch-chroot /mnt
