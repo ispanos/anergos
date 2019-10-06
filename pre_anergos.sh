@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-[ $1 ] || { 1>&2 echo "No arguments passed. Please read the scripts description." && exit;}
 
 raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
-# curl -LsO "https://raw.githubusercontent.com/ispanos/anergos/master/pre-anergos.sh"
+
+# curl -LsO "https://raw.githubusercontent.com/ispanos/anergos/master/pre_anergos.sh"
 # bash pre-anergos.sh
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
@@ -76,6 +76,13 @@ run_anergos() {
 		cp anergos.sh /mnt/anergos.sh
 	else
 		curl -sL "$raw_repo/anergos.sh" > /mnt/anergos.sh
+	fi
+
+	echo "anergos.sh copied to /mnt/anergos.sh"
+
+	if [ ! $1 ]; then
+		1>&2 echo "No arguments passed. Please read the scripts description."
+		exit
 	fi
 
 	arch-chroot /mnt bash anergos.sh "$@"

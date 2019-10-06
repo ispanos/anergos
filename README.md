@@ -13,7 +13,7 @@ It will also set the new hostname and root password, create your new user and in
 
 You can use one or more arguments passed in to `anergos.sh` for every list of packages you want to be installed. Those lists are located in programs/\*.csv and you only need to write the name of the file in the `programs/` folder without the suffix (i.e. `bash anergos.sh i3 gnome` ). For more details about the csv files keep reading. 
 
-For my arch installation I'm using [pre-anergos.sh](https://github.com/ispanos/anergos/blob/master/pre-anergos.sh) to format my hardrive and all arguments are passed to `anergos.sh`. I don't recommend using this script, unless you know what exactly it's doing.
+For my arch installation I'm using [pre_anergos.sh](https://github.com/ispanos/anergos/blob/master/pre_anergos.sh) to format my hardrive and all arguments are passed to `anergos.sh`. I don't recommend using this script, unless you know what exactly it's doing.
 
 During the arch installation a pacman hook is created to run `paccache -rk3` every time you use pacman, `makepkg.conf` is modified to use all cores, adds color to pacman, enables pacman Easter-egg.
 
@@ -39,6 +39,6 @@ This is the alias I have in my .bashrc:
 #### To do: Add LUKS/LVM support && Better description && ( YADM || Stow )
 
 ## Disclaimer: 
-#### Some may think that this is like a distro based on ArchLinux. NO. This is just a bash scrip that I made for me, but I made it as flexible as I could. Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome. I made it this way to make it easy and fast for me. The recommended way to use this script is to fork this repo add a csv file with all the programs you want and keep/add/remove any parts you want. To test it in a VM just download [pre-anergossh](https://github.com/ispanos/anergos/blob/master/pre-anergos.sh) and run `bash pre-anergos.sh i3` or `bash pre-anergos.sh i3testing` to see if you like the way it works.
+#### Some may think that this is like a distro based on ArchLinux. NO. This is just a bash scrip that I made for me, but I made it as flexible as I could. Contributions that could make the script more flexible, (like automatically picking up the timezone, or LVM/LUKS support) are more than welcome. I made it this way to make it easy and fast for me. The recommended way to use this script is to fork this repo add a csv file with all the programs you want and keep/add/remove any parts you want. To test it in a VM just download [pre_anergossh](https://github.com/ispanos/anergos/blob/master/pre_anergos.sh) and run `bash pre_anergos.sh i3` or `bash pre_anergos.sh i3testing` to see if you like the way it works.
 
 ##### If you are not familiar with installing archlinux the recommended way, I would suggest you not to use this script. Besides the fact that I may break something in the script at any moment, you need to understand how things work and how your system is set-up. E.g. For UEFI installations I'm using `systemd-boot` and not the more traditional `GRUB 2`. This is not a script you are supposed to use as is. Download it offline or make a fork and adjust it to your needs or test it in a VM. 

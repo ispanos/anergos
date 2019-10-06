@@ -4,11 +4,8 @@
 repo=https://raw.githubusercontent.com/ispanos/anergos/master
 hostname=killua
 name=yiannis
-[ -z "$dotfilesrepo" ] 	&& dotfilesrepo="https://github.com/ispanos/dotfiles.git"
-[ -z "$moz_repo" ] 		&& moz_repo="https://github.com/ispanos/mozzila"
-# Usefull variables for arch.sh
-# user_password=
-# root_password=
+[ -z "$dotfilesrepo" ] 		&& dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+[ -z "$moz_repo" ] 			&& moz_repo="https://github.com/ispanos/mozzila"
 [ -z "$programs_repo" ]  	&& programs_repo="$repo/programs/"
 [ -z "$multi_lib_bool" ] 	&& multi_lib_bool=true
 [ -z "$timezone" ] 			&& timezone="Europe/Athens"
@@ -49,19 +46,23 @@ get_user_info() {
 
 systemd_boot() {
 	bootctl --path=/boot install >/dev/null 2>&1
+
 	cat > /boot/loader/loader.conf <<-EOF
 		default  arch
 		console-mode max
 		editor   no
 	EOF
-	local id="UUID=$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+
+	local root_id="$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+
 	cat > /boot/loader/entries/arch.conf <<-EOF
 		title   Arch Linux
 		linux   /vmlinuz-linux
 		initrd  /${cpu}-ucode.img
 		initrd  /initramfs-linux.img
-		options root=${id} rw quiet
+		options root=UUID=${root_id} rw quiet
 	EOF
+
 	mkdir -p /etc/pacman.d/hooks
 	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
 		[Trigger]
@@ -124,7 +125,8 @@ install_devel_git() {
 
 install_yay() {
 	echo ":: Installing - yay-bin" # Requires user (core_arch_install), base-devel, permitions.
-	cd /tmp ; sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
+	cd /tmp
+	sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
 	cd yay-bin && sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
 	}
 
@@ -141,12 +143,17 @@ install_progs() {
 	for i in "$@"; do 
 		curl -Ls "${programs_repo}${i}.csv" | sed '/^#/d' >> /tmp/progs.csv
 	done
+
 	total=$(wc -l < /tmp/progs.csv)
+
 	echo  "Installing packages from csv file(s): $@"
+
 	while IFS=, read -r tag program comment; do ((n++))
 		echo "$comment" | grep -q "^\".*\"$" && 
-		comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
-		printf "%07s %-23s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
+			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
+
+		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
+
 		case "$tag" in
 			"") printf '\n'
 				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 ||
@@ -184,12 +191,13 @@ extra_arch_configs() {
 		When = PostTransaction
 		Exec = /usr/bin/paccache -rk3
 	EOF
+
 	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 	printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
 	}
 ## Archlinux installation end
 
-status_msg() { printf "%-20s %2s" $(tput setaf 3)"${FUNCNAME[1]}" "- "$(tput sgr0); }
+status_msg() { printf "%-20s %2s" $(tput setaf 4)"${FUNCNAME[1]}"$(tput sgr0) "- "; }
 
 ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
 
@@ -197,30 +205,40 @@ nobeep() { status_msg; echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf
 
 power_group() { status_msg; gpasswd -a $name power >/dev/null 2>&1; ready; }
 
+resolv_conf() { printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf ; }
+
 networkd_config() {
 	status_msg
 	systemctl stop dhcpcd 		>/dev/null 2>&1
 	systemctl disable dhcpcd 	>/dev/null 2>&1
+
 	if [ -f  /usr/bin/NetworkManager ]; then
 		systemctl enable NetworkManager >/dev/null 2>&1
 		ready " (NetworkManager)"
+		return
+	fi
 
-	else
-		net_devs=$(networkctl --no-legend 2>/dev/null | grep -P "ether|wlan" | awk '{print $2}')
-		for device in ${net_devs[*]}; do ((i++))
-			cat > /etc/systemd/network/${device}.network <<-EOF
-				[Match]
-				Name=${device}
-				[Network]
-				DHCP=ipv4
-				[DHCP]
-				RouteMetric=$(($i * 10))
-			EOF
-		done
-		systemctl enable systemd-networkd >/dev/null 2>&1
-		systemctl enable systemd-resolved >/dev/null 2>&1
-		ready
-	fi 
+	net_devs=$( networkctl --no-legend 2>/dev/null | \
+				grep -P "ether|wlan" | \
+				awk '{print $2}' | \
+				sort )
+
+	for device in ${net_devs[*]}; do ((i++))
+		cat > /etc/systemd/network/${device}.network <<-EOF
+			[Match]
+			Name=${device}
+
+			[Network]
+			DHCP=ipv4
+
+			[DHCP]
+			RouteMetric=$(($i * 10))
+		EOF
+	done
+
+	systemctl enable systemd-networkd >/dev/null 2>&1
+	systemctl enable systemd-resolved >/dev/null 2>&1
+	ready
 	}
 
 infinality(){
@@ -234,9 +252,7 @@ infinality(){
 	}
 
 office_logo() {
-	status_msg
-	[ -f /etc/libreoffice/sofficerc ] || echo "Skipped - /etc/libreoffice missing" && return
-	sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc && ready
+	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 	}
 
 create_swapfile() {
@@ -286,22 +302,27 @@ arduino_groups() {
 	}
 
 agetty_set() {
-	systemctl enable gdm >/dev/null 2>&1 && ready " GDM (value $1)" && return
+	systemctl enable gdm >/dev/null 2>&1 && ready " GDM enabled" && return
+
 	status_msg
+
 	if [ "$1" = "auto" ]; then
 		local log="ExecStart=-\/sbin\/agetty --autologin $name --noclear %I \$TERM"
 	else
 		local log="ExecStart=-\/sbin\/agetty --skip-login --login-options $name --noclear %I \$TERM"
 	fi
+
 	sed "s/ExecStart=.*/${log}/" /usr/lib/systemd/system/getty@.service > \
 								/etc/systemd/system/getty@.service
-	systemctl daemon-reload >/dev/null 2>&1; systemctl reenable getty@tty1.service >/dev/null 2>&1
+
+	systemctl daemon-reload >/dev/null 2>&1
+	systemctl reenable getty@tty1.service >/dev/null 2>&1
 	ready "$1"
 	}
 
 lock_sleep() {
 	status_msg
-	if [ -f /usr/bin/i3lock ] && [ ! -f /usr/bin/sway ]; then
+	if [ -f /usr/bin/i3lock ]; then
 		cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
 			#/etc/systemd/system/
 			[Unit]
@@ -317,40 +338,38 @@ lock_sleep() {
 			WantedBy=sleep.target
 		EOF
 	fi
+
+	[ -f /usr/bin/sway ] && return
 	systemctl enable SleepLocki3@${name} >/dev/null 2>&1
 	ready
 	}
 
 virtualbox() {
 	status_msg
-
 	if [[ $(lspci | grep VirtualBox) ]]; then
+		printf "Guest -"
 		case $lsb_dist in
 		arch)
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
 			pacman -S --noconfirm --needed $g_utils >/dev/null 2>&1
 
-			if [ -f /usr/bin/virtualbox ]; then
-				printf "Removing VirtualBox... "
-				pacman -Rns --noconfirm virtualbox >/dev/null 2>&1
-				pacman -Rns --noconfirm virtualbox-host-modules-arch >/dev/null 2>&1
-				pacman -Rns --noconfirm virtualbox-guest-iso >/dev/null 2>&1 
-			fi
-			ready " - guest"
+			[ ! -f /usr/bin/virtualbox ] && return
+			printf "Removing VirtualBox... "
+			pacman -Rns --noconfirm virtualbox >/dev/null 2>&1
+			pacman -Rns --noconfirm virtualbox-host-modules-arch >/dev/null 2>&1
+			pacman -Rns --noconfirm virtualbox-guest-iso >/dev/null 2>&1 
 		;;
 		*)
-			echo $(tput setaf 1)"- Guest is not supported yet."$(tput sgr0)
+			echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0)
+			return
 		;;
 		esac
-	elif [ -f /usr/bin/virtualbox ]; then
-		sudo -u "$name" groups | grep -q vboxusers || gpasswd -a $name vboxusers >/dev/null 2>&1
-		ready " - host"
-	fi
-	}
 
-resolv_conf() {
-	status_msg
-	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf && ready
+	elif [ -f /usr/bin/virtualbox ]; then
+		printf "Host -"
+		gpasswd -a $name vboxusers >/dev/null 2>&1
+	fi
+	ready
 	}
 
 numlockTTY() {
@@ -386,7 +405,7 @@ temps() { # https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqli
 		ready 
 	;;
 	*)
-		echo $(tput setaf 1)"- Guest is not supported yet."$(tput sgr0) 
+		echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) 
 		return 
 	;;
 	esac
@@ -422,7 +441,7 @@ nvidia_drivers() {
 		ready 
 	;;
 	*)
-		echo $(tput setaf 1)"- Guest is not supported yet."$(tput sgr0) 
+		echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) 
 		return 
 	;;
 	esac
@@ -433,12 +452,13 @@ catalog() {
 	[ ! -d /home/"$name"/.local ] && sudo -u "$name" mkdir /home/"$name"/.local
 	case $lsb_dist in 
 		arch)
-			echo "Removing orphans..."
+			printf "Removing orphans "
 			pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
+			ready
 	 	;;
 		*)
-			echo $(tput setaf 1)"- Distro is not supported yet."$(tput sgr0)
+			echo $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
 			return
 		;;
 	esac
@@ -459,7 +479,8 @@ cat > /etc/sudoers.d/wheel <<-EOF
 /usr/bin/systemctl restart NetworkManager
 EOF
 chmod 440 /etc/sudoers.d/wheel
-echo $(tput setaf 2)"${FUNCNAME[0]}- in $0 Done!"$(tput sgr0)
+echo $(tput setaf 2)"Proper permissions set"$(tput sgr0)
+echo "All done! - exiting..."
 sleep 5
 }
 
@@ -487,7 +508,7 @@ fi
 
 case $hostname in 
 	killua)
-		echo "killua:"
+		printf "\n\nkillua:\n"
 		numlockTTY; power_to_sleep; power_group; infinality; nobeep;   
 		virtualbox; clone_dotfiles; office_logo; firefox_configs;
 		agetty_set; arduino_groups; resolv_conf; create_swapfile;
@@ -498,4 +519,4 @@ case $hostname in
 	;;
 esac
 
-catalog && exit
+catalog
