@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-repo=https://raw.githubusercontent.com/ispanos/anergos/master
-hostname=killua
-name=yiannis
-[ -z "$dotfilesrepo" ] 		&& dotfilesrepo="https://github.com/ispanos/dotfiles.git"
+hostname=killua; name=yiannis; repo=https://raw.githubusercontent.com/ispanos/anergos/master
+[ -z "$dotfilesrepo" ] 		&& dotfilesrepo="https://github.com/ispanos/dotfiles"
 [ -z "$moz_repo" ] 			&& moz_repo="https://github.com/ispanos/mozzila"
 [ -z "$programs_repo" ]  	&& programs_repo="$repo/programs/"
 [ -z "$multi_lib_bool" ] 	&& multi_lib_bool=true
 [ -z "$timezone" ] 			&& timezone="Europe/Athens"
 [ -z "$lang" ] 				&& lang="en_US.UTF-8"
 [ -r /etc/os-release ] 		&& lsb_dist="$(. /etc/os-release && echo "$ID")"
+
+package_lists="$@"
+
 [ "$(id -nu)" != "root" ] 	&& echo "This script must be run as root." && exit
 clear
 
 get_username() {
 	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
-	
+
 	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
 		read -rsep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' name
 	done
@@ -121,6 +122,7 @@ core_arch_install() {
 		"GenuineIntel") cpu="intel" ;;
 		"AuthenticAMD") cpu="amd" 	;;
 	esac
+
 	pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 	
 	# This folder is needed for pacman hooks. (needed for systemd-boot)
@@ -140,18 +142,21 @@ core_arch_install() {
 	echo "$name:$user_password" | chpasswd
 	}
 
-install_devel_git() {
-	for package in base-devel git; do
+quick_install() {
+	# For quick installation of arch-only packages.
+	for package in $@; do
 		echo ":: Installing - $package"
 		pacman --noconfirm --needed -S $package >/dev/null 2>&1
 	done
 	}
 
 install_yay() {
-	echo ":: Installing - yay-bin" # Requires user (core_arch_install), base-devel, permitions.
+	# Requires user (core_arch_install), base-devel, permitions.
+	echo ":: Installing - yay-bin"
 	cd /tmp
 	sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
-	cd yay-bin && sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
+	cd yay-bin && 
+	sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
 	}
 
 install_progs() {
@@ -164,7 +169,7 @@ install_progs() {
 	[ "$multi_lib_bool" = true  ] && sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf &&
 	echo ":: Synchronizing package databases..." && pacman -Sy >/dev/null 2>&1
 
-	for i in "$@"; do 
+	for i in $@; do 
 		curl -Ls "${programs_repo}${i}.csv" | sed '/^#/d' >> /tmp/progs.csv
 	done
 
@@ -233,6 +238,7 @@ resolv_conf() { printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.c
 
 networkd_config() {
 	status_msg
+
 	systemctl stop dhcpcd 		>/dev/null 2>&1
 	systemctl disable dhcpcd 	>/dev/null 2>&1
 
@@ -257,6 +263,7 @@ networkd_config() {
 
 			[DHCP]
 			RouteMetric=$(($i * 10))
+
 		EOF
 	done
 
@@ -266,13 +273,10 @@ networkd_config() {
 	}
 
 infinality(){
+	[ ! -r /etc/profile.d/freetype2.sh ] && return
 	status_msg
-	if [ -r /etc/profile.d/freetype2.sh ]; then 
-		sed -i 's/^#exp/exp/;s/version=40"$/version=38"/' /etc/profile.d/freetype2.sh
-		ready
-	else
-		echo $(tput setaf 1)"skipped (freetype2 is not installed)"$(tput sgr0)
-	fi
+	sed -i 's/^#exp/exp/;s/version=40"$/version=38"/' /etc/profile.d/freetype2.sh
+	ready
 	}
 
 office_logo() {
@@ -291,7 +295,9 @@ create_swapfile() {
 	}
 
 clone_dotfiles() {
+	[ -z "$dotfilesrepo" ] && return
 	status_msg
+
 	cd /home/"$name" && echo ".cfg" >> .gitignore && rm .bash_profile .bashrc
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
@@ -321,8 +327,9 @@ firefox_configs() {
 	}
 
 arduino_groups() {
+	[ ! -f /usr/bin/arduino ] && return
+
 	status_msg
-	[ ! -f /usr/bin/arduino ] && echo "Skipped - /usr/bin/arduino missing." && return
 	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
 	sudo -u "$name" groups | grep -q uucp || gpasswd -a $name uucp >/dev/null 2>&1
 	sudo -u "$name" groups | grep -q lock || gpasswd -a $name lock >/dev/null 2>&1
@@ -533,10 +540,10 @@ if [ "$(hostname)" = "archiso" ]; then
 	# Archlinux installation.
 	get_user_info
 	core_arch_install
-	install_devel_git
+	quick_install base-devel git arch-audit linux-headers pacman-contrib expac
 	set_needed_perms
 	install_yay
-	install_progs "$@"
+	install_progs "$package_lists"
 	extra_arch_configs
 else
 	# Non Archlinux settings.
@@ -545,7 +552,7 @@ else
 	set_needed_perms
 fi
 
-# The rest of the configurations are picked according to the hostname of the computer.
+# All configurations are picked according to the hostname of the computer.
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"

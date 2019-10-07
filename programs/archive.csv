@@ -20,34 +20,8 @@ A,multibootusb,""
 A,wattmangtk,""
 A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20"
 ,brightnessctl,"- Lightweight brightness control tool"
-,numlockx,"turns on NumLock when i3 starts."
 ,wireless_tools,"https://hewlettpackard.github.io/wireless-tools/Tools.html"
 ,grafana,
-,,
-,,
-,,
-# Sway,,
-,sway,"is an i3 replacment of wayland."
-,swaylock,"is a screen locker for Wayland."
-,swayidle,"handles sway when its idle."
-,i3blocks,"is the status bar."
-,bemenu,"is like dmenu for wayland."
-A,j4-dmenu-desktop-git,"is a rewrite of i3-dmenu-desktop, which is much faster ."
-,xorg-server-xwayland,"is a compatibility layer for x11 apps."
-,qt5-wayland,"provides APIs for Wayland."
-,wl-clipboard,"allows copying and pasting from the command line."
-,mako,"is a notification daemon."
-,grim,"is a screenshot utility for Wayland."
-,slurp,"is a region-screenshot utility for Wayland."
-,imv,is an image viewer for Wayland and X11.
-,,
-,,
-,,
-# Gaming,,
-,steam,"is a game store."
-,lib32-nss,"fixes network issue with steam on Arch."
-A,discord,"is voice/text chat client for gamers."
-,,
 ,,
 ,,
 # X,,
@@ -58,7 +32,6 @@ A,discord,"is voice/text chat client for gamers."
 ,python-pywal,"is used to change X colors to match the wallpaper."
 A,interception-hideaway,"hides cursor after some time."
 ,xclip,"allows for copying and pasting from the command line."
-,,
 ,,
 ,,
 # Media:,,
@@ -77,7 +50,6 @@ A,davinci-resolve,",a professional A/V post-production software suite from Black
 ,lirc,"- Linux Infrared Remote Control"
 ,,
 ,,
-,,
 # Fonts,,
 A,ttf-ms-fonts,"are Microsoft fonts."
 ,ttf-inconsolata,"is the monospace font I used."
@@ -86,11 +58,11 @@ A,ttf-ms-fonts,"are Microsoft fonts."
 ,ttf-joypixels,"is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere."
 ,,
 ,,
-,,
 # LightDM:,,
 ,lightdm,""
 ,webkit2gtk,""
 ,lightdm-webkit-theme-litarvan,""
+,,
 ,,
 # Networkmanager,,
 ,networkmanager,"is what is sounds like."
