@@ -67,12 +67,13 @@ systemd_boot() {
 
 	local root_id="$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
 
+	# https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533
 	cat > /boot/loader/entries/arch.conf <<-EOF
 		title   Arch Linux
 		linux   /vmlinuz-linux
 		initrd  /${cpu}-ucode.img
 		initrd  /initramfs-linux.img
-		options root=UUID=${root_id} rw quiet
+		options root=UUID=${root_id} rw quiet idle=nomwait
 	EOF
 
 	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
@@ -95,9 +96,9 @@ grub_mbr() {
 	}
 
 core_arch_install() {
-	echo ":: Setting up Arch..."
+	echo ":: Setting up Arch"
 	
-	systemctl enable systemd-timesyncd.service >/dev/null 2>&1
+	systemctl enable --now systemd-timesyncd.service >/dev/null 2>&1
 	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
 	
 	hwclock --systohc
@@ -106,7 +107,6 @@ core_arch_install() {
 	locale-gen > /dev/null 2>&1
 	
 	echo 'LANG="'$lang'"' > /etc/locale.conf
-	
 	
 	echo $hostname > /etc/hostname
 	
@@ -135,7 +135,14 @@ core_arch_install() {
 	else
 		grub_mbr
 	fi
-	
+
+	# Enable [multilib] repo, if multi_lib_bool == true and sync database. -Sy
+	if [ "$multi_lib_bool" = true  ]; then
+		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
+		echo ":: Synchronizing package databases"
+		pacman -Sy >/dev/null 2>&1
+	fi
+
 	# Set root password, create user and set user password.
 	printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
@@ -165,12 +172,16 @@ install_progs() {
 		return 1
 	fi
 
+	# Use all cpu cores to compile packages
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-	[ "$multi_lib_bool" = true  ] && sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf &&
-	echo ":: Synchronizing package databases..." && pacman -Sy >/dev/null 2>&1
 
-	for i in $@; do 
-		curl -Ls "${programs_repo}${i}.csv" | sed '/^#/d' >> /tmp/progs.csv
+	# Merges all csv files in one file. Checks for local files first.
+	for file in $@; do
+		if [ -r programs/${file}.csv ]; then
+			cat programs/${file}.csv | sed '/^#/d' >> /tmp/progs.csv
+		else
+			curl -Ls "${programs_repo}${file}.csv" | sed '/^#/d' >> /tmp/progs.csv
+		fi
 	done
 
 	total=$(wc -l < /tmp/progs.csv)
@@ -186,22 +197,23 @@ install_progs() {
 		case "$tag" in
 			"") printf '\n'
 				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 ||
-				echo "$program" >> /home/${name}/failed
+				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
 			;;
 			"A") printf "(AUR)\n"
 				sudo -u "$name" yay -S --needed --noconfirm "$program" >/dev/null 2>&1 ||
-				echo "$program" >> /home/${name}/failed	
+				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
 			;;
 			"G") printf "(GIT)\n"
 				local dir=$(mktemp -d)
 				git clone --depth 1 "$program" "$dir" > /dev/null 2>&1
 				cd "$dir" && make >/dev/null 2>&1
-				make install >/dev/null 2>&1 || echo "$program" >> /home/${name}/failed 
-				cd /tmp
+				make install >/dev/null 2>&1 ||
+				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
 			;;
 			"P") printf "(PIP)\n"
 				command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
-				yes | pip install "$program" || echo "$program" >> /home/${name}/failed
+				yes | pip install "$program" ||
+				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
 			;;
 		esac
 	done < /tmp/progs.csv
@@ -243,7 +255,7 @@ networkd_config() {
 	systemctl disable dhcpcd 	>/dev/null 2>&1
 
 	if [ -f  /usr/bin/NetworkManager ]; then
-		systemctl enable NetworkManager >/dev/null 2>&1
+		systemctl enable --now NetworkManager >/dev/null 2>&1
 		ready " (NetworkManager)"
 		return
 	fi
@@ -267,8 +279,8 @@ networkd_config() {
 		EOF
 	done
 
-	systemctl enable systemd-networkd >/dev/null 2>&1
-	systemctl enable systemd-resolved >/dev/null 2>&1
+	systemctl enable --now systemd-networkd >/dev/null 2>&1
+	systemctl enable --now systemd-resolved >/dev/null 2>&1
 	ready
 	}
 
@@ -298,11 +310,15 @@ clone_dotfiles() {
 	[ -z "$dotfilesrepo" ] && return
 	status_msg
 
-	cd /home/"$name" && echo ".cfg" >> .gitignore && rm .bash_profile .bashrc
+	cd /home/"$name"
+	echo ".cfg" >> .gitignore
+	rm .bash_profile .bashrc
+
 	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
 				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
+	
 	ready
 	}
 
@@ -337,7 +353,7 @@ arduino_groups() {
 	}
 
 agetty_set() {
-	systemctl enable gdm >/dev/null 2>&1 && ready " GDM enabled" && return
+	systemctl enable --now gdm >/dev/null 2>&1 && ready " GDM enabled" && return
 
 	status_msg
 
@@ -355,9 +371,10 @@ agetty_set() {
 	ready "$1"
 	}
 
-lock_sleep() {
+i3lock_sleep() {
 	status_msg
 
+	# This should be replaced with something better.
 	if [ -f /usr/bin/i3lock ]; then
 		cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
 			#/etc/systemd/system/
@@ -376,7 +393,7 @@ lock_sleep() {
 	fi
 
 	[ -f /usr/bin/sway ] && return
-	systemctl enable SleepLocki3@${name} >/dev/null 2>&1
+	systemctl enable --now SleepLocki3@${name} >/dev/null 2>&1
 	ready
 	}
 
@@ -392,7 +409,7 @@ virtualbox() {
 			pacman -S --noconfirm --needed $g_utils >/dev/null 2>&1
 
 			[ ! -f /usr/bin/virtualbox ] && return
-			printf "Removing VirtualBox... "
+			printf "Removing VirtualBox "
 			pacman -Rns --noconfirm virtualbox >/dev/null 2>&1
 			pacman -Rns --noconfirm virtualbox-host-modules-arch >/dev/null 2>&1
 			pacman -Rns --noconfirm virtualbox-guest-iso >/dev/null 2>&1 
@@ -432,7 +449,8 @@ numlockTTY() {
 
 	EOF
 
-	chmod +x /usr/bin/numlockOnTty; systemctl enable numLockOnTty >/dev/null 2>&1
+	chmod +x /usr/bin/numlockOnTty
+	systemctl enable --now numLockOnTty >/dev/null 2>&1
 	ready
 	}
 
@@ -441,7 +459,7 @@ temps() {
 	status_msg
 
 	case $lsb_dist in
-	arch)
+	manjaro | arch)
 		[ ! -f /usr/bin/yay ] && "Skipped - yay not installed." && return
 		sudo -u "$name" yay -S --noconfirm --needed it87-dkms-git >/dev/null 2>&1
 		echo "it87" > /etc/modules-load.d/it87.conf
@@ -469,7 +487,7 @@ data() {
 
 power_to_sleep() {
 	status_msg
-	sed -i "s/^#HandlePowerKey=poweroff/HandlePowerKey=suspend/g" /etc/systemd/logind.conf
+	sed -i '/HandlePowerKey/{s/=.*$/=suspend/;s/^#//}' /etc/systemd/logind.conf
 	ready
 	}
 
@@ -493,12 +511,28 @@ nvidia_drivers() {
 	esac
 	}
 
+Install_vim_plugged_plugins() {
+	status_msg
+	# Not tested.
+	sudo -u "$name" mkdir -p "/home/$name/.config/nvim/autoload"
+	curl -Ls "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" \
+									> "/home/$name/.config/nvim/autoload/plug.vim"
+	(sleep 30 && killall nvim) &
+	sudo -u "$name" nvim -E -c "PlugUpdate|visual|q|q" >/dev/null 2>&1
+	ready
+	}
+
+ssh_thing() {
+	sed -i '/#PasswordAuthentication/{s/yes/no/;s/^#//}' /etc/ssh/sshd_config
+	systemctl enable --now sshd
+}
+
 catalog() {
 	status_msg
 	[ ! -d /home/"$name"/.local ] && sudo -u "$name" mkdir /home/"$name"/.local
 	
 	case $lsb_dist in 
-		arch)
+		manjaro | arch)
 			pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 	 	;;
@@ -527,7 +561,7 @@ cat > /etc/sudoers.d/wheel <<-EOF
 EOF
 chmod 440 /etc/sudoers.d/wheel
 echo $(tput setaf 2)"Proper permissions set"$(tput sgr0)
-echo "All done! - exiting..."
+echo "All done! - exiting"
 sleep 5
 }
 
@@ -556,10 +590,10 @@ fi
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"
-		numlockTTY; power_to_sleep; power_group; infinality; nobeep;   
+		numlockTTY; power_to_sleep; power_group; i3lock_sleep; nobeep;   
 		virtualbox; clone_dotfiles; office_logo; firefox_configs;
 		agetty_set; arduino_groups; resolv_conf; create_swapfile;
-		lock_sleep; nvidia_drivers; temps; data; networkd_config;
+		infinality; nvidia_drivers; temps; data; networkd_config;
 	;;
 	*)
 		echo "Unknown hostname"
