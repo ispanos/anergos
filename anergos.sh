@@ -197,23 +197,23 @@ install_progs() {
 		case "$tag" in
 			"") printf '\n'
 				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 ||
-				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
+				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
 			;;
 			"A") printf "(AUR)\n"
 				sudo -u "$name" yay -S --needed --noconfirm "$program" >/dev/null 2>&1 ||
-				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
+				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
 			;;
 			"G") printf "(GIT)\n"
 				local dir=$(mktemp -d)
 				git clone --depth 1 "$program" "$dir" > /dev/null 2>&1
 				cd "$dir" && make >/dev/null 2>&1
 				make install >/dev/null 2>&1 ||
-				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
+				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
 			;;
 			"P") printf "(PIP)\n"
 				command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
 				yes | pip install "$program" ||
-				echo "$(tput setaf 1)$program failed$(tput setaf 1)" | tee /home/${name}/failed
+				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
 			;;
 		esac
 	done < /tmp/progs.csv
@@ -466,7 +466,7 @@ temps() {
 		ready 
 	;;
 	*)
-		echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) 
+		echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0)
 		return 
 	;;
 	esac
@@ -574,7 +574,7 @@ if [ "$(hostname)" = "archiso" ]; then
 	# Archlinux installation.
 	get_user_info
 	core_arch_install
-	quick_install base-devel git arch-audit linux-headers pacman-contrib expac
+	quick_install base-devel linux linux-headers pacman-contrib expac git arch-audit
 	set_needed_perms
 	install_yay
 	install_progs "$package_lists"
