@@ -272,6 +272,7 @@ networkd_config() {
 
 			[Network]
 			DHCP=ipv4
+			IPForward=yes
 
 			[DHCP]
 			RouteMetric=$(($i * 10))
