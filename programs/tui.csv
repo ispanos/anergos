@@ -16,7 +16,8 @@
 ,lsd,the modern ls
 ,lshw,lists all hardware on the system
 ,mediainfo,shows audio and video information and is used by ranger as well
-,neofetch,dispays basic system information
+,nano,text editor
+,neofetch,displays basic system information
 ,neovim,terminal text editor
 ,net-tools,configuration tools for Linux networking
 ,nmap,network scanner
