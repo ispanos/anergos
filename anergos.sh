@@ -88,8 +88,17 @@ systemd_boot() {
 	EOF
 	}
 
+quick_install() {
+	# For quick installation of arch-only packages.
+	for package in $@; do
+		echo ":: Installing - $package"
+		pacman --noconfirm --needed -S $package >/dev/null 2>&1
+	done
+	}
+	
 grub_mbr() {
-	pacman --noconfirm --needed -S grub >/dev/null 2>&1
+	quick_install grub
+	# pacman --noconfirm --needed -S grub >/dev/null 2>&1
 	grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
 	grub-install --target=i386-pc $grub_path >/dev/null 2>&1
 	grub-mkconfig -o /boot/grub/grub.cfg
@@ -123,7 +132,8 @@ core_arch_install() {
 		"AuthenticAMD") cpu="amd" 	;;
 	esac
 
-	pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
+	quick_install "${cpu}-ucode"
+	# pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 	
 	# This folder is needed for pacman hooks. (needed for systemd-boot)
 	mkdir -p /etc/pacman.d/hooks
@@ -131,7 +141,8 @@ core_arch_install() {
 	# Install bootloader
 	if [ -d "/sys/firmware/efi" ]; then
 		systemd_boot
-		pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
+		quick_install efibootmgr
+		# pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
 	else
 		grub_mbr
 	fi
@@ -139,7 +150,7 @@ core_arch_install() {
 	# Enable [multilib] repo, if multi_lib_bool == true and sync database. -Sy
 	if [ "$multi_lib_bool" = true  ]; then
 		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
-		echo ":: Synchronizing package databases"
+		echo ":: Synchronizing package databases - [multilib]"
 		pacman -Sy >/dev/null 2>&1
 	fi
 
@@ -147,14 +158,6 @@ core_arch_install() {
 	printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
 	echo "$name:$user_password" | chpasswd
-	}
-
-quick_install() {
-	# For quick installation of arch-only packages.
-	for package in $@; do
-		echo ":: Installing - $package"
-		pacman --noconfirm --needed -S $package >/dev/null 2>&1
-	done
 	}
 
 install_yay() {
@@ -238,7 +241,7 @@ extra_arch_configs() {
 	}
 ## Archlinux installation end
 
-status_msg() { printf "%-20s %2s" $(tput setaf 4)"${FUNCNAME[1]}"$(tput sgr0) "- "; }
+status_msg() { printf "%-25s %2s" $(tput setaf 4)"${FUNCNAME[1]}"$(tput sgr0) "- "; }
 
 ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
 
@@ -409,7 +412,7 @@ virtualbox() {
 			local g_utils="virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware"
 			pacman -S --noconfirm --needed $g_utils >/dev/null 2>&1
 
-			[ ! -f /usr/bin/virtualbox ] && return
+			[ ! -f /usr/bin/virtualbox ] && ready && return
 			printf "Removing VirtualBox "
 			pacman -Rns --noconfirm virtualbox >/dev/null 2>&1
 			pacman -Rns --noconfirm virtualbox-host-modules-arch >/dev/null 2>&1
