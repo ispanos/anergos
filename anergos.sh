@@ -571,7 +571,7 @@ trap set_sane_perms EXIT
 
 printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 
-if [ "$(hostname)" = "archiso" ]; then
+if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	# Archlinux installation.
 	get_user_info
 	core_arch_install
@@ -582,7 +582,7 @@ if [ "$(hostname)" = "archiso" ]; then
 	extra_arch_configs
 else
 	# Non Archlinux settings.
-	hostname=$(hostname)
+	hostname=$( hostnamectl | awk -F": " 'NR==1 {print $2}' )
 	get_username
 	set_needed_perms
 fi
