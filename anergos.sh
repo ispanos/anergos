@@ -254,8 +254,8 @@ resolv_conf() { printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.c
 networkd_config() {
 	status_msg
 
-	systemctl stop dhcpcd 		>/dev/null 2>&1
-	systemctl disable dhcpcd 	>/dev/null 2>&1
+	#systemctl stop dhcpcd 		>/dev/null 2>&1
+	systemctl disable --now dhcpcd 	>/dev/null 2>&1
 
 	if [ -f  /usr/bin/NetworkManager ]; then
 		systemctl enable --now NetworkManager >/dev/null 2>&1
@@ -526,10 +526,10 @@ Install_vim_plugged_plugins() {
 	ready
 	}
 
-ssh_thing() {
+safe_ssh() {
 	sed -i '/#PasswordAuthentication/{s/yes/no/;s/^#//}' /etc/ssh/sshd_config
-	systemctl enable --now sshd
-}
+	# systemctl enable --now sshd
+	}
 
 catalog() {
 	status_msg
@@ -598,6 +598,9 @@ case $hostname in
 		virtualbox; clone_dotfiles; office_logo; firefox_configs;
 		agetty_set; arduino_groups; resolv_conf; create_swapfile;
 		infinality; nvidia_drivers; temps; data; networkd_config;
+	;;
+	leorio)
+		clone_dotfiles; firefox_configs; agetty_set
 	;;
 	*)
 		echo "Unknown hostname"
