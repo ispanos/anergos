@@ -540,6 +540,12 @@ catalog() {
 			pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
 			sudo -u "$name" pacman -Qq > /home/"$name"/.local/Fresh_pack_list
 	 	;;
+		raspbian | ubuntu)
+			sudo apt-get clean >/dev/null 2>&1
+			sudo apt autoremove >/dev/null 2>&1
+			sudo -u "$name" apt list --installed 2> /dev/null |
+				awk -F/ '{print $1}' > /home/"$name"/.local/Fresh_pack_list
+		;;
 		*)
 			printf $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
 			return
@@ -594,17 +600,19 @@ fi
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"
-		numlockTTY; power_to_sleep; power_group; i3lock_sleep; nobeep;   
+		numlockTTY; power_to_sleep; power_group; i3lock_sleep; nobeep;
 		virtualbox; clone_dotfiles; office_logo; firefox_configs;
 		agetty_set; arduino_groups; resolv_conf; create_swapfile;
 		infinality; nvidia_drivers; temps; data; networkd_config;
 	;;
 	leorio)
-		clone_dotfiles; firefox_configs; agetty_set
+		power_group; nobeep; clone_dotfiles; firefox_configs;
+		agetty_set; arduino_groups; networkd_config;
 	;;
 	*)
 		echo "Unknown hostname"
 	;;
 esac
 
+clone_dotfiles
 catalog
