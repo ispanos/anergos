@@ -12,7 +12,8 @@ hostname=killua; name=yiannis; repo=https://raw.githubusercontent.com/ispanos/an
 
 package_lists="$@"
 
-[ "$(id -nu)" != "root" ] 	&& echo "This script must be run as root." && exit
+[ "$(id -nu)" != "root" ] 	&& echo "This script must be run as root." && 
+read -r && exit
 clear
 
 get_username() {
