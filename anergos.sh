@@ -377,26 +377,23 @@ agetty_set() {
 
 i3lock_sleep() {
 	status_msg
-
-	# This should be replaced with something better.
-	if [ -f /usr/bin/i3lock ]; then
-		cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
-			#/etc/systemd/system/
-			[Unit]
-			Description=Turning i3lock on before sleep
-			Before=sleep.target
-			[Service]
-			User=%I
-			Type=forking
-			Environment=DISPLAY=:0
-			ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/${name}/.config/wall.png -t
-			ExecStartPost=/usr/bin/sleep 1
-			[Install]
-			WantedBy=sleep.target
-		EOF
-	fi
+	cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
+		#/etc/systemd/system/
+		[Unit]
+		Description=Turning i3lock on before sleep
+		Before=sleep.target
+		[Service]
+		User=%I
+		Type=forking
+		Environment=DISPLAY=:0
+		ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/${name}/.config/wall.png -t
+		ExecStartPost=/usr/bin/sleep 1
+		[Install]
+		WantedBy=sleep.target
+	EOF
 
 	[ -f /usr/bin/sway ] && return
+	[ -f /usr/bin/i3lock ] &&
 	systemctl enable --now SleepLocki3@${name} >/dev/null 2>&1
 	ready
 	}
@@ -458,7 +455,7 @@ numlockTTY() {
 	ready
 	}
 
-temps() { 
+it87_driver() { 
 	# https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
 	status_msg
 
@@ -584,7 +581,8 @@ if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	# Archlinux installation.
 	get_user_info
 	core_arch_install
-	quick_install base-devel linux linux-headers pacman-contrib expac git arch-audit
+	quick_install linux linux-headers base-devel git
+	quick_install inetutils pacman-contrib expac arch-audit
 	set_needed_perms
 	install_yay
 	install_progs "$package_lists"
@@ -600,13 +598,13 @@ fi
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"
-		numlockTTY; power_to_sleep; power_group; i3lock_sleep; nobeep;
+		numlockTTY; power_to_sleep; power_group; i3lock_sleep; data;
 		virtualbox; clone_dotfiles; office_logo; firefox_configs;
-		agetty_set; arduino_groups; resolv_conf; create_swapfile;
-		infinality; nvidia_drivers; temps; data; networkd_config;
+		agetty_set; arduino_groups; resolv_conf; networkd_config;
+		infinality; nvidia_drivers; it87_driver; create_swapfile;
 	;;
 	leorio)
-		power_group; nobeep; clone_dotfiles; firefox_configs;
+		power_group;  clone_dotfiles; firefox_configs;
 		agetty_set; arduino_groups; networkd_config;
 	;;
 	*)
@@ -614,5 +612,6 @@ case $hostname in
 	;;
 esac
 
+nobeep
 clone_dotfiles
 catalog
