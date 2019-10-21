@@ -16,6 +16,7 @@ package_lists="$@"
 read -r && exit
 clear
 
+# Ask for the name of the main user.
 get_username() {
 	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
 
@@ -24,8 +25,12 @@ get_username() {
 	done
 	}
 
+
 ## Archlinux installation
+
 get_user_info() {
+# Askes for desired hostname, username and passwords for the Archlinux installation.
+
 	if [ -z "$hostname" ]; then
 	    read -rsep $'Enter computer\'s hostname: \n' hostname
 	fi
@@ -58,6 +63,7 @@ get_user_info() {
 	}
 
 systemd_boot() {
+	# Installs and configures systemd-boot. (only for archlinux atm.)
 	bootctl --path=/boot install >/dev/null 2>&1
 
 	cat > /boot/loader/loader.conf <<-EOF
@@ -68,15 +74,23 @@ systemd_boot() {
 
 	local root_id="$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
 
+	# Default kernel parameters.
+	kernel_parms="rw quiet"
+
+	# I need this to avoid random crashes on my main pc (AMD ryzen R5 1600)
 	# https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533
+	lscpu | grep -q "AMD Ryzen" && kernel_parms="$kernel_parms idle=nowait"
+
+	# Bootloader entry using `linux` kernel: 
 	cat > /boot/loader/entries/arch.conf <<-EOF
 		title   Arch Linux
 		linux   /vmlinuz-linux
 		initrd  /${cpu}-ucode.img
 		initrd  /initramfs-linux.img
-		options root=UUID=${root_id} rw quiet idle=nomwait
+		options root=UUID=${root_id} $kernel_parms
 	EOF
 
+	# A pacman hook to update systemd-boot after systemd packages is updated.
 	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
 		[Trigger]
 		Type = Package
@@ -90,7 +104,7 @@ systemd_boot() {
 	}
 
 quick_install() {
-	# For quick installation of arch-only packages.
+	# For quick installation of arch-only packages with pretty outputs.
 	for package in $@; do
 		echo ":: Installing - $package"
 		pacman --noconfirm --needed -S $package >/dev/null 2>&1
@@ -98,6 +112,8 @@ quick_install() {
 	}
 	
 grub_mbr() {
+	# The grub option is tested much and should only work on MBR partition tables
+	# Avoid using it as is.
 	quick_install grub
 	# pacman --noconfirm --needed -S grub >/dev/null 2>&1
 	grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
@@ -153,11 +169,14 @@ core_arch_install() {
 		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
 		echo ":: Synchronizing package databases - [multilib]"
 		pacman -Sy >/dev/null 2>&1
+		pacman -Fy >/dev/null 2>&1
 	fi
 
-	# Set root password, create user and set user password.
+	# Set root password
 	printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
+	# Create user
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
+	# Set user password.
 	echo "$name:$user_password" | chpasswd
 	}
 
@@ -180,24 +199,29 @@ install_progs() {
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
 	# Merges all csv files in one file. Checks for local files first.
+
 	for file in $@; do
-		if [ -r programs/${file}.csv ]; then
+		if [ -r programs/${file}.csv ]; then 					# TODO ? 
 			cat programs/${file}.csv | sed '/^#/d' >> /tmp/progs.csv
 		else
 			curl -Ls "${programs_repo}${file}.csv" | sed '/^#/d' >> /tmp/progs.csv
 		fi
 	done
 
+	# Total number of progs in all lists.
 	total=$(wc -l < /tmp/progs.csv)
 
 	echo  "Installing packages from csv file(s): $@"
 
 	while IFS=, read -r tag program comment; do ((n++))
+		# Removes quotes from the comments.
 		echo "$comment" | grep -q "^\".*\"$" && 
 			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 
+		# Pretty output with colums.
 		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
 
+		# the actual installation of packages in csv lists.
 		case "$tag" in
 			"") printf '\n'
 				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 ||
@@ -215,6 +239,7 @@ install_progs() {
 				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
 			;;
 			"P") printf "(PIP)\n"
+				# Installs pip if needed.
 				command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
 				yes | pip install "$program" ||
 				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
@@ -224,6 +249,7 @@ install_progs() {
 	}
 
 extra_arch_configs() {
+	# Keeps only the latest 3 versions of packages.
 	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
 		[Trigger]
 		Type = Package
@@ -237,19 +263,27 @@ extra_arch_configs() {
 		Exec = /usr/bin/paccache -rk3
 	EOF
 
+	# Adds color to pacman and nano.
 	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 	printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
 	}
+
 ## Archlinux installation end
 
+
+# Prints the name of the parent function or a prettified output. 			# TODO
 status_msg() { printf "%-25s %2s" $(tput setaf 4)"${FUNCNAME[1]}"$(tput sgr0) "- "; }
 
+# Prints "done" and any given arguments with a new line. 					# TODO
 ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
 
+# Disables annoying "beep" sound.
 nobeep() { status_msg; echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf; ready; }
 
+# Adds user to power group. 												# TODO
 power_group() { status_msg; gpasswd -a $name power >/dev/null 2>&1; ready; }
 
+# Needed for my setup.
 resolv_conf() { printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf ; }
 
 networkd_config() {
@@ -258,12 +292,14 @@ networkd_config() {
 	#systemctl stop dhcpcd 		>/dev/null 2>&1
 	systemctl disable --now dhcpcd 	>/dev/null 2>&1
 
-	if [ -f  /usr/bin/NetworkManager ]; then
+	# If NetworkManages is installed, enables service and returns.
+	if [ `command -v NetworkManager` ]; then
 		systemctl enable --now NetworkManager >/dev/null 2>&1
 		ready " (NetworkManager)"
 		return
 	fi
 
+	# Otherwise it creates a networkd entry for all ether and wlan devices.
 	net_devs=$( networkctl --no-legend 2>/dev/null | \
 				grep -P "ether|wlan" | \
 				awk '{print $2}' | \
@@ -290,6 +326,7 @@ networkd_config() {
 	}
 
 infinality(){
+	# Enables infinality fonts.
 	[ ! -r /etc/profile.d/freetype2.sh ] && return
 	status_msg
 	sed -i 's/^#exp/exp/;s/version=40"$/version=38"/' /etc/profile.d/freetype2.sh
@@ -297,10 +334,12 @@ infinality(){
 	}
 
 office_logo() {
+	# Disables Office startup window
 	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 	}
 
 create_swapfile() {
+	# Creates a swapfile. 2Gigs in size.
 	status_msg
 	fallocate -l 2G /swapfile
 	chmod 600 /swapfile
@@ -312,6 +351,8 @@ create_swapfile() {
 	}
 
 clone_dotfiles() {
+	# Clones dotfiles in the home dir in a very specific way.
+	# https://www.atlassian.com/git/tutorials/dotfiles
 	[ -z "$dotfilesrepo" ] && return
 	status_msg
 
@@ -328,7 +369,8 @@ clone_dotfiles() {
 	}
 
 firefox_configs() {
-	[ ! -f /usr/bin/firefox ] && return
+	# Downloads firefox configs. Only useful if you upload your configs on github.
+	[ `command -v firefox` ] || return
 	status_msg
 
 	[ -z "$moz_repo" ] && echo "Repository not set." && return
@@ -348,7 +390,8 @@ firefox_configs() {
 	}
 
 arduino_groups() {
-	[ ! -f /usr/bin/arduino ] && return
+	# Addes user to groups needed by arduino
+	[ `command -v arduino` ] || return
 
 	status_msg
 	echo cdc_acm > /etc/modules-load.d/cdc_acm.conf
@@ -358,6 +401,8 @@ arduino_groups() {
 	}
 
 agetty_set() {
+	# Without any arguments, during log in it auto completes the username (of the given user)
+	# With argument "auto", it enables auto login to the user.
 	systemctl enable --now gdm >/dev/null 2>&1 && ready " GDM enabled" && return
 
 	status_msg
@@ -377,6 +422,8 @@ agetty_set() {
 	}
 
 i3lock_sleep() {
+	# Creates a systemd service to lock the desktop with i3lock before sleep.
+	# Only enables it if sway is not installed and i3lock is.
 	status_msg
 	cat > /etc/systemd/system/SleepLocki3@${name}.service <<-EOF
 		#/etc/systemd/system/
@@ -387,19 +434,21 @@ i3lock_sleep() {
 		User=%I
 		Type=forking
 		Environment=DISPLAY=:0
-		ExecStart=/usr/bin/i3lock -e -f -c 000000 -i /home/${name}/.config/wall.png -t
-		ExecStartPost=/usr/bin/sleep 1
+		ExecStart=$(command -v i3lock) -e -f -c 000000 -i /home/${name}/.config/wall.png -t
+		ExecStartPost=$(command -v sleep) 1
 		[Install]
 		WantedBy=sleep.target
 	EOF
 
-	[ -f /usr/bin/sway ] && return
-	[ -f /usr/bin/i3lock ] &&
+	[ `command -v sway` ] && ready && return
+	[ `command -v i3lock` ] &&
 	systemctl enable --now SleepLocki3@${name} >/dev/null 2>&1
 	ready
 	}
 
 virtualbox() {
+	# If installing on Virtulbox, removes virtualbox from the guest and installs guest-utils.
+	# If virtualbox is installed, adds user to vboxusers group
 	status_msg
 
 	if [[ $(lspci | grep VirtualBox) ]]; then
@@ -422,7 +471,7 @@ virtualbox() {
 		;;
 		esac
 
-	elif [ -f /usr/bin/virtualbox ]; then
+	elif [ `command -v virtualbox` ]; then
 		printf "Host -"
 		gpasswd -a $name vboxusers >/dev/null 2>&1
 	fi
@@ -430,6 +479,7 @@ virtualbox() {
 	}
 
 numlockTTY() {
+	# Simple script to enable NumLock on ttys.
 	status_msg
 
 	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
@@ -457,6 +507,7 @@ numlockTTY() {
 	}
 
 it87_driver() { 
+	# Installs driver for many Ryzen motherboards temperature sensors
 	# https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
 	status_msg
 
@@ -475,26 +526,32 @@ it87_driver() {
 	}
 
 data() {
+	# Mounts my HHD. Useless to anyone else
+	# Maybe you could use the mount options for your need, or help me improve mine.
+
 	status_msg
 	mkdir -p /media/Data
-
-	cat >> /etc/fstab <<-EOF
-		# /dev/sda1 LABEL=data
-		UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4 /media/Data ext4 rw,noatime,nofail,user,auto 0 2
-	
-	EOF
-
+	if ! grep -q "/media/Data" /etc/fstab; then
+		cat >> /etc/fstab <<-EOF
+			# LABEL=data
+			UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4 /media/Data ext4 rw,noatime,nofail,user,auto 0 2
+		
+		EOF
+	fi
 	ready
 	}
 
 power_to_sleep() {
+	# Chages the power-button on the pc to a sleep button.
 	status_msg
 	sed -i '/HandlePowerKey/{s/=.*$/=suspend/;s/^#//}' /etc/systemd/logind.conf
 	ready
 	}
 
 nvidia_drivers() {
-	# returns if the installation is in VirutalBox. 
+	# Installs proprietery Nvidia drivers for supported distros.
+	# Returns with no output, if the installation is in VirutalBox.
+
 	[[ $(lspci | grep VirtualBox) ]] && return
 	status_msg
 
@@ -514,8 +571,9 @@ nvidia_drivers() {
 	}
 
 Install_vim_plugged_plugins() {
-	status_msg
 	# Not tested.
+
+	status_msg
 	sudo -u "$name" mkdir -p "/home/$name/.config/nvim/autoload"
 	curl -Ls "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" \
 									> "/home/$name/.config/nvim/autoload/plug.vim"
@@ -525,11 +583,15 @@ Install_vim_plugged_plugins() {
 	}
 
 safe_ssh() {
+	# Removes password based authentication for ssh
 	sed -i '/#PasswordAuthentication/{s/yes/no/;s/^#//}' /etc/ssh/sshd_config
 	# systemctl enable --now sshd
 	}
 
 catalog() {
+	# Removes orphan pacakges and makes a list of all installed packages 
+	# at ~/.local/Fresh_pack_list used to track new installed /uninstalled packages
+	
 	status_msg
 	[ ! -d /home/"$name"/.local ] && sudo -u "$name" mkdir /home/"$name"/.local
 	
@@ -560,6 +622,7 @@ set_needed_perms() {
 	}
 
 set_sane_perms() {
+# This is going to be a problem on distos that the path is not /usr/bin/... 
 grep -q "NOPASSWD: ALL" /etc/sudoers.d/wheel || return
 cat > /etc/sudoers.d/wheel <<-EOF
 %wheel ALL=(ALL) ALL
@@ -573,10 +636,16 @@ echo "All done! - exiting"
 sleep 5
 }
 
-# Sets sensible permitions when script exits.
-trap set_sane_perms EXIT
+## TO-DO:
+## user must be in wheel group. Add a group function?
+# @ useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
+## replace get_username on non-arch installations
+
+
+trap set_sane_perms EXIT # Sets sensible permitions when script exits.
 
 printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
+
 
 if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	# Archlinux installation.
@@ -599,8 +668,8 @@ fi
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"
-		numlockTTY; power_to_sleep; power_group; i3lock_sleep; data;
-		virtualbox; clone_dotfiles; office_logo; firefox_configs;
+		numlockTTY; power_to_sleep; i3lock_sleep; data;
+		virtualbox; clone_dotfiles; power_group; firefox_configs;
 		agetty_set; arduino_groups; resolv_conf; networkd_config;
 		infinality; nvidia_drivers; it87_driver; create_swapfile;
 	;;
@@ -613,6 +682,7 @@ case $hostname in
 	;;
 esac
 
+office_logo
 nobeep
 clone_dotfiles
 catalog
