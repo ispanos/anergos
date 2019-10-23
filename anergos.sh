@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-hostname=killua; name=yiannis; repo=https://raw.githubusercontent.com/ispanos/anergos/master
+# hostname=killua; 
+name=yiannis; repo=https://raw.githubusercontent.com/ispanos/anergos/master
 [ -z "$dotfilesrepo" ] 		&& dotfilesrepo="https://github.com/ispanos/dotfiles"
 [ -z "$moz_repo" ] 			&& moz_repo="https://github.com/ispanos/mozzila"
 [ -z "$programs_repo" ]  	&& programs_repo="$repo/programs/"
@@ -23,7 +24,7 @@ get_username() {
 	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
 		read -rsep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' name
 	done
-	}
+}
 
 
 ## Archlinux installation
@@ -60,7 +61,7 @@ get_user_info() {
 
         unset check_4_pass
     fi
-	}
+}
 
 systemd_boot() {
 	# Installs and configures systemd-boot. (only for archlinux atm.)
@@ -81,7 +82,7 @@ systemd_boot() {
 	# https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533
 	lscpu | grep -q "AMD Ryzen" && kernel_parms="$kernel_parms idle=nowait"
 
-	# Bootloader entry using `linux` kernel: 
+	# Bootloader entry using `linux` kernel:
 	cat > /boot/loader/entries/arch.conf <<-EOF
 		title   Arch Linux
 		linux   /vmlinuz-linux
@@ -101,7 +102,7 @@ systemd_boot() {
 		When = PostTransaction
 		Exec = /usr/bin/bootctl update
 	EOF
-	}
+}
 
 quick_install() {
 	# For quick installation of arch-only packages with pretty outputs.
@@ -109,7 +110,7 @@ quick_install() {
 		echo ":: Installing - $package"
 		pacman --noconfirm --needed -S $package >/dev/null 2>&1
 	done
-	}
+}
 	
 grub_mbr() {
 	# The grub option is tested much and should only work on MBR partition tables
@@ -119,7 +120,7 @@ grub_mbr() {
 	grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
 	grub-install --target=i386-pc $grub_path >/dev/null 2>&1
 	grub-mkconfig -o /boot/grub/grub.cfg
-	}
+}
 
 core_arch_install() {
 	echo ":: Setting up Arch"
@@ -143,6 +144,14 @@ core_arch_install() {
 		127.0.1.1       ${hostname}.localdomain  $hostname
 	EOF
 	
+	# Enable [multilib] repo, if multi_lib_bool == true and sync database. -Sy
+	if [ "$multi_lib_bool" = true  ]; then
+		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
+		echo ":: Synchronizing package databases - [multilib]"
+		pacman -Sy >/dev/null 2>&1
+		pacman -Fy >/dev/null 2>&1
+	fi
+
 	# Install cpu microcode.
 	case $(lscpu | grep Vendor | awk '{print $3}') in
 		"GenuineIntel") cpu="intel" ;;
@@ -164,21 +173,13 @@ core_arch_install() {
 		grub_mbr
 	fi
 
-	# Enable [multilib] repo, if multi_lib_bool == true and sync database. -Sy
-	if [ "$multi_lib_bool" = true  ]; then
-		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
-		echo ":: Synchronizing package databases - [multilib]"
-		pacman -Sy >/dev/null 2>&1
-		pacman -Fy >/dev/null 2>&1
-	fi
-
 	# Set root password
 	printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
 	# Create user
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
 	# Set user password.
 	echo "$name:$user_password" | chpasswd
-	}
+}
 
 install_yay() {
 	# Requires user (core_arch_install), base-devel, permitions.
@@ -187,7 +188,7 @@ install_yay() {
 	sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
 	cd yay-bin && 
 	sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
-	}
+}
 
 install_progs() {
 	if [ ! "$1" ]; then
@@ -201,7 +202,7 @@ install_progs() {
 	# Merges all csv files in one file. Checks for local files first.
 
 	for file in $@; do
-		if [ -r programs/${file}.csv ]; then 					# TODO ? 
+		if [ -r programs/${file}.csv ]; then 					# TODO ?
 			cat programs/${file}.csv | sed '/^#/d' >> /tmp/progs.csv
 		else
 			curl -Ls "${programs_repo}${file}.csv" | sed '/^#/d' >> /tmp/progs.csv
@@ -246,7 +247,7 @@ install_progs() {
 			;;
 		esac
 	done < /tmp/progs.csv
-	}
+}
 
 extra_arch_configs() {
 	# Keeps only the latest 3 versions of packages.
@@ -266,7 +267,7 @@ extra_arch_configs() {
 	# Adds color to pacman and nano.
 	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 	printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
-	}
+}
 
 ## Archlinux installation end
 
@@ -323,7 +324,7 @@ networkd_config() {
 	systemctl enable --now systemd-networkd >/dev/null 2>&1
 	systemctl enable --now systemd-resolved >/dev/null 2>&1
 	ready
-	}
+}
 
 infinality(){
 	# Enables infinality fonts.
@@ -331,12 +332,12 @@ infinality(){
 	status_msg
 	sed -i 's/^#exp/exp/;s/version=40"$/version=38"/' /etc/profile.d/freetype2.sh
 	ready
-	}
+}
 
 office_logo() {
 	# Disables Office startup window
 	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-	}
+}
 
 create_swapfile() {
 	# Creates a swapfile. 2Gigs in size.
@@ -348,7 +349,7 @@ create_swapfile() {
 	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
 	printf "vm.swappiness=10\nvm.vfs_cache_pressure=50\n" > /etc/sysctl.d/99-sysctl.conf
 	ready
-	}
+}
 
 clone_dotfiles() {
 	# Clones dotfiles in the home dir in a very specific way.
@@ -366,7 +367,7 @@ clone_dotfiles() {
 				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
 	
 	ready
-	}
+}
 
 firefox_configs() {
 	# Downloads firefox configs. Only useful if you upload your configs on github.
@@ -387,7 +388,7 @@ firefox_configs() {
 	ready && return
 
 	echo "firefox_configs failed."
-	}
+}
 
 arduino_groups() {
 	# Addes user to groups needed by arduino
@@ -398,7 +399,7 @@ arduino_groups() {
 	sudo -u "$name" groups | grep -q uucp || gpasswd -a $name uucp >/dev/null 2>&1
 	sudo -u "$name" groups | grep -q lock || gpasswd -a $name lock >/dev/null 2>&1
 	ready
-	}
+}
 
 agetty_set() {
 	# Without any arguments, during log in it auto completes the username (of the given user)
@@ -419,7 +420,7 @@ agetty_set() {
 	systemctl daemon-reload >/dev/null 2>&1
 	systemctl reenable getty@tty1.service >/dev/null 2>&1
 	ready "$1"
-	}
+}
 
 i3lock_sleep() {
 	# Creates a systemd service to lock the desktop with i3lock before sleep.
@@ -444,7 +445,7 @@ i3lock_sleep() {
 	[ `command -v i3lock` ] &&
 	systemctl enable --now SleepLocki3@${name} >/dev/null 2>&1
 	ready
-	}
+}
 
 virtualbox() {
 	# If installing on Virtulbox, removes virtualbox from the guest and installs guest-utils.
@@ -476,7 +477,7 @@ virtualbox() {
 		gpasswd -a $name vboxusers >/dev/null 2>&1
 	fi
 	ready
-	}
+}
 
 numlockTTY() {
 	# Simple script to enable NumLock on ttys.
@@ -504,7 +505,7 @@ numlockTTY() {
 	chmod +x /usr/bin/numlockOnTty
 	systemctl enable --now numLockOnTty >/dev/null 2>&1
 	ready
-	}
+}
 
 it87_driver() { 
 	# Installs driver for many Ryzen motherboards temperature sensors
@@ -523,7 +524,7 @@ it87_driver() {
 		return 
 	;;
 	esac
-	}
+}
 
 data() {
 	# Mounts my HHD. Useless to anyone else
@@ -539,14 +540,14 @@ data() {
 		EOF
 	fi
 	ready
-	}
+}
 
 power_to_sleep() {
 	# Chages the power-button on the pc to a sleep button.
 	status_msg
 	sed -i '/HandlePowerKey/{s/=.*$/=suspend/;s/^#//}' /etc/systemd/logind.conf
 	ready
-	}
+}
 
 nvidia_drivers() {
 	# Installs proprietery Nvidia drivers for supported distros.
@@ -568,7 +569,7 @@ nvidia_drivers() {
 		return 
 	;;
 	esac
-	}
+}
 
 Install_vim_plugged_plugins() {
 	# Not tested.
@@ -580,13 +581,13 @@ Install_vim_plugged_plugins() {
 	(sleep 30 && killall nvim) &
 	sudo -u "$name" nvim -E -c "PlugUpdate|visual|q|q" >/dev/null 2>&1
 	ready
-	}
+}
 
 safe_ssh() {
 	# Removes password based authentication for ssh
 	sed -i '/#PasswordAuthentication/{s/yes/no/;s/^#//}' /etc/ssh/sshd_config
 	# systemctl enable --now sshd
-	}
+}
 
 catalog() {
 	# Removes orphan pacakges and makes a list of all installed packages 
@@ -594,7 +595,7 @@ catalog() {
 	
 	status_msg
 	[ ! -d /home/"$name"/.local ] && sudo -u "$name" mkdir /home/"$name"/.local
-	
+
 	case $lsb_dist in 
 		manjaro | arch)
 			pacman --noconfirm -Rns $(pacman -Qtdq) >/dev/null 2>&1
@@ -613,13 +614,13 @@ catalog() {
 	esac
 
 	ready
-	}
+}
 
 set_needed_perms() {
 	# This is needed for using sudo with no password in the rest of the scirpt.
 	echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 	chmod 440 /etc/sudoers.d/wheel
-	}
+}
 
 set_sane_perms() {
 # This is going to be a problem on distos that the path is not /usr/bin/... 
@@ -640,6 +641,8 @@ sleep 5
 ## user must be in wheel group. Add a group function?
 # @ useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
 ## replace get_username on non-arch installations
+## clone_dotfiles without "rm .bash*" -- just overwrite
+## it87_driver done better?
 
 
 trap set_sane_perms EXIT # Sets sensible permitions when script exits.
@@ -651,8 +654,8 @@ if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	# Archlinux installation.
 	get_user_info
 	core_arch_install
-	quick_install linux linux-headers base-devel git
-	quick_install inetutils pacman-contrib expac arch-audit
+	quick_install 	linux linux-headers base-devel git man-db man-pages \
+		 			inetutils usbutils pacman-contrib expac arch-audit
 	set_needed_perms
 	install_yay
 	install_progs "$package_lists"
@@ -668,13 +671,14 @@ fi
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"
-		numlockTTY; power_to_sleep; i3lock_sleep; data;
-		virtualbox; clone_dotfiles; power_group; firefox_configs;
+		virtualbox; power_to_sleep; power_group; firefox_configs;
 		agetty_set; arduino_groups; resolv_conf; networkd_config;
 		infinality; nvidia_drivers; it87_driver; create_swapfile;
+		numlockTTY; i3lock_sleep; data;
 	;;
 	leorio)
-		power_group;  clone_dotfiles; firefox_configs;
+		printf "\n\nleorio:\n"
+		power_group; firefox_configs;
 		agetty_set; arduino_groups; networkd_config;
 	;;
 	*)
