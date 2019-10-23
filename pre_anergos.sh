@@ -94,6 +94,7 @@ timedatectl set-ntp true
 
 HARD_DRIVE=$( get_drive )
 partition_drive $HARD_DRIVE
+clear
 format_mount_parts
 
 pacstrap /mnt base
