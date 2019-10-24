@@ -361,7 +361,7 @@ clone_dotfiles() {
 	echo ".cfg" >> .gitignore
 	rm .bash_profile .bashrc
 
-	sudo -u "$name" git clone --bare "$dotfilesrepo" /home/${name}/.cfg > /dev/null 2>&1 
+	sudo -u "$name" git clone -q --bare "$dotfilesrepo" /home/${name}/.cfg
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
 	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
 				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
@@ -641,7 +641,7 @@ sleep 5
 ## user must be in wheel group. Add a group function?
 # @ useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
 ## replace get_username on non-arch installations
-## clone_dotfiles without "rm .bash*" -- just overwrite
+## clone_dotfiles can't overwrite files.
 ## it87_driver done better?
 
 
