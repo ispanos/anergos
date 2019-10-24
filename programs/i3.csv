@@ -2,6 +2,7 @@
 #i3,,
 ,i3,window manager (group)
 ,dmenu,generic men for X
+,jq,Command-line JSON processor
 ,xorg-server,graphical server
 ,xorg-xinit,starts the graphical server
 ,xorg-xrandr,cli tool for screen adjustments
