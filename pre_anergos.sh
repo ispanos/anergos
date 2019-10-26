@@ -30,7 +30,7 @@ get_drive() {
     }
 
 partition_drive() {
-	# Uses fdisk to create an "EFI System" partition  (260M), 
+	# Uses fdisk to create an "EFI System" partition  (500M), 
 	# a "Linux root" partition and a "linux home" partition.
 	cat <<-EOF | fdisk --wipe-partitions always $1
 		g

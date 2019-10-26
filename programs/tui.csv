@@ -39,4 +39,5 @@ A,inxi,CLI system information tool
 A,glxinfo,
 A,sc-im,terminal spreadsheet manager
 A,simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
-A,yadm,
+A,yadm,?Maybe?
+,stow,?Maybe?
