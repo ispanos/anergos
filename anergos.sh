@@ -281,12 +281,6 @@ ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
 # Disables annoying "beep" sound.
 nobeep() { status_msg; echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf; ready; }
 
-# Adds user to power group. 												# TODO
-power_group() { status_msg; gpasswd -a $name power >/dev/null 2>&1; ready; }
-
-# Needed for my setup.
-resolv_conf() { printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf ; }
-
 networkd_config() {
 	status_msg
 
@@ -322,6 +316,7 @@ networkd_config() {
 	done
 
 	systemctl enable --now systemd-networkd >/dev/null 2>&1
+	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf
 	systemctl enable --now systemd-resolved >/dev/null 2>&1
 	ready
 }
@@ -507,23 +502,18 @@ numlockTTY() {
 	ready
 }
 
-it87_driver() { 
-	# Installs driver for many Ryzen motherboards temperature sensors
-	# https://aur.archlinux.org/packages/it87-dkms-git || github.com/bbqlinux/it87
+it87_driver() {
 	status_msg
-
-	case $lsb_dist in
-	manjaro | arch)
-		[ ! -f /usr/bin/yay ] && "Skipped - yay not installed." && return
-		sudo -u "$name" yay -S --noconfirm --needed it87-dkms-git >/dev/null 2>&1
-		echo "it87" > /etc/modules-load.d/it87.conf
-		ready 
-	;;
-	*)
-		echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0)
-		return 
-	;;
-	esac
+	# Installs driver for many Ryzen's motherboards temperature sensors
+	status_msg
+	mkdir -p /home/"$name"/.local/sources
+	cd /home/"$name"/.local/sources
+	sudo -u "$name" git clone https://github.com/bbqlinux/it87
+	cd it87 || echo "Failed" && return
+	make dkms
+	modprobe it87
+	echo "it87" > /etc/modules-load.d/it87.conf
+	ready
 }
 
 data() {
@@ -623,27 +613,19 @@ set_needed_perms() {
 }
 
 set_sane_perms() {
-# This is going to be a problem on distos that the path is not /usr/bin/... 
-grep -q "NOPASSWD: ALL" /etc/sudoers.d/wheel || return
-cat > /etc/sudoers.d/wheel <<-EOF
-%wheel ALL=(ALL) ALL
-%wheel ALL=(ALL) NOPASSWD: /usr/bin/wifi-menu,/usr/bin/mount,/usr/bin/umount,/usr/bin/loadkeys,\
-/usr/bin/systemctl restart systemd-networkd,/usr/bin/systemctl restart systemd-resolved,\
-/usr/bin/systemctl restart NetworkManager
-EOF
-chmod 440 /etc/sudoers.d/wheel
-echo $(tput setaf 2)"Proper permissions set"$(tput sgr0)
-echo "All done! - exiting"
-sleep 5
-}
+	# Removes the permitions set to run this scipt.
+	rm /etc/sudoers.d/wheel
+	echo "All done! - exiting"
+	sleep 2
+	}
 
 ## TO-DO:
-## user must be in wheel group. Add a group function?
 # @ useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
-## replace get_username on non-arch installations
-## clone_dotfiles can't overwrite files.
-## it87_driver done better?
-
+## Add power group to non Arch distros.
+## replace get_username on non-arch installations?
+## clone_dotfiles can't overwrite files. -  Move to stow.
+# Wheel group will not work for popos
+# power_to_sleep() works differently in gnome?
 
 trap set_sane_perms EXIT # Sets sensible permitions when script exits.
 
@@ -654,12 +636,16 @@ if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	# Archlinux installation.
 	get_user_info
 	core_arch_install
-	quick_install 	linux linux-headers base-devel git man-db man-pages \
-		 			inetutils usbutils pacman-contrib expac arch-audit
+	quick_install 	linux linux-headers linux-firmware base-devel git man-db \
+					man-pages inetutils usbutils pacman-contrib expac arch-audit
 	set_needed_perms
 	install_yay
 	install_progs "$package_lists"
 	extra_arch_configs
+	nobeep
+	networkd_config
+	infinality
+	arduino_groups
 else
 	# Non Archlinux settings.
 	hostname=$( hostnamectl | awk -F": " 'NR==1 {print $2}' )
@@ -667,26 +653,20 @@ else
 	set_needed_perms
 fi
 
-# All configurations are picked according to the hostname of the computer.
+# Configurations are picked according to the hostname of the computer.
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"
-		virtualbox; power_to_sleep; power_group; firefox_configs;
-		agetty_set; arduino_groups; resolv_conf; networkd_config;
-		infinality; nvidia_drivers; it87_driver; create_swapfile;
-		numlockTTY; i3lock_sleep; data;
-	;;
-	leorio)
-		printf "\n\nleorio:\n"
-		power_group; firefox_configs;
-		agetty_set; arduino_groups; networkd_config;
+		it87_driver; data;
+		power_to_sleep;	nvidia_drivers; create_swapfile;
 	;;
 	*)
 		echo "Unknown hostname"
 	;;
 esac
 
+virtualbox
+firefox_configs
 office_logo
-nobeep
 clone_dotfiles
 catalog

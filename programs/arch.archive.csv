@@ -1,4 +1,52 @@
 #TAG,NAME IN REPO,PURPOSE
+,sway,"is an i3 replacment of wayland."
+,swaylock,"is a screen locker for Wayland."
+,swayidle,"handles sway when its idle."
+,i3blocks,"is the status bar."
+,bemenu,"is like dmenu for wayland."
+A,j4-dmenu-desktop-git,"is a rewrite of i3-dmenu-desktop, which is much faster ."
+,xorg-server-xwayland,"is a compatibility layer for x11 apps."
+,qt5-wayland,"provides APIs for Wayland."
+,wl-clipboard,"allows copying and pasting from the command line."
+,mako,"is a notification daemon."
+,grim,"is a screenshot utility for Wayland."
+,slurp,"is a region-screenshot utility for Wayland."
+,imv,is an image viewer for Wayland and X11.
+,,
+# Dev K,,
+#,unity,
+A,gitkraken,"The intuitive, fast, and beautiful cross-platform Git client."
+,npm,"is a package manager for javascript."
+,nodejs,
+,semver,
+,node-gyp,
+,jdk-openjdk,
+,jre8-openjdk,
+,jre8-openjdk-headless,
+A,intellij-idea-ultimate-e`tion,
+A,intellij-idea-ultimate-edition-jre,
+,mysql-workbench,"is a cross-platform, visual database design tool developed by MySQL."
+,clang,"- C language family frontend for LLVM"
+,valgrind,"is a tool to help find memory-management problems in programs."
+,gcc-objc,"- Objective-C front-end for GCC"
+,gdb,"is the GNU Debugger."
+A,clion,"is a C/C++ IDE."
+A,clion-cmake,"is a C/C++ IDE."
+A,clion-gdb,"is a C/C++ IDE."
+A,clion-jre,"is a C/C++ IDE."
+A,clion-lldb,"is a C/C++ IDE."
+,mariadb,
+,mariadb-clients,
+,mariadb-libs,
+,python-pip,
+,code,"is the Open Source build of Visual Studio Code (vscode) editor"
+#A,visual-studio-code-bin,"is microsofts code editor."
+A,sublime-text-dev,
+,,
+# Gaming,,
+,steam,"is a game store."
+,lib32-nss,"fixes network issue with steam on Arch."
+A,discord,"is voice/text chat client for gamers."
 #Random,,
 ,newsboat,"is a news aggregator"
 ,syncthing,"private cloud (?)"

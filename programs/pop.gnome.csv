@@ -1,0 +1,58 @@
+#NAME IN REPO,PPA,PURPOSE
+lm-sensors,,sernsor monitoring
+ffmpeg,,programs for handling video,, audio,, and other files
+atool,,manages and gives information about archives
+bash-completion,,is what it sounds like
+bc,,arbitrary precision calculator language
+calcurse,,lightweight terminal-based calendar
+cron,,daemon that runs specified programs at scheduled times
+docx2txt,,enables .docx file previews in vifm
+dosfstools,,allows your computer to access dos-like filesystems
+exfat-fuse,,allows mounting of FAT drives
+exfat-utils,,allows management of FAT drives
+findutils,,basic file searching utilities to search directories and files
+fzf,,fuzzy finder tool
+highlight,,highlight code output
+htop,,system usage information and displays processes
+inxi,,CLI system information tool
+jmtpfs,,enables the mounting of cell phones outside of pcmanfm
+lshw,,lists all hardware on the system
+mediainfo,,shows audio and video information and is used by ranger as well
+nano,,text editor
+neofetch,,displays basic system information
+neovim,,terminal text editor
+net-tools,,configuration tools for Linux networking
+nmap,,network scanner
+ntfs-3g,,allows accessing NTFS partitions
+odt2txt,,enables .odt file previews in vifm
+openssh-client,,suite of security-related network utilities based on the ssh
+p7zip-full,,tool to (de-)compress archives
+sshfs,,FUSE-based filesystem client for mounting remote directories
+tmux,,terminal multiplexer
+ufw,,netfilter firewall
+unrar,,tool to (de-)compress archives
+unzip,,tool to (de-)compress archives
+vifm,,extensive terminal file manager
+w3m,,terminal browser which can also view images
+wireless-tools,,tools allowing to manipulate the Wireless Extensions
+wpasupplicant,,a utility providing key negotiation for WPA wireless networks
+youtube-dl,,download any YouTube video/playlist/channel) when given the link
+#yadm,,?Maybe?
+#stow,,?Maybe?
+###lsd,,the modern ls
+###sc-im,,terminal spreadsheet manager
+#dev,,
+arduino,,
+#docker,,
+#docker-compose,,
+python3-pip,,
+code,,
+cmake,,
+transmission-gtk,,
+# gnome,,
+gnome-tweaks,,
+,,
+#mpv,,simple video/gif player
+#playerctl,,media control for some mediaplayers
+#popcorntime,,a program that I don't use
+###gcolor3,,color picker for GNOME
