@@ -1,6 +1,6 @@
 #NAME IN REPO,PPA,PURPOSE
 lm-sensors,,sernsor monitoring
-ffmpeg,,programs for handling video,, audio,, and other files
+ffmpeg,,programs for handling video audio and other files
 atool,,manages and gives information about archives
 bash-completion,,is what it sounds like
 bc,,arbitrary precision calculator language
@@ -37,21 +37,21 @@ w3m,,terminal browser which can also view images
 wireless-tools,,tools allowing to manipulate the Wireless Extensions
 wpasupplicant,,a utility providing key negotiation for WPA wireless networks
 youtube-dl,,download any YouTube video/playlist/channel) when given the link
-#yadm,,?Maybe?
-#stow,,?Maybe?
+#yadm,,dotfiles manager
+#stow,,dotfiles manager
 ###lsd,,the modern ls
 ###sc-im,,terminal spreadsheet manager
 #dev,,
-arduino,,
-#docker,,
-#docker-compose,,
-python3-pip,,
-code,,
-cmake,,
-transmission-gtk,,
+arduino,,IDE for arduino compatible boards
+docker.io,,a tool to run apps in a container.
+docker-compose,,multi-container app manager
+python3-pip,,pythons package manager
+code,,Microsoft's IDE
+cmake,,build manager
 # gnome,,
-gnome-tweaks,,
+gnome-tweaks,,provides extra settings for gnome DE
 ,,
+transmission-gtk,,torrent client
 #mpv,,simple video/gif player
 #playerctl,,media control for some mediaplayers
 #popcorntime,,a program that I don't use
