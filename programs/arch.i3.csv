@@ -1,4 +1,4 @@
-#TAG,NAME IN REPO,PURPOSE
+#NAME,PURPOSE,REPO
 ,,
 atool,manages and gives information about archives,
 bash-completion,is what it sounds like,
