@@ -68,7 +68,7 @@ systemd_boot() {
 	bootctl --path=/boot install >/dev/null 2>&1
 
 	cat > /boot/loader/loader.conf <<-EOF
-		default  arch
+		default  ArchLinux
 		console-mode max
 		editor   no
 	EOF
@@ -83,7 +83,7 @@ systemd_boot() {
 	lscpu | grep -q "AMD Ryzen" && kernel_parms="$kernel_parms idle=nowait"
 
 	# Bootloader entry using `linux` kernel:
-	cat > /boot/loader/entries/arch.conf <<-EOF
+	cat > /boot/loader/entries/ArchLinux.conf <<-EOF
 		title   Arch Linux
 		linux   /vmlinuz-linux
 		initrd  /${cpu}-ucode.img
@@ -214,7 +214,7 @@ install_progs() {
 
 	echo  "Installing packages from csv file(s): $@"
 
-	while IFS=, read -r tag program comment; do ((n++))
+	while IFS=, read -r program comment tag; do ((n++))
 		# Removes quotes from the comments.
 		echo "$comment" | grep -q "^\".*\"$" && 
 			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
@@ -503,7 +503,6 @@ numlockTTY() {
 }
 
 it87_driver() {
-	status_msg
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	status_msg
 	mkdir -p /home/"$name"/.local/sources
@@ -518,7 +517,7 @@ it87_driver() {
 
 data() {
 	# Mounts my HHD. Useless to anyone else
-	# Maybe you could use the mount options for your need, or help me improve mine.
+	# Maybe you could use the mount options for your HDD, or help me improve mine.
 
 	status_msg
 	mkdir -p /media/Data
@@ -561,7 +560,7 @@ nvidia_drivers() {
 	esac
 }
 
-Install_vim_plugged_plugins() {
+Install_nvim_plugged_plugins() {
 	# Not tested.
 
 	status_msg
@@ -595,7 +594,7 @@ catalog() {
 			sudo apt-get clean >/dev/null 2>&1
 			sudo apt autoremove >/dev/null 2>&1
 			sudo -u "$name" apt list --installed 2> /dev/null |
-				awk -F/ '{print $1}' > /home/"$name"/.local/Fresh_pack_list
+						> /home/"$name"/.local/Fresh_pack_list
 		;;
 		*)
 			printf $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
@@ -616,7 +615,6 @@ set_sane_perms() {
 	# Removes the permitions set to run this scipt.
 	rm /etc/sudoers.d/wheel
 	echo "All done! - exiting"
-	sleep 2
 	}
 
 ## TO-DO:

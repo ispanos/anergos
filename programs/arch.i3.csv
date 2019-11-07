@@ -1,99 +1,107 @@
 #TAG,NAME IN REPO,PURPOSE
 ,,
-,atool,manages and gives information about archives
-,bash-completion,is what it sounds like
-,bc,arbitrary precision calculator language
-,calcurse,lightweight terminal-based calendar
-,cronie,daemon that runs specified programs at scheduled times
-,docx2txt,enables .docx file previews in vifm
-,dosfstools,allows your computer to access dos-like filesystems
-,exfat-utils,allows management of FAT drives
-,findutils,basic file searching utilities to search directories and files
-,fzf,fuzzy finder tool
-,highlight,highlight code output
-,htop,system usage information and displays processes
-,lsd,the modern ls
-,lshw,lists all hardware on the system
-,mediainfo,shows audio and video information and is used by ranger as well
-,nano,text editor
-,neofetch,displays basic system information
-,neovim,terminal text editor
-,net-tools,configuration tools for Linux networking
-,nmap,network scanner
-,ntfs-3g,allows accessing NTFS partitions
-,odt2txt,enables .odt file previews in vifm
-,openssh,suite of security-related network utilities based on the ssh
-,p7zip,tool to (de-)compress archives
-,sshfs,FUSE-based filesystem client for mounting remote directories
-,tmux,terminal multiplexer
-,ufw,netfilter firewall
-,unrar,tool to (de-)compress archives
-,unzip,tool to (de-)compress archives
-,vifm,extensive terminal file manager
-,w3m,terminal browser which can also view images
-,wireless_tools,tools allowing to manipulate the Wireless Extensions
-,wpa_supplicant,a utility providing key negotiation for WPA wireless networks
-,youtube-dl,download any YouTube video/playlist/channel) when given the link
-A,inxi,CLI system information tool
-A,glxinfo,
-A,sc-im,terminal spreadsheet manager
-A,simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
-A,yadm,?Maybe?
-,stow,?Maybe?
+atool,manages and gives information about archives,
+bash-completion,is what it sounds like,
+bc,arbitrary precision calculator language,
+calcurse,lightweight terminal-based calendar,
+cronie,daemon that runs specified programs at scheduled times,
+docx2txt,enables .docx file previews in vifm,
+dosfstools,allows your computer to access dos-like filesystems,
+exfat-utils,allows management of FAT drives,
+findutils,basic file searching utilities to search directories and files,
+fzf,fuzzy finder tool,
+highlight,highlight code output,
+htop,system usage information and displays processes,
+lsd,the modern ls,
+lshw,lists all hardware on the system,
+mediainfo,shows audio and video information and is used by ranger as well,
+nano,text editor,
+neofetch,displays basic system information,
+neovim,terminal text editor,
+net-tools,configuration tools for Linux networking,
+nmap,network scanner,
+ntfs-3g,allows accessing NTFS partitions,
+odt2txt,enables .odt file previews in vifm,
+openssh,suite of security-related network utilities based on the ssh,
+p7zip,tool to (de-)compress archives,
+sshfs,FUSE-based filesystem client for mounting remote directories,
+tmux,terminal multiplexer,
+tree,lists directory contents like trees,
+ufw,netfilter firewall,
+unrar,tool to (de-)compress archives,
+unzip,tool to (de-)compress archives,
+vifm,extensive terminal file manager,
+python-ueberzug,generates image previews in vifm and other terminal programs,pip
+w3m,terminal browser which can also view images,
+wireless_tools,tools allowing to manipulate the Wireless Extensions,
+wpa_supplicant,a utility providing key negotiation for WPA wireless networks,
+youtube-dl,download any YouTube video/playlist/channel) when given the link,
+inxi,CLI system information tool,A
+glxinfo,A
+sc-im,terminal spreadsheet manager,A
+simple-mtpfs,enables the mounting of cell phones outside of pcmanfm,A
+yadm,?Maybe?,A
+stow,?Maybe?,
 ,,
 #i3,,
-,i3,window manager (group)
-,dmenu,generic men for X
-,jq,Command-line JSON processor
-,xorg-server,graphical server
-,xorg-xinit,starts the graphical server
-,xorg-xrandr,cli tool for screen adjustments
-,xorg-xprop,property displayer for X
-,xorg-xbacklight,RandR-based backlight control application
-,xorg-xdpyinfo,displays information X
-,compton,X compositor that may fix tearing issues
-,xdotool,window action utilities on the command line (maim)
-,numlockx,turns on NumLock when you login
-,feh,image viewer that also sets the wallpaper
-,maim,can take quick screenshots at your request
-,dunst,suckless notification system
-A,xkb-switch,used by i3blocks to display what keyboard layout is being used
-,pulseaudio-alsa,audio interface for pulseaudio and ALSA
-,paprefs,advanced pulseaudio settings
-,pavucontrol,audio controller
-,gnome-keyring,takes care of the user's security credentials
-,polkit-gnome,authentication agent
-,ttf-liberation,Red Hats Liberation fonts
-,libsecret,library for storing and retrieving passwords and other secrets
-,libnotify,desktop notifications
-,gnome-terminal,the GNOME Terminal Emulator
-,gnome-podcasts,Podcast application for GNOME
-,gcolor3,color picker for GNOME
-,mpv,simple video/gif player
-,playerctl,media control for some mediaplayers
-,galculator,simple GUI calculator
-,zathura-pdf-poppler,PDF plugin for zathura based on poppler
-,qt5ct,used for theming qt programs
-,pulseaudio-equalizer,equalizer for pulseaudio
-,qbittorrent,torrent client
-,xarchiver,GUI archive manager used by pcmanfm
-,pcmanfm-gtk3,simple GUI file manager
-,gvfs-mtp,MTP backend; Android & media player
-,gvfs-smb,SMB/CIFS backend; Windows client
-,firefox,web browser
-,hunspell-en_US,dicttianery
-,hunspell-el,Gerek dicttianery
-,virtualbox-host-modules-arch,
-,virtualbox,
-,virtualbox-guest-iso,
-A,virtualbox-ext-oracle,
-A,popcorntime,a program that I don't use
+i3,window manager (group),
+dmenu,generic men for X,
+jq,Command-line JSON processor,
+xorg-server,graphical server,
+xorg-xinit,starts the graphical server,
+xorg-xrandr,cli tool for screen adjustments,
+xorg-xprop,property displayer for X,
+xorg-xbacklight,RandR-based backlight control application,
+xorg-xdpyinfo,displays information X,
+compton,X compositor that may fix tearing issues,
+xdotool,window action utilities on the command line (maim),
+dunst,suckless notification system,
+numlockx,turns on NumLock when you login,
+feh,image viewer that also sets the wallpaper,
+maim,can take quick screenshots at your request,
+xkb-switch,used by i3blocks to display what keyboard layout,A
+libsecret,library for storing and retrieving passwords and other secrets,
+libnotify,desktop notifications,
+gnome-terminal,the GNOME Terminal Emulator,
+playerctl,media control for some mediaplayers,
+galculator,simple GUI calculator,
+pcmanfm-gtk3,simple GUI file manager,
+gvfs,,
+gvfs-afc,,
+gvfs-gphoto2,,
+gvfs-mtp,MTP backend; Android & media player,
+gvfs-smb,SMB/CIFS backend; Windows client,
+xarchiver,GUI archive manager used by pcmanfm,
+firefox,web browser,,,
+hunspell-en_US,dicttianery,
+hunspell-el,Gerek dicttianery,networkmanager,,
+network-manager-applet,,
+networkmanager-openconnect,,
+networkmanager-openvpn,,
+networkmanager-pptp,,
+networkmanager-vpnc,,
+pulseaudio-alsa,audio interface for pulseaudio and ALSA,
+paprefs,advanced pulseaudio settings,
+pavucontrol,audio controller,
+gnome-keyring,takes care of the user's security credentials,
+polkit-gnome,authentication agent,
+ttf-liberation,Red Hats Liberation fonts,
+gcolor3,color picker for GNOME,
+mpv,simple video/gif player,
+zathura-pdf-poppler,PDF plugin for zathura based on poppler,
+qt5ct,used for theming qt programs,
+transmission-gtk,torrent client,
+virtualbox-host-modules-arch,,
+virtualbox,,
+virtualbox-guest-iso,,
+virtualbox-ext-oracle,,A
+popcorntime,a program that I don't use,A
 #dev,,
-,arduino,IDE for arduino
-,arduino-avr-core,archlinux upstream avr-gcc
-,arduino-docs,are documents for arduino offline documentation
-,docker,
-,docker-compose,
-,python-pip,
-,code,
-,cmake,cross-platform open-source make system
+arduino,IDE for arduino,
+arduino-avr-core,archlinux upstream avr-gcc,
+arduino-docs,are documents for arduino offline documentation,
+docker,,
+docker-compose,,
+python-pip,,
+code,,
+cmake,cross-platform open-source make system,
