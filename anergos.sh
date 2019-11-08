@@ -210,7 +210,7 @@ install_progs() {
 		if [ -r programs/${file}.csv ]; then 					# TODO ?
 			cat programs/${lsb_dist}.${file}.csv | sed '/^#/d' >> /tmp/progs.csv
 		else
-			curl -Ls "${programs_repo}${file}.csv" | sed '/^#/d' >> /tmp/progs.csv
+			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" | sed '/^#/d' >> /tmp/progs.csv
 		fi
 	done
 
@@ -509,7 +509,7 @@ numlockTTY() {
 it87_driver() {
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	status_msg
-	mkdir -p /home/"$name"/.local/sources
+	sudo -u "$name" mkdir -p /home/"$name"/.local/sources
 	cd /home/"$name"/.local/sources
 	sudo -u "$name" git clone https://github.com/bbqlinux/it87
 	cd it87 || echo "Failed" && return
@@ -661,7 +661,7 @@ case $hostname in
 		printf "\n\nkillua:\n"
 		it87_driver; data;
 		power_to_sleep;	nvidia_drivers; create_swapfile;
-		numlockTTY
+		numlockTTY; i3lock_sleep
 	;;
 	*)
 		echo "Unknown hostname"
