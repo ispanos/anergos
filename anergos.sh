@@ -230,7 +230,7 @@ install_progs() {
 			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 
 		# Pretty output with columns.
-		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$([ $program ]basename $program)" - "$comment"
+		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$([ $program ] basename $program)" - "$comment"
 
 		# the actual installation of packages in csv lists.
 		case "$tag" in
