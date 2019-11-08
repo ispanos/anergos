@@ -5,7 +5,7 @@ import os
 import sys
 
 programsFolder = "programs/"
-csvLists = [ 'pop.gnome.csv', 'ij' ]
+csvLists = [ 'arch.i3.csv' ]
 
 class package:
 

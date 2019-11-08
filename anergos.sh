@@ -49,7 +49,9 @@ get_user_info() {
 
         unset check_4_pass
     fi
+}
 
+ask_root_pass() {
     if [ -z "$root_password" ]; then
         read -rsep $'Enter root\'s password: \n' root_password
         read -rsep $'Retype root user password: \n' check_4_pass
@@ -174,7 +176,10 @@ core_arch_install() {
 	fi
 
 	# Set root password
-	printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
+	if [ -z "$root_password" ]; then
+		printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
+	fi
+	
 	# Create user
 	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
 	# Set user password.
@@ -203,7 +208,7 @@ install_progs() {
 
 	for file in $@; do
 		if [ -r programs/${file}.csv ]; then 					# TODO ?
-			cat programs/${file}.csv | sed '/^#/d' >> /tmp/progs.csv
+			cat programs/${lsb_dist}.${file}.csv | sed '/^#/d' >> /tmp/progs.csv
 		else
 			curl -Ls "${programs_repo}${file}.csv" | sed '/^#/d' >> /tmp/progs.csv
 		fi
@@ -219,7 +224,7 @@ install_progs() {
 		echo "$comment" | grep -q "^\".*\"$" && 
 			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 
-		# Pretty output with colums.
+		# Pretty output with columns.
 		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
 
 		# the actual installation of packages in csv lists.
@@ -284,7 +289,6 @@ nobeep() { status_msg; echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf
 networkd_config() {
 	status_msg
 
-	#systemctl stop dhcpcd 		>/dev/null 2>&1
 	systemctl disable --now dhcpcd 	>/dev/null 2>&1
 
 	# If NetworkManages is installed, enables service and returns.
@@ -613,7 +617,7 @@ set_needed_perms() {
 
 set_sane_perms() {
 	# Removes the permitions set to run this scipt.
-	rm /etc/sudoers.d/wheel
+	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
 	echo "All done! - exiting"
 	}
 
@@ -642,7 +646,7 @@ if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	extra_arch_configs
 	nobeep
 	networkd_config
-	infinality
+	#infinality
 	arduino_groups
 else
 	# Non Archlinux settings.
@@ -657,11 +661,14 @@ case $hostname in
 		printf "\n\nkillua:\n"
 		it87_driver; data;
 		power_to_sleep;	nvidia_drivers; create_swapfile;
+		numlockTTY
 	;;
 	*)
 		echo "Unknown hostname"
 	;;
 esac
+
+[ -f /usr/bin/docker ] gpasswd -a $name docker >/dev/null 2>&1
 
 virtualbox
 firefox_configs
