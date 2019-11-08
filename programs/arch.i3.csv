@@ -37,7 +37,7 @@ wireless_tools,tools allowing to manipulate the Wireless Extensions,
 wpa_supplicant,a utility providing key negotiation for WPA wireless networks,
 youtube-dl,download any YouTube video/playlist/channel) when given the link,
 inxi,CLI system information tool,A
-glxinfo,A,
+glxinfo,,A
 sc-im,terminal spreadsheet manager,A
 simple-mtpfs,enables the mounting of cell phones outside of pcmanfm,A
 yadm,?Maybe?,A

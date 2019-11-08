@@ -217,6 +217,11 @@ install_progs() {
 	# Total number of progs in all lists.
 	total=$(wc -l < /tmp/progs.csv)
 
+	fail_msg(){
+		[ $program ] &&
+		echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
+	}
+
 	echo  "Installing packages from csv file(s): $@"
 
 	while IFS=, read -r program comment tag; do ((n++))
@@ -225,30 +230,26 @@ install_progs() {
 			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 
 		# Pretty output with columns.
-		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
+		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$([ $program ]basename $program)" - "$comment"
 
 		# the actual installation of packages in csv lists.
 		case "$tag" in
 			"") printf '\n'
-				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 ||
-				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
+				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 || fail_msg
 			;;
 			"A") printf "(AUR)\n"
-				sudo -u "$name" yay -S --needed --noconfirm "$program" >/dev/null 2>&1 ||
-				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
+				sudo -u "$name" yay -S --needed --noconfirm "$program" >/dev/null 2>&1 || fail_msg
 			;;
 			"G") printf "(GIT)\n"
 				local dir=$(mktemp -d)
 				git clone --depth 1 "$program" "$dir" > /dev/null 2>&1
 				cd "$dir" && make >/dev/null 2>&1
-				make install >/dev/null 2>&1 ||
-				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
+				make install >/dev/null 2>&1 || fail_msg
 			;;
 			"P") printf "(PIP)\n"
 				# Installs pip if needed.
 				command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
-				yes | pip install "$program" ||
-				echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
+				yes | pip install "$program" || fail_msg
 			;;
 		esac
 	done < /tmp/progs.csv
@@ -661,7 +662,7 @@ case $hostname in
 		printf "\n\nkillua:\n"
 		it87_driver; data;
 		power_to_sleep;	nvidia_drivers; create_swapfile;
-		numlockTTY; i3lock_sleep
+		numlockTTY; i3lock_sleep; agetty_set
 	;;
 	*)
 		echo "Unknown hostname"
