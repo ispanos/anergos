@@ -11,8 +11,8 @@ repo=https://raw.githubusercontent.com/ispanos/anergos/master
 [ -z "$moz_repo" ] &&
 	moz_repo="https://github.com/ispanos/mozzila"
 
-[ -z "$programs_repo" ]
-	&& programs_repo="$repo/programs/"
+[ -z "$programs_repo" ] &&
+	programs_repo="$repo/programs/"
 
 [ -z "$multi_lib_bool" ] &&
 	multi_lib_bool=true
@@ -637,7 +637,7 @@ printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	# Archlinux installation.
 	[ -z "$user_password" ] && user_password="$(get_pass $name)"
-	[ -z "$root_password" ] && root_password="$(get_pass root)"
+	#[ -z "$root_password" ] && root_password="$(get_pass root)"
 	core_arch_install
 	quick_install 	linux linux-headers linux-firmware base-devel git man-db \
 					man-pages inetutils usbutils pacman-contrib expac arch-audit
