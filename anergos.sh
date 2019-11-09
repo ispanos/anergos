@@ -2,14 +2,29 @@
 # License: GNU GPLv3
 
 # hostname=killua; 
-name=yiannis; repo=https://raw.githubusercontent.com/ispanos/anergos/master
-[ -z "$dotfilesrepo" ] 		&& dotfilesrepo="https://github.com/ispanos/dotfiles"
-[ -z "$moz_repo" ] 			&& moz_repo="https://github.com/ispanos/mozzila"
-[ -z "$programs_repo" ]  	&& programs_repo="$repo/programs/"
-[ -z "$multi_lib_bool" ] 	&& multi_lib_bool=true
-[ -z "$timezone" ] 			&& timezone="Europe/Athens"
-[ -z "$lang" ] 				&& lang="en_US.UTF-8"
-[ -r /etc/os-release ] 		&& lsb_dist="$(. /etc/os-release && echo "$ID")"
+name=yiannis
+repo=https://raw.githubusercontent.com/ispanos/anergos/master
+
+[ -z "$dotfilesrepo" ] &&
+	dotfilesrepo="https://github.com/ispanos/dotfiles"
+
+[ -z "$moz_repo" ] &&
+	moz_repo="https://github.com/ispanos/mozzila"
+
+[ -z "$programs_repo" ]
+	&& programs_repo="$repo/programs/"
+
+[ -z "$multi_lib_bool" ] &&
+	multi_lib_bool=true
+
+[ -z "$timezone" ] &&
+	timezone="Europe/Athens"
+
+[ -z "$lang" ] &&
+	lang="en_US.UTF-8"
+
+[ -r /etc/os-release ] &&
+	lsb_dist="$(. /etc/os-release && echo "$ID")"
 
 package_lists="$@"
 
@@ -19,51 +34,32 @@ clear
 
 # Ask for the name of the main user.
 get_username() {
-	[ -z "$name" ] && read -rsep $'Please enter a name for a user account: \n' name
+	read -rep $'Please enter a name for a user account: \n' get_name
 
-	while ! echo "$name" | grep "^[a-z_][a-z0-9_-]*$" >/dev/null 2>&1; do
-		read -rsep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' name
+	while ! echo "$get_name" | grep -q "^[a-z_][a-z0-9_-]*$"; do
+		read -rep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' get_name
 	done
+    echo $get_name
+	unset get_name
 }
 
+get_pass() {
+
+    cr=`echo $'\n.'`; cr=${cr%.}
+    get_pass_name="$1"
+    read -rsep $"Enter a password for $get_pass_name: $cr" get_pass_pass
+    read -rsep $"Retype ${get_pass_name}s password: $cr" check_4_pass
+
+    while ! [ "$get_pass_pass" = "$check_4_pass" ]; do unset check_4_pass
+        read -rsep $"Passwords didn't match. Retype ${get_pass_name}'s password: " get_pass_pass
+        read -rsep $"Retype ${get_pass_name}'s password: " check_4_pass
+    done
+
+    echo "$get_pass_pass"
+    unset get_pass_pass check_4_pass
+}
 
 ## Archlinux installation
-
-get_user_info() {
-# Askes for desired hostname, username and passwords for the Archlinux installation.
-
-	if [ -z "$hostname" ]; then
-	    read -rsep $'Enter computer\'s hostname: \n' hostname
-	fi
-
-	get_username
-
-    if [ -z "$user_password" ]; then
-        read -rsep $"Enter a password for $name: " user_password && echo
-        read -rsep $"Retype ${name}s password: " check_4_pass && echo
-
-        while ! [ "$user_password" = "$check_4_pass" ]; do unset check_4_pass
-            read -rsep $"Passwords didn't match. Retype ${name}'s password: " user_password && echo
-            read -rsep $"Retype ${name}'s password: " check_4_pass  && echo
-        done
-
-        unset check_4_pass
-    fi
-}
-
-ask_root_pass() {
-    if [ -z "$root_password" ]; then
-        read -rsep $'Enter root\'s password: \n' root_password
-        read -rsep $'Retype root user password: \n' check_4_pass
-
-        while ! [ "$root_password" = "$check_4_pass" ]; do unset check_4_pass
-            read -rsep $'Passwords didn\'t match. Retype root user password: \n' root_password
-            read -rsep $'Retype root user password: \n' check_4_pass
-        done
-
-        unset check_4_pass
-    fi
-}
 
 systemd_boot() {
 	# Installs and configures systemd-boot. (only for archlinux atm.)
@@ -161,7 +157,6 @@ core_arch_install() {
 	esac
 
 	quick_install "${cpu}-ucode"
-	# pacman --noconfirm --needed -S ${cpu}-ucode >/dev/null 2>&1
 	
 	# This folder is needed for pacman hooks. (needed for systemd-boot)
 	mkdir -p /etc/pacman.d/hooks
@@ -170,7 +165,6 @@ core_arch_install() {
 	if [ -d "/sys/firmware/efi" ]; then
 		systemd_boot
 		quick_install efibootmgr
-		# pacman --needed --noconfirm -S efibootmgr > /dev/null 2>&1
 	else
 		grub_mbr
 	fi
@@ -187,7 +181,7 @@ core_arch_install() {
 }
 
 install_yay() {
-	# Requires user (core_arch_install), base-devel, permitions.
+	# Requires user (core_arch_install), base-devel, permissions.
 	echo ":: Installing - yay-bin"
 	cd /tmp
 	sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
@@ -205,14 +199,16 @@ install_progs() {
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
 	# Merges all csv files in one file. Checks for local files first.
-
 	for file in $@; do
-		if [ -r programs/${file}.csv ]; then 					# TODO ?
-			cat programs/${lsb_dist}.${file}.csv | sed '/^#/d' >> /tmp/progs.csv
+		if [ -r programs/${file}.csv ]; then
+			cat programs/${lsb_dist}.${file}.csv >> /tmp/progs.csv
 		else
-			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" | sed '/^#/d' >> /tmp/progs.csv
+			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" >> /tmp/progs.csv
 		fi
 	done
+
+	# Remove comments and empty lines.
+	sed -i '/^#/d;/^,/d' /tmp/progs.csv
 
 	# Total number of progs in all lists.
 	total=$(wc -l < /tmp/progs.csv)
@@ -230,7 +226,7 @@ install_progs() {
 			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
 
 		# Pretty output with columns.
-		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$( [ $program ] && basename $program)" - "$comment"
+		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
 
 		# the actual installation of packages in csv lists.
 		case "$tag" in
@@ -248,7 +244,7 @@ install_progs() {
 			;;
 			"P") printf "(PIP)\n"
 				# Installs pip if needed.
-				command -v pip || pacman -S --noconfirm --needed python-pip >/dev/null 2>&1
+				command -v pip || quick_install python-pip
 				yes | pip install "$program" || fail_msg
 			;;
 		esac
@@ -634,10 +630,14 @@ trap set_sane_perms EXIT # Sets sensible permitions when script exits.
 
 printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 
+[ -z "$hostname" ] 	&& read -rep $'Enter computer\'s hostname: \n' hostname
+[ -z "$name" ] 		&& name=$(get_username)
+
 
 if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	# Archlinux installation.
-	get_user_info
+	[ -z "$user_password" ] && user_password="$(get_pass $name)"
+	[ -z "$root_password" ] && root_password="$(get_pass root)"
 	core_arch_install
 	quick_install 	linux linux-headers linux-firmware base-devel git man-db \
 					man-pages inetutils usbutils pacman-contrib expac arch-audit
@@ -651,7 +651,6 @@ if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
 	arduino_groups
 else
 	# Non Archlinux settings.
-	hostname=$( hostnamectl | awk -F": " 'NR==1 {print $2}' )
 	get_username
 	set_needed_perms
 fi
