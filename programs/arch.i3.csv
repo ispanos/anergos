@@ -31,7 +31,7 @@ ufw,netfilter firewall,
 unrar,tool to (de-)compress archives,
 unzip,tool to (de-)compress archives,
 vifm,extensive terminal file manager,
-python-ueberzug,generates image previews in vifm and other terminal programs,pip
+python-ueberzug,generates image previews in vifm and other terminal programs,A
 w3m,terminal browser which can also view images,
 wireless_tools,tools allowing to manipulate the Wireless Extensions,
 wpa_supplicant,a utility providing key negotiation for WPA wireless networks,

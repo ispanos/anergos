@@ -215,7 +215,7 @@ install_progs() {
 
 	fail_msg(){
 		[ $program ] &&
-		echo "$(tput setaf 1)$program failed$(tput sgr0)" | tee /home/${name}/failed
+		echo "$(tput setaf 1)$program failed$(tput sgr0)" | sudo -u "$name" tee /home/${name}/failed
 	}
 
 	echo  "Installing packages from csv file(s): $@"
@@ -375,9 +375,9 @@ clone_dotfiles() {
 firefox_configs() {
 	# Downloads firefox configs. Only useful if you upload your configs on github.
 	[ `command -v firefox` ] || return
-	status_msg
+	[ -z "$moz_repo" ] && return
 
-	[ -z "$moz_repo" ] && echo "Repository not set." && return
+	status_msg
 
 	if [ ! -d "/home/$name/.mozilla/firefox" ]; then
 		mkdir -p "/home/$name/.mozilla/firefox"
