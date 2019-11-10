@@ -356,19 +356,25 @@ create_swapfile() {
 
 clone_dotfiles() {
 	# Clones dotfiles in the home dir in a very specific way.
+	# Use the alias suggested in the following article.
 	# https://www.atlassian.com/git/tutorials/dotfiles
 	[ -z "$dotfilesrepo" ] && return
 	status_msg
 
-	cd /home/"$name"
-	echo ".cfg" >> .gitignore
-	rm .bash_profile .bashrc
+	local dir=$(mktemp -d)
+    chown -R "$name:wheel" "$dir"
 
-	sudo -u "$name" git clone -q --bare "$dotfilesrepo" /home/${name}/.cfg
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} checkout
-	sudo -u "$name" git --git-dir=/home/${name}/.cfg/ --work-tree=/home/${name} config \
-				--local status.showUntrackedFiles no > /dev/null 2>&1 && rm .gitignore
-	
+    cd $dir
+	echo ".cfg" > .gitignore
+
+	sudo -u "$name" git clone -q --bare "$dotfilesrepo" $dir/.cfg
+	sudo -u "$name" git --git-dir=$dir/.cfg/ --work-tree=$dir checkout
+	sudo -u "$name" git --git-dir=$dir/.cfg/ --work-tree=$dir config \
+				--local status.showUntrackedFiles no > /dev/null 2>&1
+    rm .gitignore
+	sudo -u "$name" cp -rfT . "/home/$name/"
+    cd /tmp
+
 	ready
 }
 
