@@ -27,7 +27,7 @@ get_drive() {
 
     # Converts dialog output to the actuall name of the selected drive.
     echo "/dev/${drives[$dialogOUT]}"
-    }
+}
 
 partition_drive() {
 	# Uses fdisk to create an "EFI System" partition  (500M), 
@@ -56,7 +56,7 @@ partition_drive() {
 		28
 		w
 	EOF
-	}
+}
 
 format_mount_parts() {
 	[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${HARD_DRIVE}p"
@@ -69,7 +69,7 @@ format_mount_parts() {
 
 	yes | mkfs.ext4 -L "Home" /dev/sda3
 	mkdir /mnt/home && mount ${HARD_DRIVE}3 /mnt/home
-	}
+}
 
 run_anergos() {
 	if [ -r anergos.sh ]; then
@@ -87,7 +87,7 @@ run_anergos() {
 
 	arch-chroot /mnt bash anergos.sh "$@"
 	rm /mnt/anergos.sh
-	}
+}
 
 pacman -Sy --needed --noconfirm dialog
 timedatectl set-ntp true
@@ -98,7 +98,7 @@ clear
 format_mount_parts
 
 pacstrap /mnt base
-genfstab -U /mnt >> /mnt/etc/fstab
+genfstab -U /mnt > /mnt/etc/fstab
 
 run_anergos "$@"
 dialog --yesno "Reboot computer?"  5 30 && reboot

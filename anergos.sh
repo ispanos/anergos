@@ -233,19 +233,26 @@ install_progs() {
 			"") printf '\n'
 				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 || fail_msg
 			;;
-			"A") printf "(AUR)\n"
+			aur | A) printf "(AUR)\n"
 				sudo -u "$name" yay -S --needed --noconfirm "$program" >/dev/null 2>&1 || fail_msg
 			;;
-			"G") printf "(GIT)\n"
+			git | G) printf "(GIT)\n"
 				local dir=$(mktemp -d)
 				git clone --depth 1 "$program" "$dir" > /dev/null 2>&1
 				cd "$dir" && make >/dev/null 2>&1
 				make install >/dev/null 2>&1 || fail_msg
 			;;
-			"P") printf "(PIP)\n"
+			pip | P) printf "(PIP)\n"
 				# Installs pip if needed.
 				command -v pip || quick_install python-pip
 				yes | pip install "$program" || fail_msg
+			;;
+			flatpak | F) printf "(Flatpak)\n"
+			#### DONT USE THIS
+				flatpak remote-add --if-not-exists \
+					flathub \
+					https://flathub.org/repo/flathub.flatpakrepo > /dev/null 2>&1
+				flatpak install -y "$program" > /dev/null 2>&1
 			;;
 		esac
 	done < /tmp/progs.csv
@@ -326,7 +333,7 @@ infinality(){
 	# Enables infinality fonts.
 	[ ! -r /etc/profile.d/freetype2.sh ] && return
 	status_msg
-	sed -i 's/^#exp/exp/;s/version=40"$/version=38"/' /etc/profile.d/freetype2.sh
+	sed -i 's/^#exp/exp/' /etc/profile.d/freetype2.sh
 	ready
 }
 
@@ -342,8 +349,8 @@ create_swapfile() {
 	chmod 600 /swapfile
 	mkswap /swapfile >/dev/null 2>&1
 	swapon /swapfile
-	printf "# Swapfile\\n/swapfile none swap defaults 0 0\\n\\n" >> /etc/fstab
-	printf "vm.swappiness=10\nvm.vfs_cache_pressure=50\n" > /etc/sysctl.d/99-sysctl.conf
+	printf "\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
+	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" > /etc/sysctl.d/99-sysctl.conf
 	ready
 }
 
@@ -524,9 +531,9 @@ data() {
 	mkdir -p /media/Data
 	if ! grep -q "/media/Data" /etc/fstab; then
 		cat >> /etc/fstab <<-EOF
-			# LABEL=data
+			
 			UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4 /media/Data ext4 rw,noatime,nofail,user,auto 0 2
-		
+
 		EOF
 	fi
 	ready
@@ -616,7 +623,7 @@ set_sane_perms() {
 	# Removes the permitions set to run this scipt.
 	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
 	echo "All done! - exiting"
-	}
+}
 
 ## TO-DO:
 # @ useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
@@ -661,7 +668,7 @@ case $hostname in
 		printf "\n\nkillua:\n"
 		it87_driver; data;
 		power_to_sleep;	nvidia_drivers; create_swapfile;
-		numlockTTY; i3lock_sleep; agetty_set
+		numlockTTY; i3lock_sleep; agetty_set;
 	;;
 	*)
 		echo "Unknown hostname"
