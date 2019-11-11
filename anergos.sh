@@ -12,7 +12,8 @@ systemd_boot() {
 		editor   no
 	EOF
 
-	local root_id="$(lsblk --list -fs -o MOUNTPOINT,UUID | grep "^/ " | awk '{print $2}')"
+	local root_id="$(lsblk --list -fs -o MOUNTPOINT,UUID | \
+					grep "^/ " | awk '{print $2}')"
 
 	# Default kernel parameters.
 	kernel_parms="rw quiet"
@@ -43,6 +44,7 @@ systemd_boot() {
 	EOF
 }
 
+
 quick_install() {
 	# For quick installation of arch-only packages with pretty outputs.
 	for package in $@; do
@@ -50,16 +52,19 @@ quick_install() {
 		pacman --noconfirm --needed -S $package >/dev/null 2>&1
 	done
 }
-	
+
+
 grub_mbr() {
-	# The grub option is tested much and should only work on MBR partition tables
+	# grub option is not tested much and only works on MBR partition tables
 	# Avoid using it as is.
 	quick_install grub
 	# pacman --noconfirm --needed -S grub >/dev/null 2>&1
-	grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
+	grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | \
+				grep "^/ " | awk '{print $2}')
 	grub-install --target=i386-pc $grub_path >/dev/null 2>&1
 	grub-mkconfig -o /boot/grub/grub.cfg
 }
+
 
 core_arch_install() {
 	echo ":: Setting up Arch"
@@ -121,14 +126,16 @@ core_arch_install() {
 	echo "$name:$user_password" | chpasswd
 }
 
+
 install_yay() {
 	# Requires user (core_arch_install), base-devel, permissions.
 	echo ":: Installing - yay-bin"
 	cd /tmp
-	sudo -u "$name" git clone https://aur.archlinux.org/yay-bin.git >/dev/null 2>&1
+	sudo -u "$name" git clone -q https://aur.archlinux.org/yay-bin.git
 	cd yay-bin && 
 	sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
 }
+
 
 install_progs() {
 	if [ ! "$1" ]; then
@@ -156,7 +163,8 @@ install_progs() {
 
 	fail_msg(){
 		[ $program ] &&
-		echo "$(tput setaf 1)$program failed$(tput sgr0)" | sudo -u "$name" tee /home/${name}/failed
+		echo "$(tput setaf 1)$program failed$(tput sgr0)" | \
+				sudo -u "$name" tee /home/${name}/failed
 	}
 
 	echo  "Installing packages from csv file(s): $@"
@@ -212,6 +220,7 @@ get_username() {
 	unset get_name
 }
 
+
 get_pass() {
 	# Pass the name of the user as an argument.
     cr=`echo $'\n.'`; cr=${cr%.}
@@ -228,15 +237,17 @@ get_pass() {
     unset get_pwd_pass check_4_pass
 }
 
+
 # Prints the name of the parent function or a prettified output.
 status_msg() { printf "%-25s %2s" $(tput setaf 4)"${FUNCNAME[1]}"$(tput sgr0) "- "; }
+
 
 # Prints "done" and any given arguments with a new line.
 ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
 
+
 networkd_config() {
-	status_msg
-	# Otherwise it creates a networkd entry for all ether and wlan devices.
+	# creates a networkd entry for all ether and wlan devices.
 	net_devs=$( networkctl --no-legend 2>/dev/null | \
 				grep -P "ether|wlan" | \
 				awk '{print $2}' | \
@@ -260,21 +271,8 @@ networkd_config() {
 	systemctl enable --now systemd-networkd >/dev/null 2>&1
 	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf
 	systemctl enable --now systemd-resolved >/dev/null 2>&1
-	ready
 }
 
-infinality(){
-	# Enables infinality fonts.
-	[ ! -r /etc/profile.d/freetype2.sh ] && return
-	status_msg
-	sed -i 's/^#exp/exp/' /etc/profile.d/freetype2.sh
-	ready
-}
-
-office_logo() {
-	# Disables Office startup window
-	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-}
 
 create_swapfile() {
 	# Creates a swapfile. 2Gigs in size.
@@ -287,6 +285,7 @@ create_swapfile() {
 	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" > /etc/sysctl.d/99-sysctl.conf
 	ready
 }
+
 
 clone_dotfiles() {
 	# Clones dotfiles in the home dir in a very specific way.
@@ -312,6 +311,7 @@ clone_dotfiles() {
 	ready
 }
 
+
 firefox_configs() {
 	# Downloads firefox configs. Only useful if you upload your configs on github.
 	[ `command -v firefox` ] || return
@@ -333,6 +333,7 @@ firefox_configs() {
 	echo "firefox_configs failed."
 }
 
+
 arduino_groups() {
 	# Addes user to groups needed by arduino
 	[ `command -v arduino` ] || return
@@ -343,6 +344,7 @@ arduino_groups() {
 	sudo -u "$name" groups | grep -q lock || gpasswd -a $name lock >/dev/null 2>&1
 	ready
 }
+
 
 agetty_set() {
 	# Without any arguments, during log in it auto completes the username (of the given user)
@@ -364,6 +366,7 @@ agetty_set() {
 	systemctl reenable getty@tty1.service >/dev/null 2>&1
 	ready "$1"
 }
+
 
 i3lock_sleep() {
 	# Creates a systemd service to lock the desktop with i3lock before sleep.
@@ -389,6 +392,7 @@ i3lock_sleep() {
 	systemctl enable --now SleepLocki3@${name} >/dev/null 2>&1
 	ready
 }
+
 
 virtualbox() {
 	# If on V/box, removes v/box from the guest and installs guest-utils.
@@ -422,6 +426,7 @@ virtualbox() {
 	ready
 }
 
+
 it87_driver() {
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	status_msg
@@ -440,18 +445,13 @@ data() {
 	# Mounts my HHD. Useless to anyone else
 	# Maybe you could use the mount options for your HDD, 
 	# or help me improve mine.
-	status_msg
-	mkdir -p /media/Data
-	if ! grep -q "/media/Data" /etc/fstab; then
-		local duuid=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
-		cat >> /etc/fstab <<-EOF
-			
-			UUID=$duuid /media/Data ext4 rw,noatime,nofail,user,auto 0 2
-
-		EOF
-	fi
-	ready
+	mkdir -p /media/Data || return
+	local duuid="UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4"
+	local mntPoint="/media/Data"
+	local mntOpt="ext4 rw,noatime,nofail,user,auto 0 2"
+	printf "\\n$duuid \t$mntPoint \t$mntOpt\t\\n" >> /etc/fstab
 }
+
 
 power_to_sleep() {
 	# Chages the power-button on the pc to a sleep button.
@@ -459,6 +459,7 @@ power_to_sleep() {
 	sed -i '/HandlePowerKey/{s/=.*$/=suspend/;s/^#//}' /etc/systemd/logind.conf
 	ready
 }
+
 
 nvidia_drivers() {
 	# Installs proprietery Nvidia drivers for supported distros.
@@ -481,6 +482,7 @@ nvidia_drivers() {
 	;;
 	esac
 }
+
 
 catalog() {
 	# Removes orphan pacakges and makes a list of all installed packages 
@@ -509,11 +511,13 @@ catalog() {
 	ready
 }
 
+
 set_needed_perms() {
 	# This is needed for using sudo with no password in the rest of the scirpt.
 	echo "%wheel ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/wheel
 	chmod 440 /etc/sudoers.d/wheel
 }
+
 
 set_sane_perms() {
 	# Removes the permitions set to run this scipt.
@@ -564,41 +568,37 @@ printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 [ -z "$hostname" ] 	&& read -rep $'Enter computer\'s hostname: \n' hostname
 [ -z "$name" ] 		&& name=$(get_username)
 
-
 # Archlinux installation.
 [ -z "$user_password" ] && user_password="$(get_pass $name)"
 # [ -z "$root_password" ] && root_password="$(get_pass root)"
 core_arch_install
 quick_install 	linux linux-headers linux-firmware base-devel git man-db \
 				man-pages inetutils usbutils pacman-contrib expac arch-audit
-set_needed_perms
-install_yay
-install_progs "$package_lists"
-# infinality
+set_needed_perms && install_yay && install_progs "$package_lists"
+
+
+# Some extra configs for random stuff
 systemctl enable NetworkManager >/dev/null 2>&1 || networkd_config
 echo "blacklist pcspkr" >> /etc/modprobe.d/beep.conf
-# Adds color to pacman and nano.
 sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
+[ -f /usr/bin/docker ] && gpasswd -a $name docker >/dev/null 2>&1
+[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
 
 # Configurations are picked according to the hostname of the computer.
 case $hostname in 
 	killua)
 		printf "\n\nkillua:\n"
-		it87_driver; data;
-		power_to_sleep;	nvidia_drivers; create_swapfile;
+		it87_driver; data; nvidia_drivers;
+		power_to_sleep;	create_swapfile;
 		i3lock_sleep; agetty_set;
+		arduino_groups;
+		virtualbox;
+		firefox_configs;
+		clone_dotfiles;
+		catalog;
 	;;
 	*)
 		echo "Unknown hostname"
 	;;
 esac
-
-[ -f /usr/bin/docker ] gpasswd -a $name docker >/dev/null 2>&1
-
-arduino_groups
-virtualbox
-firefox_configs
-office_logo
-clone_dotfiles
-catalog

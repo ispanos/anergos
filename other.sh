@@ -71,3 +71,16 @@ numlockTTY() {
 	systemctl enable --now numLockOnTty >/dev/null 2>&1
 	ready
 }
+
+office_logo() {
+	# Disables Office startup window
+	[ -f /etc/libreoffice/sofficerc ] && sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
+}
+
+infinality(){
+	# Enables infinality fonts.
+	[ ! -r /etc/profile.d/freetype2.sh ] && return
+	status_msg
+	sed -i 's/^#exp/exp/' /etc/profile.d/freetype2.sh
+	ready
+}
