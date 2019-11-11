@@ -422,34 +422,6 @@ virtualbox() {
 	ready
 }
 
-numlockTTY() {
-	# Simple script to enable NumLock on ttys.
-	status_msg
-
-	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
-		[Unit]
-		Description=numlockOnTty
-		[Service]
-		ExecStart=/usr/bin/numlockOnTty
-		[Install]
-		WantedBy=multi-user.target
-	EOF
-
-	cat > /usr/bin/numlockOnTty <<-EOF
-		#!/usr/bin/env bash
-
-		for tty in /dev/tty{1..6}
-		do
-		    /usr/bin/setleds -D +num < "$tty";
-		done
-
-	EOF
-
-	chmod +x /usr/bin/numlockOnTty
-	systemctl enable --now numLockOnTty >/dev/null 2>&1
-	ready
-}
-
 it87_driver() {
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	status_msg
@@ -615,7 +587,7 @@ case $hostname in
 		printf "\n\nkillua:\n"
 		it87_driver; data;
 		power_to_sleep;	nvidia_drivers; create_swapfile;
-		numlockTTY; i3lock_sleep; agetty_set;
+		i3lock_sleep; agetty_set;
 	;;
 	*)
 		echo "Unknown hostname"
