@@ -93,8 +93,8 @@ pacman -Sy --needed --noconfirm dialog
 timedatectl set-ntp true
 
 HARD_DRIVE=$( get_drive )
-partition_drive $HARD_DRIVE
 clear
+partition_drive $HARD_DRIVE
 format_mount_parts
 
 pacstrap /mnt base

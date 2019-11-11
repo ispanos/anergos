@@ -1,66 +1,7 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-# hostname=killua; 
-name=yiannis
-repo=https://raw.githubusercontent.com/ispanos/anergos/master
-
-[ -z "$dotfilesrepo" ] &&
-	dotfilesrepo="https://github.com/ispanos/dotfiles"
-
-[ -z "$moz_repo" ] &&
-	moz_repo="https://github.com/ispanos/mozzila"
-
-[ -z "$programs_repo" ] &&
-	programs_repo="$repo/programs/"
-
-[ -z "$multi_lib_bool" ] &&
-	multi_lib_bool=true
-
-[ -z "$timezone" ] &&
-	timezone="Europe/Athens"
-
-[ -z "$lang" ] &&
-	lang="en_US.UTF-8"
-
-[ -r /etc/os-release ] &&
-	lsb_dist="$(. /etc/os-release && echo "$ID")"
-
-package_lists="$@"
-
-[ "$(id -nu)" != "root" ] 	&& echo "This script must be run as root." && 
-read -r && exit
-clear
-
-# Ask for the name of the main user.
-get_username() {
-	read -rep $'Please enter a name for a user account: \n' get_name
-
-	while ! echo "$get_name" | grep -q "^[a-z_][a-z0-9_-]*$"; do
-		read -rep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' get_name
-	done
-    echo $get_name
-	unset get_name
-}
-
-get_pass() {
-
-    cr=`echo $'\n.'`; cr=${cr%.}
-    get_pass_name="$1"
-    read -rsep $"Enter a password for $get_pass_name: $cr" get_pass_pass
-    read -rsep $"Retype ${get_pass_name}s password: $cr" check_4_pass
-
-    while ! [ "$get_pass_pass" = "$check_4_pass" ]; do unset check_4_pass
-        read -rsep $"Passwords didn't match. Retype ${get_pass_name}'s password: " get_pass_pass
-        read -rsep $"Retype ${get_pass_name}'s password: " check_4_pass
-    done
-
-    echo "$get_pass_pass"
-    unset get_pass_pass check_4_pass
-}
-
-## Archlinux installation
-
+## Archlinux installation ##
 systemd_boot() {
 	# Installs and configures systemd-boot. (only for archlinux atm.)
 	bootctl --path=/boot install >/dev/null 2>&1
@@ -259,49 +200,45 @@ install_progs() {
 }
 
 extra_arch_configs() {
-	# Keeps only the latest 3 versions of packages.
-	cat > /etc/pacman.d/hooks/cleanup.hook <<-EOF
-		[Trigger]
-		Type = Package
-		Operation = Remove
-		Operation = Install
-		Operation = Upgrade
-		Target = *
-		[Action]
-		Description = Keeps only the latest 3 versions of packages
-		When = PostTransaction
-		Exec = /usr/bin/paccache -rk3
-	EOF
-
-	# Adds color to pacman and nano.
-	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
-	printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
 }
 
-## Archlinux installation end
+## Archlinux installation ## END
 
+get_username() {
+# Ask for the name of the main user.
+	read -rep $'Please enter a name for a user account: \n' get_name
 
-# Prints the name of the parent function or a prettified output. 			# TODO
+	while ! echo "$get_name" | grep -q "^[a-z_][a-z0-9_-]*$"; do
+		read -rep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' get_name
+	done
+    echo $get_name
+	unset get_name
+}
+
+get_pass() {
+	# Pass the name of the user as an argument.
+    cr=`echo $'\n.'`; cr=${cr%.}
+    get_pwd_name="$1"
+    read -rsep $"Enter a password for $get_pwd_name: $cr" get_pwd_pass
+    read -rsep $"Retype ${get_pwd_name}'s password: $cr" check_4_pass
+
+    while ! [ "$get_pwd_pass" = "$check_4_pass" ]; do unset check_4_pass
+        read -rsep $"Passwords didn't match. Retype ${get_pwd_name}'s password: " get_pwd_pass
+        read -rsep $"Retype ${get_pwd_name}'s password: " check_4_pass
+    done
+
+    echo "$get_pwd_pass"
+    unset get_pwd_pass check_4_pass
+}
+
+# Prints the name of the parent function or a prettified output.
 status_msg() { printf "%-25s %2s" $(tput setaf 4)"${FUNCNAME[1]}"$(tput sgr0) "- "; }
 
-# Prints "done" and any given arguments with a new line. 					# TODO
+# Prints "done" and any given arguments with a new line.
 ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
-
-# Disables annoying "beep" sound.
-nobeep() { status_msg; echo "blacklist pcspkr" >> /etc/modprobe.d/blacklist.conf; ready; }
 
 networkd_config() {
 	status_msg
-
-	systemctl disable --now dhcpcd 	>/dev/null 2>&1
-
-	# If NetworkManages is installed, enables service and returns.
-	if [ `command -v NetworkManager` ]; then
-		systemctl enable --now NetworkManager >/dev/null 2>&1
-		ready " (NetworkManager)"
-		return
-	fi
-
 	# Otherwise it creates a networkd entry for all ether and wlan devices.
 	net_devs=$( networkctl --no-legend 2>/dev/null | \
 				grep -P "ether|wlan" | \
@@ -322,7 +259,7 @@ networkd_config() {
 
 		EOF
 	done
-
+	systemctl disable --now dhcpcd 	>/dev/null 2>&1
 	systemctl enable --now systemd-networkd >/dev/null 2>&1
 	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf
 	systemctl enable --now systemd-resolved >/dev/null 2>&1
@@ -457,7 +394,7 @@ i3lock_sleep() {
 }
 
 virtualbox() {
-	# If installing on Virtulbox, removes virtualbox from the guest and installs guest-utils.
+	# If on V/box, removes v/box from the guest and installs guest-utils.
 	# If virtualbox is installed, adds user to vboxusers group
 	status_msg
 
@@ -519,8 +456,9 @@ numlockTTY() {
 it87_driver() {
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	status_msg
-	sudo -u "$name" mkdir -p /home/"$name"/.local/sources
-	cd /home/"$name"/.local/sources
+	local workdir="/home/$name/.local/sources"
+	sudo -u "$name" mkdir -p "$workdir"
+	cd "$workdir"
 	sudo -u "$name" git clone https://github.com/bbqlinux/it87
 	cd it87 || echo "Failed" && return
 	make dkms
@@ -531,14 +469,15 @@ it87_driver() {
 
 data() {
 	# Mounts my HHD. Useless to anyone else
-	# Maybe you could use the mount options for your HDD, or help me improve mine.
-
+	# Maybe you could use the mount options for your HDD, 
+	# or help me improve mine.
 	status_msg
 	mkdir -p /media/Data
 	if ! grep -q "/media/Data" /etc/fstab; then
+		local duuid=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
 		cat >> /etc/fstab <<-EOF
 			
-			UUID=fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4 /media/Data ext4 rw,noatime,nofail,user,auto 0 2
+			UUID=$duuid /media/Data ext4 rw,noatime,nofail,user,auto 0 2
 
 		EOF
 	fi
@@ -572,24 +511,6 @@ nvidia_drivers() {
 		return 
 	;;
 	esac
-}
-
-Install_nvim_plugged_plugins() {
-	# Not tested.
-
-	status_msg
-	sudo -u "$name" mkdir -p "/home/$name/.config/nvim/autoload"
-	curl -Ls "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim" \
-									> "/home/$name/.config/nvim/autoload/plug.vim"
-	(sleep 30 && killall nvim) &
-	sudo -u "$name" nvim -E -c "PlugUpdate|visual|q|q" >/dev/null 2>&1
-	ready
-}
-
-safe_ssh() {
-	# Removes password based authentication for ssh
-	sed -i '/#PasswordAuthentication/{s/yes/no/;s/^#//}' /etc/ssh/sshd_config
-	# systemctl enable --now sshd
 }
 
 catalog() {
@@ -631,13 +552,41 @@ set_sane_perms() {
 	echo "All done! - exiting"
 }
 
-## TO-DO:
-# @ useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
-## Add power group to non Arch distros.
-## replace get_username on non-arch installations?
-## clone_dotfiles can't overwrite files. -  Move to stow.
-# Wheel group will not work for popos
-# power_to_sleep() works differently in gnome?
+
+[ "$(id -nu)" != "root" ] && read -rp "This script must be run as root." && 
+exit
+
+[ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" != "archiso" ] &&
+read -rp "This script is meant to run on a fresh Archlinux installation." &&
+exit
+
+clear
+
+# hostname=killua 
+# name=yiannis
+repo=https://raw.githubusercontent.com/ispanos/anergos/master
+
+package_lists="$@"
+
+[ -z "$dotfilesrepo" ] &&
+	dotfilesrepo="https://github.com/ispanos/dotfiles"
+
+[ -z "$moz_repo" ] &&
+	moz_repo="https://github.com/ispanos/mozzila"
+
+[ -z "$programs_repo" ] &&
+	programs_repo="$repo/programs/"
+
+[ -z "$multi_lib_bool" ] &&
+	multi_lib_bool=true
+
+[ -z "$timezone" ] &&
+	timezone="Europe/Athens"
+
+[ -z "$lang" ] &&
+	lang="en_US.UTF-8"
+
+lsb_dist="$(. /etc/os-release && echo "$ID")"
 
 trap set_sane_perms EXIT # Sets sensible permitions when script exits.
 
@@ -647,26 +596,24 @@ printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 [ -z "$name" ] 		&& name=$(get_username)
 
 
-if [ "$( hostnamectl | awk -F": " 'NR==1 {print $2}' )" = "archiso" ]; then
-	# Archlinux installation.
-	[ -z "$user_password" ] && user_password="$(get_pass $name)"
-	#[ -z "$root_password" ] && root_password="$(get_pass root)"
-	core_arch_install
-	quick_install 	linux linux-headers linux-firmware base-devel git man-db \
-					man-pages inetutils usbutils pacman-contrib expac arch-audit
-	set_needed_perms
-	install_yay
-	install_progs "$package_lists"
-	extra_arch_configs
-	nobeep
-	networkd_config
-	#infinality
-	arduino_groups
-else
-	# Non Archlinux settings.
-	get_username
-	set_needed_perms
-fi
+# Archlinux installation.
+[ -z "$user_password" ] && user_password="$(get_pass $name)"
+# [ -z "$root_password" ] && root_password="$(get_pass root)"
+core_arch_install
+quick_install 	linux linux-headers linux-firmware base-devel git man-db \
+				man-pages inetutils usbutils pacman-contrib expac arch-audit
+set_needed_perms
+install_yay
+install_progs "$package_lists"
+extra_arch_configs
+arduino_groups
+nobeep
+# infinality
+systemctl enable NetworkManager >/dev/null 2>&1 || networkd_config
+echo "blacklist pcspkr" >> /etc/modprobe.d/beep.conf
+# Adds color to pacman and nano.
+sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
+printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
 
 # Configurations are picked according to the hostname of the computer.
 case $hostname in 
