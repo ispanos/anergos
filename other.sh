@@ -43,3 +43,31 @@ extra_arch_configs() {
 	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 	printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
 }
+
+numlockTTY() {
+	# Simple script to enable NumLock on ttys.
+	status_msg
+
+	cat > /etc/systemd/system/numLockOnTty.service <<-EOF
+		[Unit]
+		Description=numlockOnTty
+		[Service]
+		ExecStart=/usr/bin/numlockOnTty
+		[Install]
+		WantedBy=multi-user.target
+	EOF
+
+	cat > /usr/bin/numlockOnTty <<-EOF
+		#!/usr/bin/env bash
+
+		for tty in /dev/tty{1..6}
+		do
+		    /usr/bin/setleds -D +num < "$tty";
+		done
+
+	EOF
+
+	chmod +x /usr/bin/numlockOnTty
+	systemctl enable --now numLockOnTty >/dev/null 2>&1
+	ready
+}
