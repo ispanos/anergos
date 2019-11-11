@@ -67,7 +67,7 @@ format_mount_parts() {
 	yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
 	mkdir /mnt/boot && mount ${HARD_DRIVE}1 /mnt/boot
 
-	yes | mkfs.ext4 -L "Home" /dev/sda3
+	yes | mkfs.ext4 -L "Home" ${HARD_DRIVE}3
 	mkdir /mnt/home && mount ${HARD_DRIVE}3 /mnt/home
 }
 
