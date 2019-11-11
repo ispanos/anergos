@@ -199,9 +199,6 @@ install_progs() {
 	done < /tmp/progs.csv
 }
 
-extra_arch_configs() {
-}
-
 ## Archlinux installation ## END
 
 get_username() {
