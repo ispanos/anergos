@@ -326,7 +326,7 @@ firefox_configs() {
 
 	local dir=$(mktemp -d)
 	chown -R "$name:wheel" "$dir"
-	sudo -u "$name" git clone --depth 1 "$moz_repo" "$dir/gitrepo" &&
+	sudo -u "$name" git clone -q --depth 1 "$moz_repo" "$dir/gitrepo" &&
 	sudo -u "$name" cp -rfT "$dir/gitrepo" "/home/$name/.mozilla/firefox" &&
 	ready && return
 
@@ -456,7 +456,7 @@ it87_driver() {
 	local workdir="/home/$name/.local/sources"
 	sudo -u "$name" mkdir -p "$workdir"
 	cd "$workdir"
-	sudo -u "$name" git clone https://github.com/bbqlinux/it87
+	sudo -u "$name" git clone -q https://github.com/bbqlinux/it87
 	cd it87 || echo "Failed" && return
 	make dkms
 	modprobe it87
@@ -602,9 +602,6 @@ quick_install 	linux linux-headers linux-firmware base-devel git man-db \
 set_needed_perms
 install_yay
 install_progs "$package_lists"
-extra_arch_configs
-arduino_groups
-nobeep
 # infinality
 systemctl enable NetworkManager >/dev/null 2>&1 || networkd_config
 echo "blacklist pcspkr" >> /etc/modprobe.d/beep.conf
@@ -627,6 +624,7 @@ esac
 
 [ -f /usr/bin/docker ] gpasswd -a $name docker >/dev/null 2>&1
 
+arduino_groups
 virtualbox
 firefox_configs
 office_logo
