@@ -429,6 +429,7 @@ virtualbox() {
 
 it87_driver() {
 	# Installs driver for many Ryzen's motherboards temperature sensors
+	# Requires dkms
 	status_msg
 	local workdir="/home/$name/.local/sources"
 	sudo -u "$name" mkdir -p "$workdir"
@@ -440,6 +441,7 @@ it87_driver() {
 	echo "it87" > /etc/modules-load.d/it87.conf
 	ready
 }
+
 
 data() {
 	# Mounts my HHD. Useless to anyone else
@@ -522,7 +524,7 @@ set_needed_perms() {
 set_sane_perms() {
 	# Removes the permitions set to run this scipt.
 	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
-	echo "All done! - exiting"
+	chmod 440 /etc/sudoers.d/wheel
 }
 
 
@@ -573,7 +575,7 @@ printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 # [ -z "$root_password" ] && root_password="$(get_pass root)"
 core_arch_install
 quick_install 	linux linux-headers linux-firmware base-devel git man-db \
-				man-pages inetutils usbutils pacman-contrib expac arch-audit
+				man-pages usbutils pacman-contrib expac arch-audit dkms
 set_needed_perms && install_yay && install_progs "$package_lists"
 
 
