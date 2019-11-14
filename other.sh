@@ -84,3 +84,73 @@ infinality(){
 	sed -i 's/^#exp/exp/' /etc/profile.d/freetype2.sh
 	ready
 }
+
+install_progs() {
+	if [ ! "$1" ]; then
+		1>&2 echo "No arguments passed. No exta programs will be installed."
+		return 1
+	fi
+
+	# Use all cpu cores to compile packages
+	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+
+	# Merges all csv files in one file. Checks for local files first.
+	for file in $@; do
+		if [ -r programs/${file}.csv ]; then
+			cat programs/${lsb_dist}.${file}.csv >> /tmp/progs.csv
+		else
+			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" >> /tmp/progs.csv
+		fi
+	done
+
+	# Remove comments and empty lines.
+	sed -i '/^#/d;/^,/d' /tmp/progs.csv
+
+	# Total number of progs in all lists.
+	total=$(wc -l < /tmp/progs.csv)
+
+	fail_msg(){
+		[ $program ] &&
+		echo "$(tput setaf 1)$program failed$(tput sgr0)" | \
+				sudo -u "$name" tee -a /home/${name}/failed
+	}
+
+	echo  "Installing packages from csv file(s): $@"
+
+	while IFS=, read -r program comment tag; do ((n++))
+		# Removes quotes from the comments.
+		echo "$comment" | grep -q "^\".*\"$" && 
+			comment="$(echo "$comment" | sed "s/\(^\"\|\"$\)//g")"
+
+		# Pretty output with columns.
+		printf "%07s %-20s %2s %2s" "[$n""/$total]" "$(basename $program)" - "$comment"
+
+		# the actual installation of packages in csv lists.
+		case "$tag" in
+			"") printf '\n'
+				pacman --noconfirm --needed -S "$program" > /dev/null 2>&1 || fail_msg
+			;;
+			aur | A) printf "(AUR)\n"
+				sudo -u "$name" yay -S --needed --noconfirm "$program" >/dev/null 2>&1 || fail_msg
+			;;
+			git | G) printf "(GIT)\n"
+				local dir=$(mktemp -d)
+				git clone --depth 1 "$program" "$dir" > /dev/null 2>&1
+				cd "$dir" && make >/dev/null 2>&1
+				make install >/dev/null 2>&1 || fail_msg
+			;;
+			pip | P) printf "(PIP)\n"
+				# Installs pip if needed.
+				command -v pip || quick_install python-pip
+				yes | pip install "$program" || fail_msg
+			;;
+			flatpak | F) printf "(Flatpak)\n"
+			#### DONT USE THIS
+				flatpak remote-add --if-not-exists \
+					flathub \
+					https://flathub.org/repo/flathub.flatpakrepo > /dev/null 2>&1
+				flatpak install -y "$program" > /dev/null 2>&1
+			;;
+		esac
+	done < /tmp/progs.csv
+}
