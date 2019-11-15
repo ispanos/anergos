@@ -85,6 +85,33 @@ infinality(){
 	ready
 }
 
+networkd_config() {
+	# creates a networkd entry for all ether and wlan devices.
+	net_devs=$( networkctl --no-legend 2>/dev/null | \
+				grep -P "ether|wlan" | \
+				awk '{print $2}' | \
+				sort )
+
+	for device in ${net_devs[*]}; do ((i++))
+		cat > /etc/systemd/network/${device}.network <<-EOF
+			[Match]
+			Name=${device}
+
+			[Network]
+			DHCP=ipv4
+			IPForward=yes
+
+			[DHCP]
+			RouteMetric=$(($i * 10))
+
+		EOF
+	done
+	systemctl disable --now dhcpcd 	>/dev/null 2>&1
+	systemctl enable --now systemd-networkd >/dev/null 2>&1
+	printf "search home\\nnameserver 192.168.1.1\\n" > /etc/resolv.conf
+	systemctl enable --now systemd-resolved >/dev/null 2>&1
+}
+
 install_progs() {
 	if [ ! "$1" ]; then
 		1>&2 echo "No arguments passed. No exta programs will be installed."
