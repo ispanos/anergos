@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
-
-
 raw_repo=https://raw.githubusercontent.com/ispanos/anergos/master
 
-# curl -LsO "https://raw.githubusercontent.com/ispanos/anergos/master/pre_anergos.sh"
-# bash pre-anergos.sh
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/archlinux.iso of=/dev/sdx status=progress oflag=sync
 
@@ -23,7 +19,7 @@ get_drive() {
     # Prompts user to select one of the available sda or nvme drives.
     local dialogOUT
     dialogOUT=$(dialog --title "Select your Hard-drive" \
-            --menu "$(lsblk)" 0 0 0 $dialog_prompt 3>&1 1>&2 2>&3 3>&1 ) || exit
+        --menu "$(lsblk)" 0 0 0 $dialog_prompt 3>&1 1>&2 2>&3 3>&1 ) || exit
 
     # Converts dialog output to the actuall name of the selected drive.
     echo "/dev/${drives[$dialogOUT]}"
