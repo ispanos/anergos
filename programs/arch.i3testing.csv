@@ -1,30 +1,46 @@
-#TAG,NAME IN REPO,PURPOSE
-#CLI,,
-,bc,"is an arbitrary precision calculator language."
-,bash-completion,"is what it sounds like."
-,openssh,"is a suite of security-related network utilities based on the ssh."
-,exfat-utils,"allows management of FAT drives."
-,lsd,"is the modern ls."
-,htop,"provides system usage information and displays processes."
-,neovim,"is terminal text editor."
-A,inxi,"is a CLI system information tool."
-#i3,,
-,i3,"is the main graphical user interface and window manager (group)."
-,dmenu,"is a generic men for X."
-,xorg-server,"is the graphical server."
-,xorg-xinit,"starts the graphical server."
-,xorg-xrandr,"a cli tool for screen adjustments."
-,xorg-xprop,"is a property displayer for X"
-,xorg-xbacklight,"is a RandR-based backlight control application"
-,feh,"sets the wallpaper."
-,maim,"can take quick screenshots at your request."
-,dunst,"is a suckless notification system."
-A,xkb-switch,"is used by i3blocks to display what keyboard layout is being used."
-#common,,
-,ttf-liberation,"- Red Hats Liberation fonts"
-,libsecret,"is a library for storing and retrieving passwords and other secrets."
-,libnotify,"allows desktop notifications."
-,gnome-terminal,"is the GNOME Terminal Emulator."
-,pcmanfm-gtk3,is a simple GUI file manager.
-,firefox,"doesn't need a description."
-,code,
+#NAME,PURPOSE,REPO
+bash-completion,is what it sounds like,
+bc,arbitrary precision calculator language,
+calcurse,lightweight terminal-based calendar,
+lsd,the modern ls,
+nano,text editor,
+neofetch,displays basic system information,
+neovim,terminal text editor,
+openssh,suite of security-related network utilities based on the ssh,
+sshfs,FUSE-based filesystem client for mounting remote directories,
+tmux,terminal multiplexer,
+i3,window manager (group),
+dmenu,generic men for X,
+jq,Command-line JSON processor,
+xorg-server,graphical server,
+xorg-xinit,starts the graphical server,
+xorg-xrandr,cli tool for screen adjustments,
+xorg-xprop,property displayer for X,
+xorg-xbacklight,RandR-based backlight control application,
+xorg-xdpyinfo,displays information X,
+compton,X compositor that may fix tearing issues,
+xdotool,window action utilities on the command line (maim),
+dunst,suckless notification system,
+numlockx,turns on NumLock when you login,
+feh,image viewer that also sets the wallpaper,
+maim,can take quick screenshots at your request,
+xkb-switch,used by i3blocks to display what keyboard layout,A
+libsecret,library for storing and retrieving passwords and other secrets,
+libnotify,desktop notifications,
+gnome-terminal,the GNOME Terminal Emulator,
+playerctl,media control for some mediaplayers,
+galculator,simple GUI calculator,
+pcmanfm-gtk3,simple GUI file manager,
+firefox,web browser,
+hunspell-en_US,dicttianery,
+hunspell-el,Gerek dicttianery,
+networkmanager,,
+nm-connection-editor,,
+pulseaudio-alsa,audio interface for pulseaudio and ALSA,
+paprefs,advanced pulseaudio settings,
+pavucontrol,audio controller,
+gnome-keyring,takes care of the user's security credentials,
+polkit-gnome,authentication agent,
+ttf-liberation,Red Hats Liberation fonts,
+mpv,simple video/gif player,
+dkms,,
