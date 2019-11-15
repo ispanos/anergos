@@ -9,8 +9,7 @@ fi
 
 
 # System
-source common.sh
-agetty_set; i3lock_sleep; it87_driver; data;
+
 # Chages the power-button on the pc to a sleep button.
 sudo sed -i '/HandlePowerKey/{s/=.*$/=suspend/;s/^#//}' /etc/systemd/logind.conf
 
@@ -32,6 +31,8 @@ sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub
 
 dnf list installed > ~/.local/Fresh
 
+source common.sh
+agetty_set; it87_driver; data;
 
 # User settings.
 [ -f /usr/bin/docker ] && sudo usermod -aG docker $USER
