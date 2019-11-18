@@ -1,197 +1,12 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-## Archlinux installation ##
-get_username() {
-# Ask for the name of the main user.
-	read -rep $'Please enter a name for a user account: \n' get_name
-
-	while ! echo "$get_name" | grep -q "^[a-z_][a-z0-9_-]*$"; do
-		read -rep $'Invalid name. Start with a letter, use lowercase letters, - or _ : \n' get_name
-	done
-    echo $get_name
-	unset get_name
-}
-
-
-get_pass() {
-	# Pass the name of the user as an argument.
-    cr=`echo $'\n.'`; cr=${cr%.}
-    get_pwd_name="$1"
-    read -rsep $"Enter a password for $get_pwd_name: $cr" get_pwd_pass
-    read -rsep $"Retype ${get_pwd_name}'s password: $cr" check_4_pass
-
-    while ! [ "$get_pwd_pass" = "$check_4_pass" ]; do unset check_4_pass
-        read -rsep $"Passwords didn't match. Retype ${get_pwd_name}'s password: " get_pwd_pass
-        read -rsep $"Retype ${get_pwd_name}'s password: " check_4_pass
-    done
-
-    echo "$get_pwd_pass"
-    unset get_pwd_pass check_4_pass
-}
-
-
-systemd_boot() {
-	# Installs and configures systemd-boot. (only for archlinux atm.)
-	bootctl --path=/boot install >/dev/null 2>&1
-
-	cat > /boot/loader/loader.conf <<-EOF
-		default  ArchLinux
-		console-mode max
-		editor   no
-	EOF
-
-	local root_id="$(lsblk --list -fs -o MOUNTPOINT,UUID | \
-					grep "^/ " | awk '{print $2}')"
-
-	kernel_parms="rw quiet" # Default kernel parameters.
-
-	# I need this to avoid random crashes on my main pc (AMD ryzen R5 1600)
-	# https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533
-	lscpu | grep -q "AMD Ryzen" && kernel_parms="$kernel_parms idle=nowait"
-
-	# Bootloader entry using `linux` kernel:
-	cat > /boot/loader/entries/ArchLinux.conf <<-EOF
-		title   Arch Linux
-		linux   /vmlinuz-linux
-		initrd  /${cpu}-ucode.img
-		initrd  /initramfs-linux.img
-		options root=UUID=${root_id} $kernel_parms
-	EOF
-
-	# A pacman hook to update systemd-boot after systemd packages is updated.
-	cat > /etc/pacman.d/hooks/bootctl-update.hook <<-EOF
-		[Trigger]
-		Type = Package
-		Operation = Upgrade
-		Target = systemd
-		[Action]
-		Description = Updating systemd-boot
-		When = PostTransaction
-		Exec = /usr/bin/bootctl update
-	EOF
-}
-
-
-grub_mbr() {
-	# grub option is not tested much and only works on MBR partition tables
-	# Avoid using it as is.
-	pacman --noconfirm --needed -S grub
-	grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | \
-				grep "^/ " | awk '{print $2}')
-	grub-install --target=i386-pc $grub_path >/dev/null 2>&1
-	grub-mkconfig -o /boot/grub/grub.cfg
-}
-
-
-core_arch_install() {
-	echo ":: Setting up Arch"
-	
-	systemctl enable --now systemd-timesyncd.service >/dev/null 2>&1
-	ln -sf /usr/share/zoneinfo/${timezone} /etc/localtime
-	
-	hwclock --systohc
-	
-	sed -i "s/#${lang} UTF-8/${lang} UTF-8/g" /etc/locale.gen
-	locale-gen > /dev/null 2>&1
-	
-	echo 'LANG="'$lang'"' > /etc/locale.conf
-	
-	echo $hostname > /etc/hostname
-	
-	cat > /etc/hosts <<-EOF
-		#<ip-address>   <hostname.domain.org>    <hostname>
-		127.0.0.1       localhost.localdomain    localhost
-		::1             localhost.localdomain    localhost
-		127.0.1.1       ${hostname}.localdomain  $hostname
-	EOF
-	
-	# Enable [multilib] repo, if multi_lib_bool == true and sync database. -Sy
-	if [ "$multi_lib_bool" = true  ]; then
-		sed -i '/\[multilib]/,+1s/^#//' /etc/pacman.conf
-		echo ":: Synchronizing package databases - [multilib]"
-		pacman -Sy >/dev/null 2>&1
-		pacman -Fy >/dev/null 2>&1
-	fi
-
-	# Install cpu microcode.
-	case $(lscpu | grep Vendor | awk '{print $3}') in
-		"GenuineIntel") cpu="intel" ;;
-		"AuthenticAMD") cpu="amd" 	;;
-	esac
-
-	pacman --noconfirm --needed -S "${cpu}-ucode"
-	
-	# This folder is needed for pacman hooks. (needed for systemd-boot)
-	mkdir -p /etc/pacman.d/hooks
-
-	# Install bootloader
-	if [ -d "/sys/firmware/efi" ]; then
-		systemd_boot
-		pacman --noconfirm --needed -S efibootmgr
-	else
-		grub_mbr
-	fi
-
-	# Set root password
-	if [ -z "$root_password" ]; then
-		printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
-	fi
-
-	echo "blacklist pcspkr" >> /etc/modprobe.d/beep.conf
-
-	# Create user
-	useradd -m -g wheel -G power -s /bin/bash "$name" > /dev/null 2>&1
-	# Set user password.
-	echo "$name:$user_password" | chpasswd
-
-	pacman --noconfirm --needed -S \
-		base-devel git linux linux-headers linux-firmware \
-		man-db man-pages usbutils pacman-contrib expac arch-audit
-
-	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
-	chmod 440 /etc/sudoers.d/wheel
-
-	# Use all cpu cores to compile packages
-	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
-
-	echo ":: Installing - yay-bin"
-	sudo -u "$name" git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay
-	cd /tmp/yay && sudo -u "$name" makepkg -si --noconfirm >/dev/null 2>&1
-}
-
-
-install_progs() {
-	if [ ! "$1" ]; then
-		1>&2 echo "No arguments passed. No exta programs will be installed."
-		return 1
-	fi
-
-	# Merges all csv files in one file. Checks for local files first.
-	for file in $@; do
-		if [ -r programs/${file}.csv ]; then
-			cat programs/${lsb_dist}.${file}.csv >> /tmp/progs.csv
-		else
-			curl -Ls "${progs_repo}${lsb_dist}.${file}.csv" >> /tmp/progs.csv
-		fi
-	done
-
-    sudo -u "$name" yay -S --noconfirm --needed \
-	$(cat /tmp/progs.csv | sed '/^#/d;/^,/d;s/,.*$//' | tr "\n" " ")
-}
-
-
-
-
-
 # Prints the name of the parent function or a prettified output.
 status_msg() { printf "%-25s %2s" $(tput setaf 4)"${FUNCNAME[1]}"$(tput sgr0) "- "; }
 
 
 # Prints "done" and any given arguments with a new line.
 ready() { echo $(tput setaf 2)"done"$@$(tput sgr0); }
-
 
 create_swapfile() {
 	# Creates a swapfile. 2Gigs in size.
@@ -203,6 +18,27 @@ create_swapfile() {
 	printf "\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
 	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" > /etc/sysctl.d/99-sysctl.conf
 	ready
+}
+
+
+install_progs() {
+	if [ ! "$1" ]; then
+		1>&2 echo "No arguments passed. No exta programs will be installed."
+		return 1
+	fi
+
+	# Use all cpu cores to compile packages
+	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+
+	# Merges all csv files in one file. Checks for local files first.
+	for file in $@; do
+		if [ -r programs/${file}.csv ]; then
+			cat programs/${lsb_dist}.${file}.csv >> /tmp/progs.csv
+		else
+			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" >> /tmp/progs.csv
+		fi
+	done
+    sudo -u "$name" yay -S --noconfirm --needed $(cat /tmp/progs.csv | sed '/^#/d;/^,/d;s/,.*$//' | tr "\n" " ")
 }
 
 
@@ -263,8 +99,6 @@ arduino_groups() {
 
 
 agetty_set() {
-	# Without any arguments, during log in it auto completes the username (of the given user)
-	# With argument "auto", it enables auto login to the user.
 	systemctl enable --now gdm >/dev/null 2>&1 && ready " GDM enabled" && return
 	status_msg
 	local log="ExecStart=-\/sbin\/agetty --skip-login --login-options $name --noclear %I \$TERM"
@@ -400,21 +234,12 @@ clear
 
 repo=https://raw.githubusercontent.com/ispanos/anergos/master
 package_lists="$@"
-[ -z "$progs_repo" ] && progs_repo="$repo/programs/"
-[ -z "$multi_lib_bool" ] && multi_lib_bool=true
-[ -z "$timezone" ] && timezone="Europe/Athens"
-[ -z "$lang" ] && lang="en_US.UTF-8"
 
 lsb_dist="$(. /etc/os-release && echo "$ID")"
 
 printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 
-[ -z "$hostname" ] 		&& read -rep $'Enter computer\'s hostname: \n' hostname
-[ -z "$name" ] 			&& name=$(get_username)
-[ -z "$user_password" ] && user_password="$(get_pass $name)"
-# [ -z "$root_password" ] && root_password="$(get_pass root)"
-
-core_arch_install && install_progs "$package_lists"
+install_progs "$package_lists"
 
 systemctl enable NetworkManager || networkd_config
 printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc

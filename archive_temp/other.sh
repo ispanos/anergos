@@ -21,7 +21,6 @@ Install_nvim_plugged_plugins() {
 safe_ssh() {
 	# Removes password based authentication for ssh
 	sed -i '/#PasswordAuthentication/{s/yes/no/;s/^#//}' /etc/ssh/sshd_config
-	# systemctl enable --now sshd
 }
 
 extra_arch_configs() {

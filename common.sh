@@ -49,28 +49,6 @@ agetty_set() {
 }
 
 
-i3lock_sleep() {
-	# Creates a systemd service to lock the desktop with i3lock before sleep.
-	# Only enables it if sway is not installed and i3lock is.
-	[ `command -v i3lock` ] || return
-	sudo cat > /etc/systemd/system/SleepLocki3@${USER}.service <<-EOF
-		#/etc/systemd/system/
-		[Unit]
-		Description=Turning i3lock on before sleep
-		Before=sleep.target
-		[Service]
-		User=%I
-		Type=forking
-		Environment=DISPLAY=:0
-		ExecStart=$(command -v i3lock) -e -f -c 000000 -i /home/${USER}/.config/wall.png -t
-		ExecStartPost=$(command -v sleep) 1
-		[Install]
-		WantedBy=sleep.target
-	EOF
-	[ `command -v sway` ] && return
-	sudo systemctl enable --now SleepLocki3@${USER} >/dev/null 2>&1
-}
-
 it87_driver() {
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	# Requires dkms

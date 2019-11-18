@@ -36,7 +36,9 @@ agetty_set; it87_driver; data;
 
 # User settings.
 [ -f /usr/bin/docker ] && sudo usermod -aG docker $USER
-# Install steam.
-# flatpak -y install flathub com.valvesoftware.Steam
+
 clone_dotfiles  https://github.com/ispanos/dotfiles
 firefox_configs https://github.com/ispanos/mozzila
+
+# Install steam.
+# flatpak -y install flathub com.valvesoftware.Steam
