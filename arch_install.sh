@@ -208,8 +208,9 @@ core_arch_install() {
 	echo "$name:$user_password" | chpasswd 			# Set user password.
 
 	pacman --noconfirm --needed -S  man-db man-pages usbutils nano \
-		base-devel git pacman-contrib expac arch-audit
-		
+		base-devel git pacman-contrib expac arch-audit networkmanager
+
+	systemctl start NetworkManager
 
 	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
 	chmod 440 /etc/sudoers.d/wheel
