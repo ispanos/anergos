@@ -150,8 +150,8 @@ grub_mbr() {
 	# grub option is not tested much and only works on MBR partition tables
 	# Avoid using it as is.
 	pacman --noconfirm --needed -S grub
-	local grub_path=$(lsblk --list -fs -o MOUNTPOINT,PATH | \
-				grep "^/ " | awk '{print $2}')
+	local grub_path=$(
+		lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
 	grub-install --target=i386-pc $grub_path
 	grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -208,9 +208,11 @@ core_arch_install() {
 	echo "$name:$user_password" | chpasswd 			# Set user password.
 
 	pacman --noconfirm --needed -S  man-db man-pages usbutils nano \
-		base-devel git pacman-contrib expac arch-audit networkmanager
+		base-devel git pacman-contrib expac arch-audit \
+		# Optional packages for quick testing over ssh
+		networkmanager openssh
 
-	systemctl start NetworkManager
+	systemctl enable NetworkManager
 
 	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
 	chmod 440 /etc/sudoers.d/wheel
@@ -223,6 +225,15 @@ core_arch_install() {
 	cd /tmp/yay && sudo -u "$name" makepkg -si --noconfirm
 
     printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
+
+	# Creates a swapfile. 2Gigs in size.
+	fallocate -l 2G /swapfile
+	chmod 600 /swapfile
+	mkswap /swapfile >/dev/null 2>&1
+	swapon /swapfile
+	printf "\\n/swapfile none swap defaults 0 0\\n" | sudo tee -a  /etc/fstab
+	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" |
+		sudo tee /etc/sysctl.d/99-sysctl.conf
 }
 
 export hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
@@ -239,5 +250,4 @@ timedatectl set-ntp true
 pacstrap /mnt base linux linux-headers linux-firmware
 genfstab -U /mnt > /mnt/etc/fstab
 export -f systemd_boot grub_mbr core_arch_install
-export hostname
 arch-chroot /mnt bash -c core_arch_install
