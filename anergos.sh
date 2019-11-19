@@ -16,26 +16,24 @@ install_progs() {
 		elif [ -r programs/${file}.csv ]; then
 			cat programs/${lsb_dist}.${file}.csv >> /tmp/progs.csv
 		else
-			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" >> /tmp/progs.csv
+			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" \
+						>> /tmp/progs.csv
 		fi
 	done
-	local packages=$(
-		cat /tmp/progs.csv | sed '/^#/d;/^,/d;s/,.*$//' | tr "\n" " ")
+
+	local packages=$(sed '/^#/d;/^,/d;s/,.*$//' /tmp/progs.csv | tr "\n" " ")
 
 	case $lsb_dist in 
-		manjaro | arch)
-			yay -S --noconfirm --needed flatpak $packages
-	 	;;
-		raspbian | ubuntu)
-			sudo apt install flatpak $packages
-		;;
-		fedora)
-			dnf install -y flatpak $packages
+		manjaro | arch) 	yay -S --noconfirm --needed flatpak $packages ;;
+		raspbian | ubuntu) 	sudo apt install flatpak $packages ;;
+		fedora) 			sudo dnf install -y flatpak $packages ;;
 		*)
 			printf $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
 			return
 		;;
 	esac
+	sudo flatpak remote-add --if-not-exists \
+		flathub https://flathub.org/repo/flathub.flatpakrepo
 }
 
 
@@ -69,8 +67,7 @@ firefox_configs() {
 	local dir=$(mktemp -d)
 	sudo chown -R "$USER" "$dir"
 	git clone -q --depth 1 "$1" "$dir/gitrepo" &&
-	cp -rfT "$dir/gitrepo" "/home/$USER/.mozilla/firefox" &&
-	return
+	cp -rfT "$dir/gitrepo" "/home/$USER/.mozilla/firefox" && return
 	echo "firefox_configs failed."
 }
 
@@ -78,17 +75,15 @@ firefox_configs() {
 arduino_groups() {
 	# Addes user to groups needed by arduino
 	[ `command -v arduino` ] || return
-		case $lsb_dist in
-		arch)
-			echo cdc_acm | sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
-			groups | grep -q uucp || sudo gpasswd -a $USER uucp
-			groups | grep -q lock || sudo gpasswd -a $USER lock
-			;;
-		*)
-			echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0)
-			return
+	case $lsb_dist in
+	arch)
+		echo cdc_acm | sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
+		groups | grep -q uucp || sudo gpasswd -a $USER uucp
+		groups | grep -q lock || sudo gpasswd -a $USER lock
 		;;
-		esac
+	ubuntu) groups | grep -q dialout || sudo gpasswd -a $USER dialout ;;
+	*) echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) ;;
+	esac
 }
 
 
@@ -101,49 +96,31 @@ agetty_set() {
 	sudo systemctl reenable getty@tty1.service
 }
 
+
 virtualbox() {
-	# If on V/box, removes v/box from the guest and installs guest-utils.
 	# If virtualbox is installed, adds user to vboxusers group
-	if [[ $(lspci | grep VirtualBox) ]]; then
-		case $lsb_dist in
-		arch)
-			local g_utils=""
-			sudo pacman -S --noconfirm --needed \
-				virtualbox-guest-modules-arch virtualbox-guest-utils \
-				xf86-video-vmware
+	[ `command -v virtualbox` ] && sudo usermod -aG vboxusers $USER
 
-			[ ! -f /usr/bin/virtualbox ] && return
-			sudo pacman -Rns --noconfirm virtualbox 2>/dev/null
-			sudo pacman -Rns --noconfirm \
-				virtualbox-host-modules-arch 2>/dev/null
-			sudo pacman -Rns --noconfirm virtualbox-guest-iso 2>/dev/null
-		;;
-		*)
-			echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0)
-			return
-		;;
-		esac
-
-	elif [ `command -v virtualbox` ]; then
-		sudo gpasswd -a $USER vboxusers >/dev/null 2>&1
-	fi
+	[[ ! $(lspci | grep VirtualBox) ]] && return
+	case $lsb_dist in
+	arch) sudo pacman -S --noconfirm --needed \
+	virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware ;;
+	*) echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) ;;
+	esac
 }
 
 
-it87_driver() {
+it87_driver() { # Requires dkms
 	# Installs driver for many Ryzen's motherboards temperature sensors
-	# Requires dkms
 	local workdir="/home/$USER/.local/sources"
 	mkdir -p "$workdir" && cd "$workdir"
-	git clone -q https://github.com/bbqlinux/it87
-	cd it87 || echo "Failed tio install it87" && return
-	sudo make dkms && sudo modprobe it87
+	git clone -q https://github.com/bbqlinux/it87 &&
+	cd it87 && sudo make dkms && sudo modprobe it87 &&
 	echo "it87" | sudo tee /etc/modules-load.d/it87.conf >/dev/null
 }
 
 
-data() {
-	# Mounts my HHD. Useless to anyone else
+data() { # Mounts my HHD. Useless to anyone else
 	# Maybe you could use the mount options for your HDD, 
 	# or help me improve mine.
 	sudo mkdir -p /media/Data || return
@@ -155,38 +132,36 @@ data() {
 }
 
 
-nvidia_drivers() {
+NvidiaDrivers() {
 	# Installs proprietery Nvidia drivers for supported distros.
-	# Returns with no output, if the installation is in VirutalBox.
 	[[ $(lspci | grep VirtualBox) ]] && return
+	! lspci -k | grep -E "(VGA|3D)" | grep -q "NVIDIA" && return
+	local gpu=$(lspci -k | grep -A 2 -E "(VGA|3D)" | 
+		grep "NVIDIA" | awk -F'[][]' '{print $2}')
+	printf '\n%.0s' {1..5}
+	printf "Detected Nvidia GPU: $gpu \n"
 
+	read -rep "Would you like to install the non-free Nvidia drivers?
+	[ y/N]: "; [[ ! $REPLY =~ ^[Yy]$ ]] && return
 	case $lsb_dist in
-	arch)
-		pacman -S --noconfirm --needed nvidia nvidia-settings
-		if grep -q "^\[multilib\]" /etc/pacman.conf; then
-			pacman -S --noconfirm --needed lib32-nvidia-utils
-		fi
+	arch) pacman -S --noconfirm --needed nvidia nvidia-settings
+		grep -q "^\[multilib\]" /etc/pacman.conf &&
+		pacman -S --noconfirm --needed lib32-nvidia-utils
 	;;
-	*)
-		echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) 
-		return 
-	;;
+	*) echo $(tput setaf 1)"Distro is not supported yet."$(tput sgr0) ;;
 	esac
 }
 
 
 catalog() {
-	[ ! -d /home/"$USER"/.local ] && 
-	sudo -u "$USER" mkdir /home/"$USER"/.local
-
+	[ ! -d /home/"$USER"/.local ] && mkdir /home/"$USER"/.local
 	case $lsb_dist in 
 		manjaro | arch)
 			sudo pacman --noconfirm -Rns $(pacman -Qtdq)
 			pacman -Qq > /home/"$USER"/.local/Fresh_pack_list
 	 	;;
 		raspbian | ubuntu)
-			sudo apt-get clean
-			sudo apt autoremove
+			sudo apt-get clean && sudo apt autoremove
 			apt list --installed 2> /dev/null \
 				> /home/"$USER"/.local/Fresh_pack_list
 		;;
@@ -216,9 +191,10 @@ lsb_dist="$(. /etc/os-release && echo "$ID")"
 
 printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 
-
-case $lsb_dist in 
-    fedora)
+# Preliminary configs for some distros.
+case $lsb_dist in
+	arch) sudo pacman -Syu --noconfirm ;;
+    fedora) # I install using the "minimal-environment" (Server ISO)
         [ -d ~/.local ] && mkdir ~/.local
         dnf list installed > ~/.local/Freshiest
         sudo dnf clean all
@@ -229,37 +205,20 @@ case $lsb_dist in
         sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
         sudo dnf upgrade -y
         sudo dnf remove -y openssh-server
-
         sudo dnf copr enable skidnik/i3blocks -y
-
     ;;
-    *)
-        pass
-    ;;
+	ubuntu) sudo apt-get update && sudo apt-get -y upgrade ;;
+    *) echo "..." ;;
 esac
 
-
 install_progs "$package_lists"
-[ `command -v flatpak` ] &&
-sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-
-# Install steam.
+firefox_configs https://github.com/ispanos/mozzila
+clone_dotfiles https://github.com/ispanos/dotfiles
+NvidiaDrivers; arduino_groups; virtualbox; catalog;
+[ -f /usr/bin/docker ] && sudo usermod -aG docker $USER
 # flatpak -y install flathub com.valvesoftware.Steam
 
-[ -f /usr/bin/docker ] && sudo usermod -aG docker $USER
-[ -f /etc/libreoffice/sofficerc ] && 
-	sudo sed -i 's/Logo=1/Logo=0/g' /etc/libreoffice/sofficerc
-
-# Configurations are picked according to the hostname of the computer.
 case $(hostnamectl | awk -F": " 'NR==1 {print $2}') in 
-	killua)
-		printf "\n\nkillua:\n"
-		it87_driver; data; nvidia_drivers; agetty_set;
-		arduino_groups; virtualbox; catalog;
-		firefox_configs https://github.com/ispanos/mozzila
-		clone_dotfiles https://github.com/ispanos/dotfiles
-	;;
-	*)
-		echo "Unknown hostname"
-	;;
+	killua) printf "\n\nkillua:\n"; it87_driver; data; agetty_set ;;
+		 *) echo "Unknown hostname" ;;
 esac
