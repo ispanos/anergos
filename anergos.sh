@@ -140,7 +140,6 @@ NvidiaDrivers() {
 		grep "NVIDIA" | awk -F'[][]' '{print $2}')
 	printf '\n%.0s' {1..5}
 	printf "Detected Nvidia GPU: $gpu \n"
-
 	read -rep "Would you like to install the non-free Nvidia drivers?
 	[ y/N]: "; [[ ! $REPLY =~ ^[Yy]$ ]] && return
 	case $lsb_dist in
@@ -193,7 +192,7 @@ printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 
 # Preliminary configs for some distros.
 case $lsb_dist in
-	arch) sudo pacman -Syu --noconfirm ;;
+	manjaro | arch) sudo pacman -Syu --noconfirm ;;
     fedora) # I install using the "minimal-environment" (Server ISO)
         [ -d ~/.local ] && mkdir ~/.local
         dnf list installed > ~/.local/Freshiest
@@ -205,9 +204,17 @@ case $lsb_dist in
         sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
         sudo dnf upgrade -y
         sudo dnf remove -y openssh-server
-        sudo dnf copr enable skidnik/i3blocks -y
+        
+		for corp in `sed '/^#/d;/^,/d;s/^.*,//' /tmp/progs.csv`; do
+			sudo dnf copr enable $corp -y
+		done
     ;;
-	ubuntu) sudo apt-get update && sudo apt-get -y upgrade ;;
+	ubuntu) 
+		sudo apt-get update && sudo apt-get -y upgrade 
+		for ppa in `sed '/^#/d;/^,/d;s/^.*,//' /tmp/progs.csv`; do
+			sudo add-apt-repository ppa:$ppa -y
+		done
+	;;
     *) echo "..." ;;
 esac
 

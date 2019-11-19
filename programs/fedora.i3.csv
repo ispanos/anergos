@@ -28,7 +28,7 @@ simple-mtpfs,enables the mounting of cell phones outside of pcmanfm,
 ,,
 #i3,,
 i3,window manager,
-i3blocks,,skidnik
+i3blocks,,skidnik/i3blocks
 jq,Command-line JSON processor,
 xorg-x11-server-Xorg,graphical server,
 xorg-x11-xinit,starts the graphical server,
