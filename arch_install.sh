@@ -9,6 +9,7 @@ export timezone="Europe/Athens"
 export lang="en_US.UTF-8"
 
 get_drive() {
+	local dialogOUT
     # Sata and NVME drives array
     drives=( $(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$") )
 
@@ -20,8 +21,8 @@ get_drive() {
 	done
 
     # Prompts user to select one of the available sda or nvme drives.
-    local dialogOUT
-    dialogOUT=$(dialog --title "Select your Hard-drive" \
+    
+	dialogOUT=$(dialog --title "Select your Hard-drive" \
         --menu "$(lsblk)" 0 0 0 $dialog_prompt 3>&1 1>&2 2>&3 3>&1 ) || exit
 
     # Converts dialog output to the actuall name of the selected drive.
@@ -149,8 +150,9 @@ systemd_boot() {
 grub_mbr() {
 	# grub option is not tested much and only works on MBR partition tables
 	# Avoid using it as is.
+	local grub_path
 	pacman --noconfirm --needed -S grub
-	local grub_path=$(
+	grub_path=$(
 		lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
 	grub-install --target=i386-pc $grub_path
 	grub-mkconfig -o /boot/grub/grub.cfg
@@ -237,12 +239,15 @@ core_arch_install() {
 			>> /etc/sysctl.d/99-sysctl.conf
 }
 
-export hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
-export name=$(get_username)
-export user_password="$(get_pass $name)"
+hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
+name=$(get_username)
+user_password="$(get_pass $name)"
+# If root_passwdrd is not set, root login is disabled.
+# root_password="$(get_pass root)"
+export hostname name user_password root_password
 
 # Select main drive
-HARD_DRIVE=$( get_drive )
+HARD_DRIVE=$(get_drive)
 # Partition drive. 		!!! DELETES ALL DATA !!!
 clear; partition_drive $HARD_DRIVE
 # Formats the drive. 	!!! DELETES ALL DATA !!!
