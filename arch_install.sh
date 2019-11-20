@@ -198,11 +198,11 @@ core_arch_install() {
 	fi
 
 	# Set root password
-	if [ -z "$root_password" ]; then
+	if [ "$root_password" ]; then
 		printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
+	else
+		passwd -l root
 	fi
-
-	echo "blacklist pcspkr" >> /etc/modprobe.d/disablebeep.conf
 
 	useradd -m -g wheel -G power -s /bin/bash "$name" # Create user
 	echo "$name:$user_password" | chpasswd 			# Set user password.
@@ -222,6 +222,8 @@ core_arch_install() {
 
     printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
 
+	echo "blacklist pcspkr" >> /etc/modprobe.d/disablebeep.conf
+
 	# Use all cpu cores to compile packages
 	sudo sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
@@ -230,9 +232,9 @@ core_arch_install() {
 	chmod 600 /swapfile
 	mkswap /swapfile >/dev/null 2>&1
 	swapon /swapfile
-	printf "\\n/swapfile none swap defaults 0 0\\n" | sudo tee -a  /etc/fstab
-	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" |
-		sudo tee /etc/sysctl.d/99-sysctl.conf
+	printf "\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
+	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" \
+			>> /etc/sysctl.d/99-sysctl.conf
 }
 
 export hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)

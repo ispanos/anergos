@@ -34,12 +34,21 @@ install_progs() {
 			cd /tmp/yay && makepkg -si --noconfirm --needed
 			yay --nodiffmenu --save
 			yay -S --noconfirm --needed flatpak $packages
+			if [ `command -v arduino` ]; then
+				echo cdc_acm | 
+					sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
+				groups | grep -q uucp || sudo usermod -aG uucp $USER
+				groups | grep -q lock || sudo usermod -aG lock $USER
+			fi
 		;;
 		raspbian | ubuntu)
 			for ppa in $extra_repos; do
 				sudo add-apt-repository ppa:$ppa -y
 			done
 			sudo apt install flatpak $packages
+			if [ `command -v arduino` ]; then
+				groups | grep -q dialout || sudo usermod -aG dialout $USER
+			fi
 		;;
 		fedora)
 			for corp in $extra_repos; do
@@ -47,12 +56,14 @@ install_progs() {
 			done
 			sudo dnf install -y flatpak $packages
 		;;
-		*) printf "Distro is not supported yet.\n"
-		;;
 	esac
 	sudo flatpak remote-add --if-not-exists \
 		flathub https://flathub.org/repo/flathub.flatpakrepo
 	# flatpak -y install flathub com.valvesoftware.Steam
+
+	[ `command -v virtualbox` ] && sudo usermod -aG vboxusers 	$USER
+	[ `command -v docker` ] 	&& sudo usermod -aG docker 		$USER
+
 	clear; printf "All programs have been installed...\n\n\n"; sleep 2
 }
 
@@ -93,26 +104,6 @@ firefox_configs() {
 }
 
 
-arduino_groups() {
-	# Addes user to groups needed by arduino
-	[ `command -v arduino` ] || return
-
-	case $lsb_dist in
-
-	arch)
-		echo cdc_acm | sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
-		groups | grep -q uucp || sudo gpasswd -a $USER uucp
-		groups | grep -q lock || sudo gpasswd -a $USER lock
-	;;
-	ubuntu)
-		groups | grep -q dialout || sudo gpasswd -a $USER dialout
-	;;
-	*) printf "Distro is not supported yet.\n"
-	;;
-	esac
-}
-
-
 agetty_set() {
 	local ExexStart="ExecStart=-\/sbin\/agetty --skip-login --login-options"
 	local log="$ExexStart $USER --noclear %I \$TERM"
@@ -120,20 +111,6 @@ agetty_set() {
 		sudo tee /etc/systemd/system/getty@.service >/dev/null
 	sudo systemctl daemon-reload
 	sudo systemctl reenable getty@tty1.service
-}
-
-
-virtualbox() {
-	# If virtualbox is installed, adds user to vboxusers group
-	[ `command -v virtualbox` ] && sudo usermod -aG vboxusers $USER
-
-	[[ ! $(lspci | grep VirtualBox) ]] && return
-
-	case $lsb_dist in
-	arch) sudo pacman -S --noconfirm --needed \
-	virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware ;;
-	*) printf "Guest is not supported yet.\n"; sleep 2 ;;
-	esac
 }
 
 
@@ -165,44 +142,17 @@ NvidiaDrivers() {
 	! lspci -k | grep -E "(VGA|3D)" | grep -q "NVIDIA" && return
 	local gpu=$(lspci -k | grep -A 2 -E "(VGA|3D)" | 
 		grep "NVIDIA" | awk -F'[][]' '{print $2}')
-	printf '\n%.0s' {1..5}
+	printf '\n%.0s' {1..5}; clear
 	printf "Detected Nvidia GPU: $gpu \n"
 	read -rep "Would you like to install the non-free Nvidia drivers?
 	[ y/N]: "; [[ ! $REPLY =~ ^[Yy]$ ]] && return
 
 	case $lsb_dist in
 
-	arch) pacman -S --noconfirm --needed nvidia nvidia-settings
+	arch) yay -S --noconfirm --needed nvidia nvidia-settings
 		grep -q "^\[multilib\]" /etc/pacman.conf &&
-		pacman -S --noconfirm --needed lib32-nvidia-utils
+		yay -S --noconfirm --needed lib32-nvidia-utils
 	;;
-	*) printf "Distro is not supported yet.\n"
-	;;
-	esac
-}
-
-
-catalog() {
-	[ ! -d /home/"$USER"/.local ] && mkdir /home/"$USER"/.local
-
-	case $lsb_dist in 
-
-		manjaro | arch)
-			sudo pacman --noconfirm -Rns $(pacman -Qtdq)
-			pacman -Qq > /home/"$USER"/.local/Fresh_pack_list
-	 	;;
-		raspbian | ubuntu)
-			sudo apt-get clean && sudo apt autoremove
-			apt list --installed 2> /dev/null \
-				> /home/"$USER"/.local/Fresh_pack_list
-		;;
-		fedora)
-			dnf list installed > /home/"$USER"/.local/Fresh_pack_list
-		;;
-		*)
-			printf "Distro is not supported yet.\n"
-			return
-		;;
 	esac
 }
 
@@ -223,6 +173,10 @@ printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 case $lsb_dist in
 	manjaro | arch)
 	sudo pacman -Syu --noconfirm
+	if [[ ! $(lspci | grep VirtualBox) ]]; then
+		sudo pacman -S --noconfirm --needed \
+		virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware
+	fi
 	;;
     fedora) # I install using the "minimal-environment" (Server ISO)
         srtlnk="https://download1.rpmfusion.org"
@@ -235,19 +189,35 @@ case $lsb_dist in
 	ubuntu) 
 		sudo apt-get update && sudo apt-get -y upgrade 
 	;;
-    *) echo "..."
+    *) echo "Not supported distro. Exiting" && exit
 	;;
 esac
 
 progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
 merge_lists $@ && install_progs
+NvidiaDrivers
 
 case $(hostnamectl | awk -F": " 'NR==1 {print $2}') in 
 	killua) printf "\n\nkillua:\n"; it87_driver; data; agetty_set ;;
 		 *) echo "Unknown hostname" ;;
 esac
 
-[ -f /usr/bin/docker ] && sudo usermod -aG docker $USER
-NvidiaDrivers; arduino_groups; virtualbox; catalog
+[ ! -d /home/"$USER"/.local ] && mkdir /home/"$USER"/.local
+case $lsb_dist in 
+
+	manjaro | arch)
+		sudo pacman --noconfirm -Rns $(pacman -Qtdq)
+		pacman -Qq > /home/"$USER"/.local/Fresh_pack_list
+	;;
+	raspbian | ubuntu)
+		sudo apt-get clean && sudo apt autoremove
+		apt list --installed 2> /dev/null \
+			> /home/"$USER"/.local/Fresh_pack_list
+	;;
+	fedora)
+		dnf list installed > /home/"$USER"/.local/Fresh_pack_list
+	;;
+esac
+
 firefox_configs https://github.com/ispanos/mozzila
 clone_dotfiles https://github.com/ispanos/dotfiles
