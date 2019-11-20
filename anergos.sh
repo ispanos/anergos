@@ -1,14 +1,11 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-install_progs() {
+merge_lists() {
 	if [ ! "$1" ]; then
 		1>&2 echo "No arguments passed. No exta programs will be installed."
 		return 1
 	fi
-	# Use all cpu cores to compile packages
-	sudo sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
-
 	# Merges all csv files in one file. Checks for local files first.
 	for file in $@; do
 		if [ -r ${file}.csv ]; then
@@ -16,24 +13,47 @@ install_progs() {
 		elif [ -r programs/${file}.csv ]; then
 			cat programs/${lsb_dist}.${file}.csv >> /tmp/progs.csv
 		else
-			curl -Ls "${programs_repo}${lsb_dist}.${file}.csv" \
-						>> /tmp/progs.csv
+			curl -Ls "${progs_repo}/${lsb_dist}.${file}.csv" >> /tmp/progs.csv
 		fi
 	done
+}
 
+
+install_progs() {
 	local packages=$(sed '/^#/d;/^,/d;s/,.*$//' /tmp/progs.csv | tr "\n" " ")
+	local extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' /tmp/progs.csv)
 
-	case $lsb_dist in 
-		manjaro | arch) 	yay -S --noconfirm --needed flatpak $packages ;;
-		raspbian | ubuntu) 	sudo apt install flatpak $packages ;;
-		fedora) 			sudo dnf install -y flatpak $packages ;;
-		*)
-			printf $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
-			return
+	case $lsb_dist in
+		manjaro)
+			pacman -S --noconfirm --needed yay 
+			yay --nodiffmenu --save
+			yay -S --noconfirm --needed flatpak $packages
+		;;
+		arch)
+			git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay
+			cd /tmp/yay && makepkg -si --noconfirm --needed
+			yay --nodiffmenu --save
+			yay -S --noconfirm --needed flatpak $packages
+		;;
+		raspbian | ubuntu)
+			for ppa in $extra_repos; do
+				sudo add-apt-repository ppa:$ppa -y
+			done
+			sudo apt install flatpak $packages
+		;;
+		fedora)
+			for corp in $extra_repos; do
+				sudo dnf copr enable $corp -y
+			done
+			sudo dnf install -y flatpak $packages
+		;;
+		*) printf "Distro is not supported yet.\n"
 		;;
 	esac
 	sudo flatpak remote-add --if-not-exists \
 		flathub https://flathub.org/repo/flathub.flatpakrepo
+	# flatpak -y install flathub com.valvesoftware.Steam
+	clear; printf "All programs have been installed...\n\n\n"; sleep 2
 }
 
 
@@ -66,6 +86,7 @@ firefox_configs() {
 	sudo chown -R "$USER" "/home/$USER/.mozilla/firefox"
 	local dir=$(mktemp -d)
 	sudo chown -R "$USER" "$dir"
+	printf "\n\n\n\nCloning Firefox configs.\n"
 	git clone -q --depth 1 "$1" "$dir/gitrepo" &&
 	cp -rfT "$dir/gitrepo" "/home/$USER/.mozilla/firefox" && return
 	echo "firefox_configs failed."
@@ -75,21 +96,26 @@ firefox_configs() {
 arduino_groups() {
 	# Addes user to groups needed by arduino
 	[ `command -v arduino` ] || return
+
 	case $lsb_dist in
+
 	arch)
 		echo cdc_acm | sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
 		groups | grep -q uucp || sudo gpasswd -a $USER uucp
 		groups | grep -q lock || sudo gpasswd -a $USER lock
-		;;
-	ubuntu) groups | grep -q dialout || sudo gpasswd -a $USER dialout ;;
-	*) echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) ;;
+	;;
+	ubuntu)
+		groups | grep -q dialout || sudo gpasswd -a $USER dialout
+	;;
+	*) printf "Distro is not supported yet.\n"
+	;;
 	esac
 }
 
 
 agetty_set() {
-	local ExexStart="ExecStart=-\/sbin\/agetty --skip-login"
-	local log="$ExexStart --login-options $USER --noclear %I \$TERM"
+	local ExexStart="ExecStart=-\/sbin\/agetty --skip-login --login-options"
+	local log="$ExexStart $USER --noclear %I \$TERM"
 	sed "s/^Exec.*/${log}/" /usr/lib/systemd/system/getty@.service |
 		sudo tee /etc/systemd/system/getty@.service >/dev/null
 	sudo systemctl daemon-reload
@@ -102,10 +128,11 @@ virtualbox() {
 	[ `command -v virtualbox` ] && sudo usermod -aG vboxusers $USER
 
 	[[ ! $(lspci | grep VirtualBox) ]] && return
+
 	case $lsb_dist in
 	arch) sudo pacman -S --noconfirm --needed \
 	virtualbox-guest-modules-arch virtualbox-guest-utils xf86-video-vmware ;;
-	*) echo $(tput setaf 1)"Guest is not supported yet."$(tput sgr0) ;;
+	*) printf "Guest is not supported yet.\n"; sleep 2 ;;
 	esac
 }
 
@@ -142,19 +169,24 @@ NvidiaDrivers() {
 	printf "Detected Nvidia GPU: $gpu \n"
 	read -rep "Would you like to install the non-free Nvidia drivers?
 	[ y/N]: "; [[ ! $REPLY =~ ^[Yy]$ ]] && return
+
 	case $lsb_dist in
+
 	arch) pacman -S --noconfirm --needed nvidia nvidia-settings
 		grep -q "^\[multilib\]" /etc/pacman.conf &&
 		pacman -S --noconfirm --needed lib32-nvidia-utils
 	;;
-	*) echo $(tput setaf 1)"Distro is not supported yet."$(tput sgr0) ;;
+	*) printf "Distro is not supported yet.\n"
+	;;
 	esac
 }
 
 
 catalog() {
 	[ ! -d /home/"$USER"/.local ] && mkdir /home/"$USER"/.local
+
 	case $lsb_dist in 
+
 		manjaro | arch)
 			sudo pacman --noconfirm -Rns $(pacman -Qtdq)
 			pacman -Qq > /home/"$USER"/.local/Fresh_pack_list
@@ -166,8 +198,9 @@ catalog() {
 		;;
 		fedora)
 			dnf list installed > /home/"$USER"/.local/Fresh_pack_list
+		;;
 		*)
-			printf $(tput setaf 1)"Distro is not supported yet."$(tput sgr0)
+			printf "Distro is not supported yet.\n"
 			return
 		;;
 	esac
@@ -183,49 +216,38 @@ if [ "$(id -nu)" == "root" ]; then
 	exit 1
 fi
 
-repo=https://raw.githubusercontent.com/ispanos/anergos/master
-programs_repo="$repo/programs/"
-package_lists="$@"
 lsb_dist="$(. /etc/os-release && echo "$ID")"
-
 printf "$(tput setaf 4)Anergos:\nDistribution - $lsb_dist\n\n$(tput sgr0)"
 
 # Preliminary configs for some distros.
 case $lsb_dist in
-	manjaro | arch) sudo pacman -Syu --noconfirm ;;
+	manjaro | arch)
+	sudo pacman -Syu --noconfirm
+	;;
     fedora) # I install using the "minimal-environment" (Server ISO)
-        [ -d ~/.local ] && mkdir ~/.local
-        dnf list installed > ~/.local/Freshiest
-        sudo dnf clean all
-        local srtlnk="https://download1.rpmfusion.org"
-        local free="free/fedora/rpmfusion-free-release"
-        local nonfree="nonfree/fedora/rpmfusion-nonfree-release"
+        srtlnk="https://download1.rpmfusion.org"
+        free="free/fedora/rpmfusion-free-release"
+        nonfree="nonfree/fedora/rpmfusion-nonfree-release"
         sudo dnf install -y "$srtlnk/$free-$(rpm -E %fedora).noarch.rpm"
         sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
-        sudo dnf upgrade -y
-        sudo dnf remove -y openssh-server
-        
-		for corp in `sed '/^#/d;/^,/d;s/^.*,//' /tmp/progs.csv`; do
-			sudo dnf copr enable $corp -y
-		done
+        sudo dnf upgrade -y; sudo dnf remove -y openssh-server
     ;;
 	ubuntu) 
 		sudo apt-get update && sudo apt-get -y upgrade 
-		for ppa in `sed '/^#/d;/^,/d;s/^.*,//' /tmp/progs.csv`; do
-			sudo add-apt-repository ppa:$ppa -y
-		done
 	;;
-    *) echo "..." ;;
+    *) echo "..."
+	;;
 esac
 
-install_progs "$package_lists"
-firefox_configs https://github.com/ispanos/mozzila
-clone_dotfiles https://github.com/ispanos/dotfiles
-NvidiaDrivers; arduino_groups; virtualbox; catalog;
-[ -f /usr/bin/docker ] && sudo usermod -aG docker $USER
-# flatpak -y install flathub com.valvesoftware.Steam
+progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
+merge_lists $@ && install_progs
 
 case $(hostnamectl | awk -F": " 'NR==1 {print $2}') in 
 	killua) printf "\n\nkillua:\n"; it87_driver; data; agetty_set ;;
 		 *) echo "Unknown hostname" ;;
 esac
+
+[ -f /usr/bin/docker ] && sudo usermod -aG docker $USER
+NvidiaDrivers; arduino_groups; virtualbox; catalog
+firefox_configs https://github.com/ispanos/mozzila
+clone_dotfiles https://github.com/ispanos/dotfiles

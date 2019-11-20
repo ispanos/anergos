@@ -104,7 +104,7 @@ get_pass() {
 
 
 systemd_boot() {
-	# Installs and configures systemd-boot. (only for archlinux atm.)
+	# Installs and configures systemd-boot.
 	bootctl --path=/boot install
 
 	cat > /boot/loader/loader.conf <<-EOF
@@ -209,7 +209,6 @@ core_arch_install() {
 
 	pacman --noconfirm --needed -S  man-db man-pages usbutils nano \
 		base-devel git pacman-contrib expac arch-audit \
-		# Optional packages for quick testing over ssh
 		networkmanager openssh
 
 	systemctl enable NetworkManager
@@ -221,10 +220,10 @@ core_arch_install() {
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 
-	sudo -u "$name" git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay
-	cd /tmp/yay && sudo -u "$name" makepkg -si --noconfirm
-
     printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
+
+	# Use all cpu cores to compile packages
+	sudo sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 
 	# Creates a swapfile. 2Gigs in size.
 	fallocate -l 2G /swapfile
