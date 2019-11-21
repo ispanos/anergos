@@ -27,8 +27,12 @@ merge_lists() {
 	done
 }
 
-install_environment() { # This one does alot of stuff.
-	# Depending on the disto,
+install_environment() {
+	# Depending on the disto, it installs some necessary packages
+	# and repositories. This is only tested on Archlinux.
+	# Manjaro, Fedora and Ubuntu are not tested, but are here as
+	# they could be useful to me in the future.
+
 	local packages extra_repos nvidiaGPU
 	packages=$(sed '/^#/d;/^,/d;s/,.*$//' /tmp/progs.csv | tr "\n" " ")
 	extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' /tmp/progs.csv)
@@ -37,11 +41,12 @@ install_environment() { # This one does alot of stuff.
 	# IF there is an nvidia GPU, it prompts the user to install the drivers.
 	nvidiaGPU=$(lspci -k | grep -A 2 -E "(VGA|3D)" | grep "NVIDIA" |
 		awk -F'[][]' '{print $2}')
+		
 	[ "$nvidiaGPU" ] && read -rep "
 		Detected Nvidia GPU: $nvidiaGPU
 		Would you like to install the non-free Nvidia drivers? [y/N]: " nvdri
 
-	[ ! -d "$HOME/.local" ] && mkdir "$HOME/.local"
+	mkdir "$HOME/.local"
 	case $lsb_dist in
 
 	manjaro)
@@ -154,9 +159,9 @@ clone_dotfiles() {
 	git clone -q --bare "$dotfilesrepo" "$dir/.cfg"
 	git --git-dir="$dir/.cfg/" --work-tree="$dir" checkout
 	git --git-dir="$dir/.cfg/" --work-tree="$dir" config \
-		--local status.showUntrackedFiles no >/dev/null
+		--local status.showUntrackedFiles no
 	rm "$dir/.gitignore"
-	cp -rfT . "$HOME/"
+	cp -rfT "$dir/" "$HOME/"
 }
 
 firefox_configs() {

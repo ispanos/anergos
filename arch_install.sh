@@ -8,6 +8,10 @@ export multi_lib_bool=true
 export timezone="Europe/Athens"
 export lang="en_US.UTF-8"
 
+if [ ! -d "/sys/firmware/efi" ]; then
+	echo "Please use UEFI mode." && exit
+fi
+
 get_drive() {
 	local dialogOUT
     # Sata and NVME drives array
@@ -87,10 +91,9 @@ get_username() {
 
 get_pass() {
 	# Pass the name of the user as an argument.
-    local cr=`echo $'\n.'`; cr=${cr%.}
-    local le_usr="$1"
-	local get_pwd_pass
-	local check_4_pass
+    local cr le_usr get_pwd_pass check_4_pass
+	cr=$(echo $'\n.'); cr=${cr%.}
+	le_usr="$1"
     read -rsep $"Enter a password for $le_usr: $cr" get_pwd_pass
     read -rsep $"Retype ${le_usr}'s password: $cr" check_4_pass
 
@@ -203,17 +206,13 @@ core_arch_install() {
 	if [ "$root_password" ]; then
 		printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
 	else
-		passwd -l root
+		echo "ROOT PASSWORD IS NOT SET!!!!"
+		# find a way to fix this.
+		#passwd -l root
 	fi
 
 	useradd -m -g wheel -G power -s /bin/bash "$name" # Create user
 	echo "$name:$user_password" | chpasswd 			# Set user password.
-
-	pacman --noconfirm --needed -S  man-db man-pages usbutils nano \
-		base-devel git pacman-contrib expac arch-audit \
-		networkmanager openssh
-
-	systemctl enable NetworkManager
 
 	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
 	chmod 440 /etc/sudoers.d/wheel
@@ -237,23 +236,32 @@ core_arch_install() {
 	printf "\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
 	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" \
 			>> /etc/sysctl.d/99-sysctl.conf
+	
+	systemctl enable NetworkManager
 }
 
 hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
 name=$(get_username)
 user_password="$(get_pass $name)"
-# If root_passwdrd is not set, root login is disabled.
+# If root_passwdrd is not set, root login should be disabled.
 # root_password="$(get_pass root)"
 export hostname name user_password root_password
 
 # Select main drive
 HARD_DRIVE=$(get_drive)
+
 # Partition drive. 		!!! DELETES ALL DATA !!!
-clear; partition_drive $HARD_DRIVE
+#clear; partition_drive $HARD_DRIVE
+
 # Formats the drive. 	!!! DELETES ALL DATA !!!
 format_mount_parts $HARD_DRIVE
+
 timedatectl set-ntp true
-pacstrap /mnt base linux linux-headers linux-firmware
+
+pacstrap /mnt base base-devel git linux linux-headers linux-firmware \
+			  man-db man-pages usbutils nano pacman-contrib expac arch-audit \
+			  networkmanager openssh
+
 genfstab -U /mnt > /mnt/etc/fstab
 export -f systemd_boot grub_mbr core_arch_install
 arch-chroot /mnt bash -c core_arch_install
