@@ -229,3 +229,5 @@ esac
 
 clone_dotfiles https://github.com/ispanos/dotfiles
 firefox_configs https://github.com/ispanos/mozzila
+
+echo "Anergos installation is complete. Please log out and log back in."

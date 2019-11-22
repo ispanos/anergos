@@ -240,15 +240,15 @@ core_arch_install() {
 	systemctl enable NetworkManager
 }
 
-hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
-name=$(get_username)
-user_password="$(get_pass $name)"
+hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var) || exit
+name=$(get_username) || exit
+user_password="$(get_pass $name)" || exit
 # If root_passwdrd is not set, root login should be disabled.
 # root_password="$(get_pass root)"
 export hostname name user_password root_password
 
 # Select main drive
-HARD_DRIVE=$(get_drive)
+HARD_DRIVE=$(get_drive) || exit
 
 # Partition drive. 		!!! DELETES ALL DATA !!!
 #clear; partition_drive $HARD_DRIVE

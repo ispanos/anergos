@@ -13,11 +13,9 @@ fzf,fuzzy finder tool,
 highlight,highlight code output,
 htop,system usage information and displays processes,
 lsd,the modern ls,
-lshw,lists all hardware on the system,
 mediainfo,shows audio and video information and is used by ranger as well,
 nano,text editor,
 neofetch,displays basic system information,
-neovim,terminal text editor,
 net-tools,configuration tools for Linux networking,
 nmap,network scanner,
 ntfs-3g,allows accessing NTFS partitions,
@@ -36,12 +34,14 @@ w3m,terminal browser which can also view images,
 wireless_tools,tools allowing to manipulate the Wireless Extensions,
 wpa_supplicant,a utility providing key negotiation for WPA wireless networks,
 youtube-dl,download any YouTube video/playlist/channel) when given the link,
-inxi,CLI system information tool,A
-glxinfo,,A
 sc-im,terminal spreadsheet manager,A
 simple-mtpfs,enables the mounting of cell phones outside of pcmanfm,A
 yadm,?Maybe?,A
 stow,?Maybe?,
+,,
+inxi,CLI system information tool,A
+glxinfo,,A
+lshw,lists all hardware on the system,
 ,,
 #i3,,
 i3,window manager (group),
@@ -106,6 +106,7 @@ docker,,
 docker-compose,,
 python-pip,,
 autopep8,,
+neovim,terminal text editor,
 code,,
 shellcheck,,
 shfmt,,
