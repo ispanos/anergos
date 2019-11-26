@@ -213,7 +213,7 @@ data() { # Mounts my HHD. Useless to anyone else
 
 lsb_dist="$(source /etc/os-release && echo "$ID")"
 printf "%sAnergos:\nDistribution - %s\n\n%s" $(tput setaf 4) $lsb_dist $(tput sgr0)
-
+# echo  -e "\e[0;36mDone.\e[39m"
 progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
 merge_lists $@ && install_environment
 
