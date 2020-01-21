@@ -211,6 +211,37 @@ data() { # Mounts my HHD. Useless to anyone else
 		sudo tee -a /etc/fstab >/dev/null
 }
 
+g810_driver(){
+	yay -S --noconfirm --needed g810-led-git
+	cat <<-EOF | sudo tee /etc/g810-led/profile >/dev/null
+		# Sample profile by groups keys
+		g logo B3B383
+		g indicators ffffff
+		g multimedia B3B383
+		g fkeys B3B383
+		g modifiers B3B383
+		g arrows B3B383
+		g numeric B3B383
+		g functions B3B383
+		g keys B3B383
+		g gkeys B3B383
+
+		# Defaults
+		#g logo 000096
+		#g indicators ffffff
+		#g multimedia 009600
+		#g fkeys ff00ff
+		#g modifiers ff0000
+		#g arrows ffff00
+		#g numeric 00ffff
+		#g functions ffffff
+		#g keys 009696
+		#g gkeys ffffff
+
+		c # Commit changes
+	EOF
+}
+
 lsb_dist="$(source /etc/os-release && echo "$ID")"
 printf "%sAnergos:\nDistribution - %s\n\n%s" $(tput setaf 4) $lsb_dist $(tput sgr0)
 # echo  -e "\e[0;36mDone.\e[39m"
@@ -223,6 +254,9 @@ killua)
 	it87_driver
 	data
 	agetty_set
+	g810_driver
+	# for lol
+	#echo "abi.vsyscall32 = 0" | sudo tee /etc/sysctl.conf >/dev/null
 	;;
 *) echo "Unknown hostname" ;;
 esac

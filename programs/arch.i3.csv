@@ -40,12 +40,13 @@ yadm,?Maybe?,A
 stow,?Maybe?,
 ,,
 inxi,CLI system information tool,A
-glxinfo,,A
 lshw,lists all hardware on the system,
+chntpw,Offline NT Password Editor,
 ,,
 #i3,,
-i3,window manager (group),
-picom,compton fork,
+i3-gaps,window manager,
+i3blocks,,
+i3lock-color,,
 dmenu,generic men for X,
 jq,Command-line JSON processor,
 xorg-server,graphical server,
@@ -99,6 +100,14 @@ virtualbox,,
 virtualbox-guest-iso,,
 virtualbox-ext-oracle,,A
 popcorntime,a program that I don't use,A
+spotify,audio streaming app,A
+stacer,,A
+#Gaming,,
+wine,,
+wine-lol,,A
+lib32-vulkan-icd-loader,,
+lutris,,
+steam,,
 #dev,,
 arduino,IDE for arduino,
 arduino-avr-core,archlinux upstream avr-gcc,

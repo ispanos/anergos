@@ -3,7 +3,7 @@
 
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/arch.iso of=/dev/sdx status=progress oflag=sync
-
+exit # Don't use this script
 export multi_lib_bool=true
 export timezone="Europe/Athens"
 export lang="en_US.UTF-8"
@@ -17,7 +17,8 @@ get_drive() {
     # Sata and NVME drives array
     drives=( $(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$") )
 
-	# 1 sda 2 sdb 3 sdc 4 nvme0n1 .....
+	# Enumerates every drive like so: 
+	# 1 /dev/sda 2 /dev/sdb 3 /dev/sdc 4 /dev/nvme0n1 .....
     local -i n=0
 	for i in "${drives[@]}" ; do
 		dialog_prompt="$dialog_prompt $n $i"
@@ -29,8 +30,11 @@ get_drive() {
 	dialogOUT=$(dialog --title "Select your Hard-drive" \
         --menu "$(lsblk)" 0 0 0 $dialog_prompt 3>&1 1>&2 2>&3 3>&1 ) || exit
 
+	HARD_DRIVE="/dev/${drives[$dialogOUT]}"
+	[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${HARD_DRIVE}p"
+
     # Converts dialog output to the actuall name of the selected drive.
-    echo "/dev/${drives[$dialogOUT]}"
+    echo "$HARD_DRIVE"
 }
 
 partition_drive() {
@@ -63,16 +67,14 @@ partition_drive() {
 }
 
 format_mount_parts() {
-	[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${1}p"
-
 	yes | mkfs.ext4 -L "Arch" ${1}2
-	mount ${1}2 /mnt
+	mount "${1}2" /mnt
 
 	yes | mkfs.fat  -n "ESP" -F 32 ${1}1
-	mkdir /mnt/boot && mount ${1}1 /mnt/boot
+	mkdir /mnt/boot && mount "${1}1" /mnt/boot
 
-	yes | mkfs.ext4 -L "Home" ${1}3
-	mkdir /mnt/home && mount ${1}3 /mnt/home
+	#yes | mkfs.ext4 -L "Home" ${1}3
+	mkdir /mnt/home && mount "${1}3" /mnt/home
 }
 
 
@@ -254,7 +256,7 @@ HARD_DRIVE=$(get_drive) || exit
 #clear; partition_drive $HARD_DRIVE
 
 # Formats the drive. 	!!! DELETES ALL DATA !!!
-format_mount_parts $HARD_DRIVE
+format_mount_parts "$HARD_DRIVE"
 
 timedatectl set-ntp true
 

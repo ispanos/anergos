@@ -44,6 +44,10 @@ A,clion-lldb,"is a C/C++ IDE."
 A,sublime-text-dev,
 ,,
 # Gaming,,
+,lib32-vulkan-icd-loader,
+,lutris,
+,wine,
+,wine-lol,
 ,steam,"is a game store."
 ,lib32-nss,"fixes network issue with steam on Arch."
 A,discord,"is voice/text chat client for gamers."
@@ -73,6 +77,7 @@ A,rtl88xxau-aircrack-dkms-git,"https://github.com/aircrack-ng/rtl8812au#branch=v
 ,,
 ,,
 # X,,
+,picom,compton fork
 ,xcape,"gives the special escape/super mappings of LARBS."
 ,xdotool,"provides window action utilities on the command line."
 ,xorg-xbacklight,"enables changing screen brightness levels."
