@@ -214,17 +214,25 @@ data() { # Mounts my HHD. Useless to anyone else
 g810_driver(){
 	yay -S --noconfirm --needed g810-led-git
 	cat <<-EOF | sudo tee /etc/g810-led/profile >/dev/null
-		# Sample profile by groups keys
-		g logo B3B383
-		g indicators ffffff
-		g multimedia B3B383
-		g fkeys B3B383
-		g modifiers B3B383
-		g arrows B3B383
-		g numeric B3B383
-		g functions B3B383
-		g keys B3B383
-		g gkeys B3B383
+		a 856054
+
+		k logo 000030
+
+		k win_left 000030
+		k win_right 000030
+
+		k game_mode ff0000
+		k caps_indicator ff0000
+
+
+		k scrolllock 000000
+
+		k num_indicator ffffff
+
+		k light 505050
+
+		g arrows 000030
+		c
 
 		# Defaults
 		#g logo 000096
