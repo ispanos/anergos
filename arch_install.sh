@@ -3,43 +3,38 @@
 
 # setfont sun12x22 #HDPI
 # dd bs=4M if=path/to/arch.iso of=/dev/sdx status=progress oflag=sync
-exit # Don't use this script
-export multi_lib_bool=true
 export timezone="Europe/Athens"
 export lang="en_US.UTF-8"
 
 if [ ! -d "/sys/firmware/efi" ]; then
-	echo "Please use UEFI mode." && exit
+	echo "Please use UEFI mode." && exit 1
 fi
 
 get_drive() {
-	local dialogOUT
-    # Sata and NVME drives array
-    drives=( $(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$") )
+	# Asks user to select a /dev/sdX or /dev/nvmeXXX device and
+	# returns the selected device.
+	local drives number
+	local -i n=1
+	# Sata and NVME drives array
+	drives=( $(/usr/bin/ls -1 /dev | grep -P "sd.$|nvme.*$" | grep -v "p.$") )
+	lsblk -n >&1 1>&2
+	printf "\nPlease select a drive by typing the corresponding number.\n" >&1 1>&2
+	for i in "${drives[@]}"; do printf "\t%s - /dev/%s\n" $n $i >&1 1>&2; ((n++)); done
+	read -rep "Enter drive's number: " number
 
-	# Enumerates every drive like so: 
-	# 1 /dev/sda 2 /dev/sdb 3 /dev/sdc 4 /dev/nvme0n1 .....
-    local -i n=0
-	for i in "${drives[@]}" ; do
-		dialog_prompt="$dialog_prompt $n $i"
-        ((n++))
+	while [[ $(("$number" - 1 )) -ge "${#drives[@]}" ]] || [ -z "$number" ]; do
+		echo "Number '$number' is not an available option." >&1 1>&2; unset number
+		read -rep "Select a drive by typing the corresponding number: " number
 	done
 
-    # Prompts user to select one of the available sda or nvme drives.
-    
-	dialogOUT=$(dialog --title "Select your Hard-drive" \
-        --menu "$(lsblk)" 0 0 0 $dialog_prompt 3>&1 1>&2 2>&3 3>&1 ) || exit
-
-	HARD_DRIVE="/dev/${drives[$dialogOUT]}"
-	[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${HARD_DRIVE}p"
-
-    # Converts dialog output to the actuall name of the selected drive.
-    echo "$HARD_DRIVE"
+	echo "/dev/${drives[$(("$number" - 1 ))]}"
 }
 
 partition_drive() {
 	# Uses fdisk to create an "EFI System" partition  (500M),
 	# a "Linux root" partition and a "linux home" partition.
+	# Obviously it erases all data on the device.
+	# Pass the /dev device name as argument. 
 	cat <<-EOF | fdisk --wipe-partitions always $1
 		g
 		n
@@ -67,18 +62,76 @@ partition_drive() {
 }
 
 format_mount_parts() {
-	yes | mkfs.ext4 -L "Arch" ${1}2
-	mount "${1}2" /mnt
+	# Used after partitioning the device, it formats and mounts
+	# the 3 newly created partitions.
+	# Obviously it erases all data on the device.
+	# Pass the /dev device name as argument. 
+	local HARD_DRIVE=$1
 
-	yes | mkfs.fat  -n "ESP" -F 32 ${1}1
-	mkdir /mnt/boot && mount "${1}1" /mnt/boot
+	# NVME drives have a "p" before the partition number.
+	[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${HARD_DRIVE}p"
 
-	#yes | mkfs.ext4 -L "Home" ${1}3
-	mkdir /mnt/home && mount "${1}3" /mnt/home
+	yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}2
+	mount "${HARD_DRIVE}2" /mnt
+
+	mkdir /mnt/boot /mnt/home
+	yes | mkfs.fat  -n "ESP" -F 32 ${HARD_DRIVE}1
+	mount "${HARD_DRIVE}1" /mnt/boot
+	yes | mkfs.ext4 -L "Home" ${HARD_DRIVE}3
+	mount "${HARD_DRIVE}3" /mnt/home
+}
+
+format_and_mount_partitions(){
+	if blkid -o list | grep -q "/mnt \|/mnt/boot" ;then
+		cat <<-EOF
+			Looks like you have mounted the required partitions [/mnt,/mnt/boot].
+			This script is meant for a clean Archlinux installation, so the new /
+			partition should be formated. If you are dual-booting, make sure you 
+			don't erase the EFI partition of your other OS.
+
+			Please make sure /mnt is formated before you continue:
+			$(du -hx -d 0 /mnt)
+
+			NO changes have been made so far.
+		EOF
+
+		read -rep "Press ENTER to continue or type 'exit' to exit: " warn
+		while [ "$warn" ]; do
+			[[ "$warn" == "exit" ]] && exit 1
+			read -rep "Press ENTER to continue or type 'exit' to exit: " warn
+		done
+
+	else
+		cat <<-EOF
+
+			Looks like you haven't mounted the required partitions [/mnt,/mnt/boot].
+			If you have mounted one or more partitions from the drive you plan to
+			install Archlinux on, please exit ths script and make sure /mnt and /boot
+			are both mounted properly. Otherwise this script may fail.
+
+			This script provides a quick way to format and partition a drive in to 3
+			partitions [/,/boot,/home]. The newly created partitions are going to be
+			formated and ALL DATA ON THE DRIVE WILL BE LOST.
+			If you continue, you will be prompted to select a drive. 
+
+			I recommend this only for testing on a VM. 
+
+			To continue type either 'Y' or 'y'. Any other input will terminate
+			the script. NO changes have been made so far.
+		EOF
+		read -rep "[y/N]: " format
+
+		[[ $format =~ ^[Yy]$ ]] || exit 1
+		# Select main drive
+		local HARD_DRIVE
+		HARD_DRIVE=$(get_drive) || exit 1
+
+		partition_drive "$HARD_DRIVE"
+		format_mount_parts "$HARD_DRIVE"
+	fi
 }
 
 
-## Archlinux installation ##
 get_username() {
 	# Ask for the name of the main user.
 	local get_name
@@ -87,7 +140,7 @@ get_username() {
 	while ! echo "$get_name" | grep -q "^[a-z_][a-z0-9_-]*$"; do
 		read -rep $'Invalid name. Try again: \n' get_name
 	done
-    echo $get_name
+    echo "$get_name"
 }
 
 
@@ -144,6 +197,7 @@ systemd_boot() {
 		Type = Package
 		Operation = Upgrade
 		Target = systemd
+
 		[Action]
 		Description = Updating systemd-boot
 		When = PostTransaction
@@ -172,12 +226,12 @@ core_arch_install() {
 	locale-gen > /dev/null 2>&1
 	echo 'LANG="'$lang'"' > /etc/locale.conf
 
-	echo $hostname > /etc/hostname
+	echo "$hostname" > /etc/hostname
 	cat > /etc/hosts <<-EOF
-		#<ip-address>   <hostname.domain.org>    <hostname>
-		127.0.0.1       localhost.localdomain    localhost
-		::1             localhost.localdomain    localhost
-		127.0.1.1       ${hostname}.localdomain  $hostname
+		#<ip-address>  <hostname.domain.org>    <hostname>
+		127.0.0.1      localhost.localdomain    localhost
+		::1            localhost.localdomain    localhost
+		127.0.1.1      ${hostname}.localdomain  $hostname
 	EOF
 
 	# Enable [multilib] repo, if multi_lib_bool == true
@@ -196,6 +250,7 @@ core_arch_install() {
 
 	# This folder is needed for pacman hooks
 	mkdir -p /etc/pacman.d/hooks
+
 	# Install bootloader
 	if [ -d "/sys/firmware/efi" ]; then
 		systemd_boot
@@ -208,7 +263,8 @@ core_arch_install() {
 	if [ "$root_password" ]; then
 		printf "${root_password}\\n${root_password}" | passwd >/dev/null 2>&1
 	else
-		echo "ROOT PASSWORD IS NOT SET!!!!"
+		echo "ROOT PASSWORD IS NOT SET!!!! Disable root login or set one later."
+		read -rep "Please press ENTER to continue."
 		# find a way to fix this.
 		#passwd -l root
 	fi
@@ -238,32 +294,47 @@ core_arch_install() {
 	printf "\\n/swapfile none swap defaults 0 0\\n" >> /etc/fstab
 	printf "vm.swappiness=10\\nvm.vfs_cache_pressure=50" \
 			>> /etc/sysctl.d/99-sysctl.conf
-	
+
 	systemctl enable NetworkManager
 }
 
-hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var) || exit
-name=$(get_username) || exit
-user_password="$(get_pass $name)" || exit
+# User inputs.
+hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
+name=$(get_username)
+user_password="$(get_pass $name)"
+
 # If root_passwdrd is not set, root login should be disabled.
 # root_password="$(get_pass root)"
-export hostname name user_password root_password
 
-# Select main drive
-HARD_DRIVE=$(get_drive) || exit
+# multilib
+read -rep "
+Would you like to enable multilib (for gaming)? 
+(defaults to no)[y/N]: " multi_lib_bool_ans
 
-# Partition drive. 		!!! DELETES ALL DATA !!!
-#clear; partition_drive $HARD_DRIVE
 
-# Formats the drive. 	!!! DELETES ALL DATA !!!
-format_mount_parts "$HARD_DRIVE"
 
+# This is where the action starts.
 timedatectl set-ntp true
+
+# If you have mounted a partition at /mnt, it doens't format it.
+format_and_mount_partitions
+
+
+if [[ $multi_lib_bool_ans =~ ^[Yy]$ ]]; then
+	export multi_lib_bool=true
+fi
+
+export hostname name user_password root_password
 
 pacstrap /mnt base base-devel git linux linux-headers linux-firmware \
 			  man-db man-pages usbutils nano pacman-contrib expac arch-audit \
-			  networkmanager openssh
+			  networkmanager openssh flatpak
 
 genfstab -U /mnt > /mnt/etc/fstab
 export -f systemd_boot grub_mbr core_arch_install
 arch-chroot /mnt bash -c core_arch_install
+
+# TODO
+# Add encryption
+# Add Grub
+# Incorporate snapshots after updates
