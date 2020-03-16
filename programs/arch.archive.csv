@@ -13,14 +13,6 @@ mako,is a notification daemon,
 grim,is a screenshot utility for Wayland,
 slurp,is a region-screenshot utility for Wayland,
 imv,is an image viewer for Wayland and X11,
-# Gaming,,
-lib32-vulkan-icd-loader,,
-lutris,,
-wine,,
-wine-lol,,
-steam,is a game store,
-lib32-nss,fixes network issue with steam on Arch,
-discord,is voice/text chat client for gamers,A
 # X,,
 picom,compton fork
 xcape,gives the special escape/super mappings of LARBS,
@@ -31,15 +23,11 @@ python-pywal,is used to change X colors to match the wallpaper,
 interception-hideaway,hides cursor after some time,A
 xclip,allows for copying and pasting from the command line,
 # Media:,,
-pulseaudio-ctl,,
-pulseaudio-jack,,
-pulseaudio-zerocon,,
+pulseaudio-ctl,,A
 volumeicon,is the tray icon for volume control,
-guvcview,is the webcam app I used to use,
-clementine,is an audio library,
+guvcview,webcam app,
 davinci-resolve,a professional A/V post-production software suite from Blackmagic Design,A
 imagemagick,is a terminal image-manipulator providing some convenient shortcuts and the lockscreen in LARBS,
-gthumb,is an image viewer I use for cropping images,
 mpd,is a lightweight music daemon,
 mpc,is a terminal interface for mpd,
 ncmpcpp,a ncurses interface for music with multiple formats and a powerful tag editor,
@@ -51,11 +39,10 @@ noto-fonts,Google Noto TTF fonts,
 noto-fonts-emoji,provides unicode symbols and emojis,
 ttf-joypixels,is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere,
 # LightDM:,,
-lightdm,,
-webkit2gtk,,
+lightdm-webkit2-greeter,,
 lightdm-webkit-theme-litarvan,,
 # Dev K,,
-#unity,,
+unity-editor,,A
 gitkraken,cross-platform Git client,A
 npm,is a package manager for javascript,
 nodejs,,
@@ -84,6 +71,7 @@ code,is the Open Source build of Visual Studio Code (vscode) editor,
 visual-studio-code-bin,is microsofts code editor,A
 sublime-text-dev,,A
 #Random,,
+discord,is voice/text chat client for gamers,A
 skippy-xd-git,A full-screen task-switcher for X11,A
 ansible,Radically simple IT automation platform,
 blender,a fully integrated 3D graphics creation suite,
