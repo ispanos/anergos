@@ -99,10 +99,12 @@ virtualbox-guest-iso,,
 virtualbox-ext-oracle,,A
 popcorntime,a program that I don't use,A
 spotify,audio streaming app,A
+g810-led-git,,
 stacer,,A
 #Gaming,,
 wine,,
 wine-lol,,A
+vulkan-icd-loader,,
 lib32-vulkan-icd-loader,,
 lutris,,
 steam,,

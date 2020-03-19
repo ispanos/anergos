@@ -96,7 +96,11 @@ multibootusb,,A
 filezilla,,
 pacmanlogviewer,,
 brasero,is a DVD burner program,
+# Hardware things,,
 wattmangtk,,A
 rtl88xxau-aircrack-dkms-git,https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20,A
 brightnessctl,brightness control tool,
 wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html,
+lib32-mesa,needed by Intel and Radeon cards for gaming,
+vulkan-radeon,for Radeon cards,
+vulkan-intel,for Intel cards,

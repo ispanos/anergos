@@ -73,6 +73,7 @@ transmission-gtk,torrent client,
 libreoffice,,
 libreoffice-langpack-el,,
 libreoffice-langpack-en,,
+g810-led,,lkiesow/g810-led
 #Dev,,
 git,,
 ctags,,
