@@ -1,158 +1,147 @@
 #!/usr/bin/env bash
 # License: GNU GPLv3
 
-install_environment() {
-	# Depending on the disto, it installs some necessary packages
-	# and repositories. This is only tested on Archlinux.
-	# Manjaro, Fedora and Ubuntu are not tested, but are here as
-	# they could be useful to me in the future.
-
+printLists(){
 	# Warning:
-	# The script assumes you give at least one proper package list.
+	# The function assumes you give at least one proper package list.
 	if [ "$#" -lt 1 ]; then
 		echo 1>&2 "Missing arguments."
 		exit 1
 	fi
 
-	local packages extra_repos nvidiaGPU
-
-	# Merges all csv files in one file. Checks for local files first.
+	# Prints the content of `.csv` files given as arguments.
+	# Checks for local files first.
 	for file in "$@"; do
 		if [ -r "$ID.$file.csv" ]; then
-			cat "$ID.$file.csv" >>/tmp/progs.csv
+			cat "$ID.$file.csv"
 		elif [ -r "programs/$ID.$file.csv" ]; then
-			cat "programs/$ID.$file.csv" >>/tmp/progs.csv
+			cat "programs/$ID.$file.csv"
 		else
-			curl -Ls "$progs_repo/$ID.$file.csv" >>/tmp/progs.csv
+			curl -Ls "$progs_repo/$ID.$file.csv"
 		fi
 	done
+}
 
-	packages=$(sed '/^#/d;/^,/d;s/,.*$//' /tmp/progs.csv)
-	extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' /tmp/progs.csv)
+arch_(){
+	echo "Updating and installing git and base-devel if needed."
+	sudo pacman -Syu --noconfirm --needed git base-devel
 
-	# Basic check to see if there any packages in the variable.
-	if [ -z "$packages" ]; then
-		echo 1>&2 "Error parsing package lists."
-		exit 1
+	if [ ! "$(command -v yay)" ]; then
+		git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay
+		cd /tmp/yay && makepkg -si --noconfirm --needed
 	fi
 
+	# Installs VirtualBox guest utils only on guests.
+	if lspci | grep -q VirtualBox; then
+		packages="$packages virtualbox-guest-modules-arch 
+		virtualbox-guest-utils xf86-video-vmware"
+	fi
+
+	if [[ $nvdri =~ ^[Yy]$ ]]; then
+		packages="$packages nvidia nvidia-settings"
+		grep -q "^\[multilib\]" /etc/pacman.conf &&
+			packages="$packages lib32-nvidia-utils"
+	fi
+
+	yay -S --noconfirm --needed --removemake $packages || exit 3
+	
+	[ -f  $HOME/.local/Fresh_pack_list ] || 
+		yay -Qq >$HOME/.local/Fresh_pack_list
+
+	if [ "$(command -v arduino)" ]; then
+		sudo usermod -aG uucp "$USER"
+		sudo usermod -aG lock "$USER"
+		echo cdc_acm |
+			sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
+	fi
+}
+
+manjaro_(){
+	sudo pacman -Syu --noconfirm --needed yay base-devel git
+
+	# To do: Install VirtualBox guest utils only on guests.
+	# To do: Install Nvidia drivers
+	yay --nodiffmenu --save
+	yay -S --noconfirm --needed --removemake $packages
+	yay -Yc --noconfirm
+	[ -f  $HOME/.local/Fresh_pack_list ] || 
+		yay -Qq >$HOME/.local/Fresh_pack_list
+}
+
+ubunctu_(){
+	sudo apt-get update && sudo apt-get -y upgrade
+
+	for ppa in $extra_repos; do
+		sudo add-apt-repository ppa:$ppa -y
+	done
+
+	# To do: Install VirtualBox guest utils only on guests.
+	# To do: Install Nvidia drivers
+
+	sudo apt install $packages
+	sudo apt-get clean && sudo apt autoremove
+	[ -f  $HOME/.local/Fresh_pack_list ] || 
+		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
+
+	if [ "$(command -v arduino)" ]; then
+		sudo usermod -aG dialout "$USER"
+	fi
+}
+
+fedora_(){
+	srtlnk="https://download1.rpmfusion.org"
+	free="free/fedora/rpmfusion-free-release"
+	nonfree="nonfree/fedora/rpmfusion-nonfree-release"
+	sudo dnf install -y "$srtlnk/$free-$(rpm -E %fedora).noarch.rpm"
+	sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
+	sudo dnf upgrade -y
+	sudo dnf remove -y openssh-server
+
+	# To do: Install VirtualBox guest utils only on guests.
+	# To do: Install Nvidia drivers
+
+	for corp in $extra_repos; do
+		sudo dnf copr enable "$corp" -y
+	done
+	sudo dnf install -y $packages
+	[ -f  $HOME/.local/Fresh_pack_list ] || 
+		dnf list installed >"$HOME/.local/Fresh_pack_list"
+}
+
+install_environment() {
+	local packages extra_repos nvidiaGPU progsFile
+
+	progsFile="/tmp/progs_$(date +%s).csv"
+	printLists "$@" >>"$progsFile"
+	packages=$(sed '/^#/d;/^,/d;s/,.*$//' "$progsFile")
+	extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile")
+
+	# Rudimentary check to see if there are any packages in the variable.
+	[ -z "$packages" ] && echo 1>&2 "Error parsing package lists." && exit 1
+
 	# Installs proprietery Nvidia drivers for supported distros.
-	# IF there is an nvidia GPU, it prompts the user to install the drivers.
+	# If there is an nvidia GPU, it asks the user to install drivers.
 	nvidiaGPU=$(lspci -k | grep -A 2 -E "(VGA|3D)" | grep "NVIDIA" |
-		awk -F'[][]' '{print $2}')
+				awk -F'[][]' '{print $2}')
 
 	[ "$nvidiaGPU" ] && read -rep "
 		Detected Nvidia GPU: $nvidiaGPU
-		Would you like to install the non-free Nvidia drivers? [y/N]: " nvdri
+		Install proprietary Nvidia drivers? [y/N]: " nvdri
 
 	mkdir "$HOME/.local"
 
 	case $ID in
-
-	arch)
-		echo "Updating and installing git and base-devel if needed."
-		sudo pacman -Syu --noconfirm --needed git base-devel
-
-		if [ ! "$(command -v yay)" ]; then
-			git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay
-			cd /tmp/yay && makepkg -si --noconfirm --needed
-		fi
-
-		# Installs VirtualBox guest utils only on guests.
-		if lspci | grep -q VirtualBox; then
-			packages="$packages virtualbox-guest-modules-arch 
-			virtualbox-guest-utils xf86-video-vmware"
-		fi
-
-		if [[ $nvdri =~ ^[Yy]$ ]]; then
-			packages="$packages nvidia nvidia-settings"
-			grep -q "^\[multilib\]" /etc/pacman.conf &&
-				packages="$packages lib32-nvidia-utils"
-		fi
-
-		yay --nodiffmenu --save
-		yay -S --noconfirm --needed $packages
-		yay -Yc --noconfirm
-		yay -Qq >$HOME/.local/Fresh_pack_list
-
-		if [ "$(command -v arduino)" ]; then
-			echo cdc_acm |
-				sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
-			groups | grep -q uucp || sudo usermod -aG uucp "$USER"
-			groups | grep -q lock || sudo usermod -aG lock "$USER"
-		fi
-		;;
-
-	manjaro)
-		sudo pacman -Syu --noconfirm --needed yay base-devel git
-
-		# Installs VirtualBox guest utils only on guests.
-			#TODO
-		# Install Nvidia drivers
-			#TODO
-		yay --nodiffmenu --save
-		yay -S --noconfirm --needed $packages
-		yay -Yc --noconfirm
-		yay -Qq >"$HOME/.local/Fresh_pack_list"
-
-		if [ "$(command -v arduino)" ]; then
-			echo cdc_acm |
-				sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
-			groups | grep -q uucp || sudo usermod -aG uucp "$USER"
-			groups | grep -q lock || sudo usermod -aG lock "$USER"
-		fi
-		;;
-
-	raspbian | ubuntu)
-		sudo apt-get update && sudo apt-get -y upgrade
-
-		for ppa in $extra_repos; do
-			sudo add-apt-repository ppa:$ppa -y
-		done
-
-		# Installs VirtualBox guest utils only on guests.
-			#TODO
-
-		sudo apt install $packages
-		sudo apt-get clean && sudo apt autoremove
-		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
-
-		if [ "$(command -v arduino)" ]; then
-			groups | grep -q dialout || sudo usermod -aG dialout "$USER"
-		fi
-		;;
-
-	fedora)
-		srtlnk="https://download1.rpmfusion.org"
-		free="free/fedora/rpmfusion-free-release"
-		nonfree="nonfree/fedora/rpmfusion-nonfree-release"
-		sudo dnf install -y "$srtlnk/$free-$(rpm -E %fedora).noarch.rpm"
-		sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
-		sudo dnf upgrade -y
-		sudo dnf remove -y openssh-server
-
-		# Installs VirtualBox guest utils only on guests.
-			#TODO
-
-		for corp in $extra_repos; do
-			sudo dnf copr enable "$corp" -y
-		done
-		sudo dnf install -y $packages
-		dnf list installed >"$HOME/.local/Fresh_pack_list"
-		;;
-
-	*) printf "/n/n/n UNSUPPORTED DISTRO\n\n\n" && exit 1;;
-
+		arch) arch_ ;;
+		# manjaro) manjaro_ ;;
+		# raspbian | ubuntu) ubunctu_ ;;
+		# fedora) fedora_ ;;
+		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
-	[ "$(command -v flatpak)" ] && sudo flatpak remote-add --if-not-exists \
-						flathub https://flathub.org/repo/flathub.flatpakrepo
-	# flatpak -y install flathub com.valvesoftware.Steam`
 
 	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
-	[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
-
-	printf "All programs have been installed...\n\n\n"
-	sleep 2
+	[ "$(command -v docker)" ] && sudo usermod -aG vboxusers "$USER"
+	[ "$(command -v flatpak)" ] && sudo flatpak remote-add --if-not-exists \
+						flathub https://flathub.org/repo/flathub.flatpakrepo
 }
 
 clone_dotfiles() {
