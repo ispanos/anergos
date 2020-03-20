@@ -88,6 +88,6 @@ You should changes those according to your region.
 
 #### To do:
 - Add LUKS/LVM support.
-- Prompt user to select `timezone` and `lang` instead of setting the as variables.
+- Prompt user to select `timezone` and `lang` instead of setting them as variables.
 - Add systemd-boot entries for `linux-lts`/`linux-zen` if its installed.
 - Add proper support for non-UEFI installations.
