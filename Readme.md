@@ -77,7 +77,7 @@ If you have mounted the two required partitions (`/mnt` and `/mnt/boot`), the sc
 
 If you haven't mounted those partitions, you will be prompted to choose a drive to partition and format. ALL DATA WILL BE LOST on that drive, so avoid using it this way if you have multiple partitions on that drive and/or data you haven't backed up. For you're own safety, you could unplug all other drives from your system except the one you want to install Archlinux on. Make sure you have a backup of any usefull files on that drive.
 
-After that, the script installes `base`,`base-devel`,`linux` and a few more packages I consider needed, using `pacstrap`. Then using `arch-chroot`, it runs the function `core_arch_install`. I am not going to explain how that works, since you should already know how to install Arch. The contents of that function should be familiar to you.
+After that, the script installs `base`,`base-devel`,`linux` and a few more packages I consider needed, using `pacstrap`. Then using `arch-chroot`, it runs the function `core_arch_install`. I am not going to explain how that works, since you should already know how to install Arch. The contents of that function should be familiar to you.
 
 One last note. In the first few lines I set 2 variables:
 ```
