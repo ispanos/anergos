@@ -165,7 +165,7 @@ clone_dotfiles() {
 	fi
 
 	[ -z "$1" ] && return 1
-	local dir
+	local dir dotfilesrepo
 	dotfilesrepo=$1
 
 	dir=$(mktemp -d)
@@ -179,8 +179,10 @@ clone_dotfiles() {
 	cp -rfT "$dir/" "$HOME/"
 }
 
-agetty_set() { # I don't use a display manager.
-	# This auto-completes the username ( $USER ) for faster logins on tty1.
+agetty_set() {
+	# Doesn't ask for username on the tty for faster logins.
+	# Default user is going to be the user who's running the script.
+
 	local ExexStart log
 	ExexStart="ExecStart=-\/sbin\/agetty --skip-login --login-options"
 	log="$ExexStart $USER --noclear %I \$TERM"
@@ -189,6 +191,7 @@ agetty_set() { # I don't use a display manager.
 	sudo systemctl daemon-reload
 	sudo systemctl reenable getty@tty1.service
 
+	grep -q "Anergos" /etc/issue && return
 	# Edits login screen
 	cat <<-EOF | sudo tee -a /etc/issue >/dev/null
 		\e[0;36m
@@ -199,16 +202,41 @@ agetty_set() { # I don't use a display manager.
 	EOF
 }
 
-it87_driver() { # Requires dkms
+it87_driver() {
+	modprobe -R it87 >/dev/null && return
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	if [ ! "$(command -v git)" ] || [ ! "$(command -v dkms)" ]; then
 		echo "${FUNCNAME[0]} requires git and dkms. Skipping."
 		return 1
 	fi
 
-	local workdir
+	local needed workdir sensors_out chip ioSensors
+	# Check to see if it87 driver is needed.
+	if [ "$(command -v sensors-detect)" ]; then
+		read -r -d '' ioSensors <<-EOF
+			IT8603E IT8623E IT8620E IT8622E IT8625E IT8665E IT8705F IT8712F
+			IT8716F IT8726F IT8720F IT8721F IT8758E IT8728F IT8732F IT8771E
+			IT8772E IT8781F IT8782F IT8783E IT8783F IT8790E SiS950
+		EOF
+
+		sensors_out=$(sudo sensors-detect --auto)
+
+		for chip in $ioSensors; do
+			if grep -q "$chip" <<< "$sensors_out"; then
+				needed=Y
+				break
+			fi
+		done
+	else
+		echo "Automated test for ${FUNCNAME[0]} requires lm_sensors."
+		echo "If you know that you need the driver, type either 'Y' or 'y'"
+		read -rep "to install it. [y/N]:" needed
+	fi
+
+	[[ $needed =~ ^[Yy]$ ]] || return
+
 	workdir=$HOME/.local/sources
-	mkdir -p "$workdir" && cd "$workdir" || return 1
+	mkdir -p "$workdir" && cd "$workdir" || return 2
 	git clone -q https://github.com/bbqlinux/it87 &&
 		cd it87 && sudo make dkms && sudo modprobe it87 &&
 		echo "it87" | sudo tee /etc/modules-load.d/it87.conf >/dev/null
@@ -217,22 +245,29 @@ it87_driver() { # Requires dkms
 mount_hhd_uuid() {
     # Mounts my HHD, provided the UUID, at /media/foo,
     # where "foo" is the label of the drive.
-    [ "$#" -ne 1 ] && echo "Invalid UUID" && return 1
+
+	# Makes sure there is only 1 argument.
+    [ "$#" -ne 1 ] && echo 1>&2 "Invalid UUID" && return 6
+	# Makes sure the UUID isn't already in fstab.
+	grep -q "$1" /etc/fstab && return
+
 	local label mntOpt
 	label=$(sudo blkid -o list | grep "$1" | awk '{print $3}')
-    sudo mkdir -p /media/$label
+	# Makes sure the partition has a label.
+	[ -z "$label" ] && [ "$(wc -w <<< $label)" -ne 1 ] &&
+		echo 1>&2 "UUID doesn't correspond to a label" &&
+		return 6
+
+    sudo mkdir -p "/media/$label"
 	mntOpt="ext4 rw,noatime,nofail,user,auto 0 2"
 	printf "\\n%s \t%s \t%s\t\\n" "UUID=$1" "/media/$label" "$mntOpt" |
 		sudo tee -a /etc/fstab >/dev/null
 }
 
-g810_driver(){
-	if [ ! "$(command -v yay)" ]; then
-		echo "${FUNCNAME[0]} requires yay. Skipping."
-		return 1
-	fi
-
-	yay -S --noconfirm --needed g810-led-git &&
+g810_Led_profile(){
+	# https://github.com/MatMoul/g810-led/
+	[ -d /etc/g810-led ] || return 5
+	sudo mv /etc/g810-led/profile /etc/g810-led/old_profile
 	cat <<-EOF | sudo tee /etc/g810-led/profile >/dev/null
 		a 856054
 		k logo 000030
@@ -254,25 +289,21 @@ if [ "$(id -nu)" == "root" ]; then
 		and should thus not be run as root.
 		You may need to enter your password multiple times.
 	EOF
-	exit 1
+	exit
 fi
 
 source /etc/os-release
 progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
-hostname=$(hostnamectl | awk -F": " 'NR==1 {print $2}')
 
 printf "Anergos:\nDistribution -\e[%sm %s \e[0m\n\n" $ANSI_COLOR $ID
 install_environment "$@"
 clone_dotfiles https://github.com/ispanos/dotfiles
+agetty_set
 
-case $hostname in
-	killua) printf "\n\nkillua:\n"
-		agetty_set
-		it87_driver
-		g810_driver
-		mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
-		;;
-	*) agetty_set ;;
-esac
+# The following functions are only applied if needed.
+# You may get an error message, but they wont apply any unneeded changes.
+g810_Led_profile
+it87_driver
+mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
 
 echo "Anergos installation is complete. Please log out and log back in."

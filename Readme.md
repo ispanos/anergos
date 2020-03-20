@@ -42,7 +42,7 @@ I've been using [Archlinux](https://www.archlinux.org/) since mid 2019, so this 
 
 The dotfiles repository is passed as an argument to the function `clone_dotfiles`. They are cloned to a temporary directory and then copied to your user's HOME directory. Any conflicting files will be overwritten. I should also note that I'm using a bare git repository to store my dotfiles to make it easier to manage and back them up. In order to track and commit changes follow [this turorial](https://www.atlassian.com/git/tutorials/dotfiles) to find out more.
 
-After cloning my dotfiles I apply some extra configurations. Some of them are specific to my hardware. I haven't found a more robust way to apply them, so I use my computers' hostnames to install hardware drivers or add my HHD to fstab. You don't have to remove those functions if you want to test the functionality of the script, unless you happen to use the same hostnames as me. 
+After cloning my dotfiles I apply some extra configurations. Some of them are specific to my hardware. You don't have to remove those functions if you want to test the functionality of the script. There are built-in checks to see if those functions are needed.
 
 If you want to test this script in a virtual machine, install Archlinux using `arch_install.sh`, restart, login to your user and run :
 ```
@@ -56,8 +56,7 @@ If you want to use this script with your own configs and packages, create your o
 
 #### To do:
 - Update package lists for other distros like Fedora, Ubuntu and Manjaro.
-- Install it87 and G810-keyboard drivers, only if the hardware requires that, independently of hostname.
-- Do something different for `mount_hhd_uuid`.
+- agetty_set : Should I just use a Display manager?
 
 
 ## [Arch_install](https://github.com/ispanos/anergos/blob/master/arch_install.sh) 
