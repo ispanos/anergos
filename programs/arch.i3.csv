@@ -1,4 +1,3 @@
-#NAME,PURPOSE,REPO
 atool,manages and gives information about archives,
 bash-completion,is what it sounds like,
 bc,arbitrary precision calculator language,
@@ -86,6 +85,9 @@ pavucontrol,audio controller,
 gnome-keyring,takes care of the user's security credentials,
 polkit-gnome,authentication agent,
 ttf-liberation,Red Hats Liberation fonts,
+ttf-droid,,
+ttf-roboto,,
+ttf-roboto-mono,,
 gcolor3,color picker for GNOME,
 mpv,simple video/gif player,
 zathura-pdf-poppler,PDF plugin for zathura based on poppler,
@@ -99,16 +101,7 @@ virtualbox-guest-iso,,
 virtualbox-ext-oracle,,A
 popcorntime,a program that I don't use,A
 spotify,audio streaming app,A
-g810-led-git,,
-stacer,,A
-#Gaming,,
-wine,,
-wine-lol,,A
-vulkan-icd-loader,,
-lib32-vulkan-icd-loader,,
-lutris,,
-steam,,
-lib32-nss,fixes network issue with steam on Arch,
+g810-led-git,,A
 #dev,,
 arduino,IDE for arduino,
 arduino-avr-core,archlinux upstream avr-gcc,

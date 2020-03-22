@@ -1,0 +1,10 @@
+#NAME,PURPOSE,REPO
+#Gaming,,
+wine,,
+wine-lol,,A
+vulkan-icd-loader,,
+lib32-vulkan-icd-loader,,
+lutris,,
+steam,,
+lib32-nss,fixes network issue with steam on Arch,
+discord,,
