@@ -1,3 +1,8 @@
+usbutils,,
+nano,,
+git,,
+zsh,,
+zsh-syntax-highlighting,,
 atool,manages and gives information about archives,
 bash-completion,is what it sounds like,
 bc,arbitrary precision calculator language,
