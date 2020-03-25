@@ -2,13 +2,9 @@
 # License: GNU GPLv3
 
 # setfont sun12x22 #HDPI
-# dd bs=4M if=path/to/arch.iso of=/dev/sdx status=progress oflag=sync
+# dd bs=4M if=arch.iso of=/dev/xxx status=progress oflag=sync
 export timezone="Europe/Athens"
 export lang="en_US.UTF-8"
-
-if [ ! -d "/sys/firmware/efi" ]; then
-	echo "Please use UEFI mode." && exit 1
-fi
 
 get_drive() {
 	# Asks user to select a /dev/sdX or /dev/nvmeXXX device and
@@ -61,6 +57,31 @@ partition_drive() {
 	EOF
 }
 
+partition_drive_mbr() {
+	local HARD_DRIVE=$1
+
+	cat <<-EOF | fdisk --wipe-partitions always $HARD_DRIVE
+		o
+		n
+        p
+		1
+
+		+45G
+		n
+        p
+		2
+
+        w
+	EOF
+
+	yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}1
+	mount "${HARD_DRIVE}2" /mnt
+
+	mkdir /mnt/home
+	yes | mkfs.ext4 -L "Home" ${HARD_DRIVE}2
+	mount "${HARD_DRIVE}3" /mnt/home
+}
+
 format_mount_parts() {
 	# Used after partitioning the device, it formats and mounts
 	# the 3 newly created partitions.
@@ -82,6 +103,12 @@ format_mount_parts() {
 }
 
 format_and_mount_partitions(){
+
+	if [ ! -d "/sys/firmware/efi" ]; then
+		read -rep "Please use UEFI mode."
+		exit 1
+	fi
+
 	if blkid -o list | grep -q "/mnt \|/mnt/boot" ;then
 		cat <<-EOF
 			Looks like you have mounted the required partitions [/mnt,/mnt/boot].
@@ -256,7 +283,8 @@ core_arch_install() {
 		systemd_boot
 		pacman --noconfirm --needed -S efibootmgr
 	else
-		grub_mbr
+		# grub_mbr
+		read -rep "Install Grub manually."
 	fi
 
 	# Set root password
@@ -285,6 +313,7 @@ core_arch_install() {
 
 	# Use all cpu cores to compile packages
 	sudo sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
+	sudo sed -i "s/xz -c -z -/xz -c -z -T 0 -/" /etc/makepkg.conf
 
 	# Creates a swapfile. 2Gigs in size.
 	fallocate -l 2G /swapfile
@@ -304,7 +333,7 @@ name=$(get_username)
 user_password="$(get_pass $name)"
 
 # If root_passwdrd is not set, root login should be disabled.
-# root_password="$(get_pass root)"
+root_password="$(get_pass root)"
 
 # multilib
 read -rep "
@@ -326,9 +355,9 @@ fi
 
 export hostname name user_password root_password
 
-pacstrap /mnt base base-devel git linux linux-headers linux-firmware \
-			  man-db man-pages usbutils nano pacman-contrib expac arch-audit \
-			  networkmanager openssh flatpak zsh zsh-syntax-highlighting
+pacstrap /mnt base linux linux-headers linux-firmware \
+			  man-db man-pages pacman-contrib expac arch-audit \
+			  networkmanager openssh flatpak zsh
 
 genfstab -U /mnt > /mnt/etc/fstab
 export -f systemd_boot grub_mbr core_arch_install
