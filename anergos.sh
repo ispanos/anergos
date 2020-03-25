@@ -95,7 +95,6 @@ fedora_(){
 	sudo dnf install -y "$srtlnk/$free-$(rpm -E %fedora).noarch.rpm"
 	sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
 	sudo dnf upgrade -y
-	sudo dnf remove -y openssh-server
 
 	# To do: Install VirtualBox guest utils only on guests.
 	# To do: Install Nvidia drivers
@@ -128,7 +127,7 @@ install_environment() {
 		Detected Nvidia GPU: $nvidiaGPU
 		Install proprietary Nvidia drivers? [y/N]: " nvdri
 
-	mkdir "$HOME/.local"
+	[ -d "$HOME/.local" ] || mkdir "$HOME/.local"
 
 	case $ID in
 		arch) arch_ ;;
@@ -225,7 +224,7 @@ it87_driver() {
 	[[ $needed =~ ^[Yy]$ ]] || return
 
 	workdir=$HOME/.local/sources
-	mkdir -p "$workdir" && cd "$workdir" || return 2
+	[ -d "$workdir" ] || mkdir -p "$workdir" && cd "$workdir" || return 2
 	git clone -q https://github.com/bbqlinux/it87 &&
 		cd it87 && sudo make dkms && sudo modprobe it87 &&
 		echo "it87" | sudo tee /etc/modules-load.d/it87.conf >/dev/null
@@ -247,7 +246,7 @@ mount_hhd_uuid() {
 		echo 1>&2 "UUID doesn't correspond to a label" &&
 		return 6
 
-    sudo mkdir -p "/media/$label"
+    [ -d "/media/$label" ] || sudo mkdir -p "/media/$label"
 	mntOpt="ext4 rw,noatime,nofail,user,auto 0 2"
 	printf "\\n%s \t%s \t%s\t\\n" "UUID=$1" "/media/$label" "$mntOpt" |
 		sudo tee -a /etc/fstab >/dev/null
