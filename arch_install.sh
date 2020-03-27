@@ -209,6 +209,9 @@ systemd_boot() {
 	# https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533
 	lscpu | grep -q "AMD Ryzen" && kernel_parms="$kernel_parms idle=nowait"
 
+	# Keeps USB ports from going to suspend mode.
+	kernel_parms="$kernel_parms usbcore.autosuspend=-1"
+
 	# Bootloader entry using `linux` kernel:
 	cat > /boot/loader/entries/ArchLinux.conf <<-EOF
 		title   Arch Linux
