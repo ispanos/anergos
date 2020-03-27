@@ -120,6 +120,7 @@ install_environment() {
 
 	# Installs proprietery Nvidia drivers for supported distros.
 	# If there is an nvidia GPU, it asks the user to install drivers.
+	[ "$(command -v lspci)" ] &&
 	nvidiaGPU=$(lspci -k | grep -A 2 -E "(VGA|3D)" | grep "NVIDIA" |
 				awk -F'[][]' '{print $2}')
 
