@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
+# Copyright (C) 2020 Ioannis Spanos
+
 # License: GNU GPLv3
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 # setfont sun12x22 #HDPI
 # dd bs=4M if=arch.iso of=/dev/xxx status=progress oflag=sync
@@ -358,9 +372,9 @@ fi
 
 export hostname name user_password root_password
 
-pacstrap /mnt base linux linux-headers linux-firmware \
+pacstrap /mnt base base-devel linux linux-headers linux-firmware \
 			  man-db man-pages pacman-contrib expac arch-audit \
-			  networkmanager openssh flatpak zsh
+			  networkmanager openssh flatpak zsh git
 
 genfstab -U /mnt > /mnt/etc/fstab
 export -f systemd_boot grub_mbr core_arch_install

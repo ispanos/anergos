@@ -23,6 +23,7 @@ python-pywal,is used to change X colors to match the wallpaper,
 interception-hideaway,hides cursor after some time,A
 xclip,allows for copying and pasting from the command line,
 # Media:,,
+pavucontrol,audio controller,
 pulseaudio-ctl,,A
 volumeicon,is the tray icon for volume control,
 guvcview,webcam app,
@@ -70,9 +71,16 @@ python-pip,,
 code,is the Open Source build of Visual Studio Code (vscode) editor,
 visual-studio-code-bin,is microsofts code editor,A
 sublime-text-dev,,A
+#,,
+arduino,IDE for arduino,
+arduino-avr-core,archlinux upstream avr-gcc,
+arduino-docs,are documents for arduino offline documentation,
 #Random,,
-discord,is voice/text chat client for gamers,A
+bash-completion,is what it sounds like,
 skippy-xd-git,A full-screen task-switcher for X11,A
+zathura-pdf-poppler,PDF plugin for zathura based on poppler,
+galculator,simple GUI calculator,
+gcolor3,color picker for GNOME,
 ansible,Radically simple IT automation platform,
 blender,a fully integrated 3D graphics creation suite,
 mprime-bin,cpu stress-test (prime95),A
@@ -85,6 +93,8 @@ syncthing,private cloud (?),
 lxappearance-gtk3,is used to set gtk themes,
 tree,prints directories in a tree from,
 mc,,
+vifm,extensive terminal file manager,
+python-ueberzug,generates image previews in vifm and other terminal programs,A
 grafana,,
 urlscan,parses URLs in the terminal allowing keyboard-based selection,A
 cydia-impactor,is a GUI tool for working with mobile devices. -cydiaimpactor.com,A
