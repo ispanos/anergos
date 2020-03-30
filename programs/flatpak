@@ -1,6 +1,7 @@
-io.neovim.nvim
+io.neovim.nvim # Neovim
 com.spotify.Client
 org.gnome.gedit
+org.gnome.Evolution
 com.transmissionbt.Transmission
 org.gnome.Builder
 com.valvesoftware.Steam
