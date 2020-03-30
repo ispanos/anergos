@@ -1,86 +1,84 @@
-# NAME,PURPOSE,REPO
-usbutils,,
-git,,
-zsh,,
-zsh-syntax-highlighting,,
-atool,manages and gives information about archives,
-bash-completion,is what it sounds like,
-bc,arbitrary precision calculator language,
-calcurse,lightweight terminal-based calendar,
-cronie,daemon that runs specified programs at scheduled times,
-dialog,,
-findutils,basic file searching utilities to search directories and files,
-highlight,highlight code output,
-htop,system usage information and displays processes,
-lsd,the modern ls,
-nano,text editor,
-neofetch,displays basic system information,
-net-tools,configuration tools for Linux networking,
-nmap,network scanner,
-ntfs-3g,allows accessing NTFS partitions,
-openssh,suite of security-related network utilities based on the ssh,
-p7zip,tool to (de-)compress archives,
-sshfs,FUSE-based filesystem client for mounting remote directories,
-tmux,terminal multiplexer,
-ufw,netfilter firewall,
-vifm,extensive terminal file manager,
-python-ueberzug,generates image previews in vifm and other terminal programs,A
-rsync,,
-python-llfuse,,
-borg,,
-w3m,terminal browser which can also view images,
-wireless_tools,tools allowing to manipulate the Wireless Extensions,
-wpa_supplicant,a utility providing key negotiation for WPA wireless networks,
-lshw,lists all hardware on the system,
-,,
-#i3,,
-i3-gaps,window manager,
-i3blocks,,
-i3lock-color,,
-dmenu,generic men for X,
-jq,Command-line JSON processor (used in a script),
-xorg-server,graphical server,
-xorg-xinit,starts the graphical server,
-xorg-xrandr,cli tool for screen adjustments,
-xorg-xprop,property displayer for X,
-xorg-xdpyinfo,displays information X,
-xdotool,window action utilities on the command line (maim),
-dunst,suckless notification system,
-numlockx,turns on NumLock when you login,
-feh,image viewer that also sets the wallpaper,
-maim,can take quick screenshots at your request,
-xkb-switch,used by i3blocks to display what keyboard layout,A
-libsecret,library for storing and retrieving passwords and other secrets,
-libnotify,desktop notifications,
-gnome-terminal,the GNOME Terminal Emulator,
-playerctl,media control for some mediaplayers,
-galculator,simple GUI calculator,
-gthumb,image viewer,
-pcmanfm-gtk3,simple GUI file manager,
-xdg-user-dirs,,
-gvfs,,
-gvfs-smb,SMB/CIFS backend; Windows client,
-xarchiver,GUI archive manager used by pcmanfm,
-firefox,web browser,
-hunspell-en_US,dicttianery,
-networkmanager,,
-nm-connection-editor,,
-pulseaudio-alsa,audio interface for pulseaudio and ALSA,
-pulseaudio-bluetooth,,
-blueman,,
-paprefs,advanced pulseaudio settings,
-pavucontrol,audio controller,
-gnome-keyring,takes care of the user's security credentials,
-polkit-gnome,authentication agent,
-ttf-liberation,Red Hats Liberation fonts,
-ttf-droid,,
-ttf-roboto,,
-ttf-roboto-mono,,
-ttf-font-awesome,font for i3blocks and lsd,
-gcolor3,color picker for GNOME,
-mpv,simple video/gif player,
-zathura-pdf-poppler,PDF plugin for zathura based on poppler,
-qt5ct,used for theming qt programs,
-transmission-gtk,torrent client,
-neovim,terminal text editor,
-dkms,,
+# NAME,PURPOSE
+usbutils,
+git,
+zsh,
+zsh-syntax-highlighting,
+atool,manages and gives information about archives
+bash-completion,is what it sounds like
+bc,arbitrary precision calculator language
+calcurse,lightweight terminal-based calendar
+cronie,daemon that runs specified programs at scheduled times
+dialog,
+findutils,basic file searching utilities to search directories and files
+highlight,highlight code output
+htop,system usage information and displays processes
+lsd,the modern ls
+nano,text editor
+neofetch,displays basic system information
+net-tools,configuration tools for Linux networking
+nmap,network scanner
+ntfs-3g,allows accessing NTFS partitions
+openssh,suite of security-related network utilities based on the ssh
+p7zip,tool to (de-)compress archives
+sshfs,FUSE-based filesystem client for mounting remote directories
+tmux,terminal multiplexer
+ufw,netfilter firewall
+rsync,
+python-llfuse,
+borg,
+w3m,terminal browser which can also view images
+wireless_tools,tools allowing to manipulate the Wireless Extensions
+wpa_supplicant,a utility providing key negotiation for WPA wireless networks
+lshw,lists all hardware on the system
+,
+#i3,
+i3-gaps,window manager
+i3blocks,
+i3lock-color,
+dmenu,generic men for X
+jq,Command-line JSON processor (used in a script)
+xorg-server,graphical server
+xorg-xinit,starts the graphical server
+xorg-xrandr,cli tool for screen adjustments
+xorg-xprop,property displayer for X
+xorg-xdpyinfo,displays information X
+xdotool,window action utilities on the command line (maim)
+dunst,suckless notification system
+numlockx,turns on NumLock when you login
+feh,image viewer that also sets the wallpaper
+maim,can take quick screenshots at your request
+xkb-switch,used by i3blocks to display what keyboard layout
+libsecret,library for storing and retrieving passwords and other secrets
+libnotify,desktop notifications
+gnome-terminal,the GNOME Terminal Emulator
+playerctl,media control for some mediaplayers
+galculator,simple GUI calculator
+gthumb,image viewer
+pcmanfm-gtk3,simple GUI file manager
+xdg-user-dirs,
+gvfs,
+gvfs-smb,SMB/CIFS backend; Windows client
+xarchiver,GUI archive manager used by pcmanfm
+firefox,web browser
+hunspell-en_US,dicttianery
+networkmanager,
+nm-connection-editor,
+pulseaudio-alsa,audio interface for pulseaudio and ALSA
+pulseaudio-bluetooth,
+blueman,
+paprefs,advanced pulseaudio settings
+pavucontrol,audio controller
+gnome-keyring,takes care of the user's security credentials
+polkit-gnome,authentication agent
+ttf-liberation,Red Hats Liberation fonts
+ttf-droid,
+ttf-roboto,
+ttf-roboto-mono,
+ttf-font-awesome,font for i3blocks and lsd
+gcolor3,color picker for GNOME
+mpv,simple video/gif player
+zathura-pdf-poppler,PDF plugin for zathura based on poppler
+qt5ct,used for theming qt programs
+transmission-gtk,torrent client
+neovim,terminal text editor
+dkms,

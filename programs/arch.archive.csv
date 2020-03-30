@@ -1,116 +1,119 @@
-#NAME IN REPO,DESCRIPTION,REPO
-sway,i3 replacment of wayland,
-swaylock,is a screen locker for Wayland,
-swayidle,handles sway when its idle,
-i3blocks,is the status bar,
+#NAME IN REPO,DESCRIPTION
+sway,i3 replacment of wayland
+swaylock,is a screen locker for Wayland
+swayidle,handles sway when its idle
+i3blocks,is the status bar
 bemenu,is like dmenu for wayland
-j4-dmenu-desktop-git,is a rewrite of i3-dmenu-desktop,A
-xorg-server-xwayland,is a compatibility layer for x11 apps,
-qt5-wayland,provides APIs for Wayland,
-wl-clipboard,allows copying and pasting from the command line,+
-wl-clipboard,allows copying and pasting from the command line,
-mako,is a notification daemon,
-grim,is a screenshot utility for Wayland,
-slurp,is a region-screenshot utility for Wayland,
-imv,is an image viewer for Wayland and X11,
-# X,,
+j4-dmenu-desktop-git,is a rewrite of i3-dmenu-desktop
+xorg-server-xwayland,is a compatibility layer for x11 apps
+qt5-wayland,provides APIs for Wayland
+wl-clipboard,allows copying and pasting from the command line
+mako,is a notification daemon
+grim,is a screenshot utility for Wayland
+slurp,is a region-screenshot utility for Wayland
+imv,is an image viewer for Wayland and X11
+# Printer,
+nss-mdns,Not so usefull
+cups,
+hplip,
+# X,
 picom,compton fork
-xcape,gives the special escape/super mappings of LARBS,
-xdotool,provides window action utilities on the command line,
-xorg-xbacklight,enables changing screen brightness levels,
-xssstate,times out the screen if locked,
-python-pywal,is used to change X colors to match the wallpaper,
-interception-hideaway,hides cursor after some time,A
-xclip,allows for copying and pasting from the command line,
-# Media:,,
-pavucontrol,audio controller,
-pulseaudio-ctl,,A
-volumeicon,is the tray icon for volume control,
-guvcview,webcam app,
-davinci-resolve,a professional A/V post-production software suite from Blackmagic Design,A
-imagemagick,is a terminal image-manipulator providing some convenient shortcuts and the lockscreen in LARBS,
-mpd,is a lightweight music daemon,
-mpc,is a terminal interface for mpd,
-ncmpcpp,a ncurses interface for music with multiple formats and a powerful tag editor,
-lirc,- Linux Infrared Remote Control,
-# Fonts,,
-ttf-ms-fonts,are Microsoft fonts,A
-ttf-inconsolata,is the monospace font I used,
-noto-fonts,Google Noto TTF fonts,
-noto-fonts-emoji,provides unicode symbols and emojis,
-ttf-joypixels,is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere,
-# LightDM:,,
-lightdm-webkit2-greeter,,
-lightdm-webkit-theme-litarvan,,
-# Dev K,,
-unity-editor,,A
-gitkraken,cross-platform Git client,A
-npm,is a package manager for javascript,
-nodejs,,
-semver,,
-node-gyp,,
-jdk-openjdk,,
-jre8-openjdk,,
-jre8-openjdk-headless,,
-intellij-idea-ultimate-edtion,,A
-intellij-idea-ultimate-edition-jre,,A
-mysql-workbench,is a cross-platform visual database design tool developed by MySQL,
-clang,C language family frontend for LLVM,
-valgrind,a tool to help find memory-management problems in programs,
-gcc-objc,Objective-C front-end for GCC,
-gdb,is the GNU Debugger,
-clion,is a C/C++ IDE,A
-clion-cmake,,A
-clion-gdb,,A
-clion-jre,,A
-clion-lldb,,A
-mariadb,,
-mariadb-clients,,
-mariadb-libs,,
-python-pip,,
-code,is the Open Source build of Visual Studio Code (vscode) editor,
-visual-studio-code-bin,is microsofts code editor,A
-sublime-text-dev,,A
-#,,
-arduino,IDE for arduino,
-arduino-avr-core,archlinux upstream avr-gcc,
-arduino-docs,are documents for arduino offline documentation,
-#Random,,
-bash-completion,is what it sounds like,
-skippy-xd-git,A full-screen task-switcher for X11,A
-zathura-pdf-poppler,PDF plugin for zathura based on poppler,
-galculator,simple GUI calculator,
-gcolor3,color picker for GNOME,
-ansible,Radically simple IT automation platform,
-blender,a fully integrated 3D graphics creation suite,
-mprime-bin,cpu stress-test (prime95),A
-mons,manage 2-monitors display using xrandr,A
-wee-slack,WeeChat plugin for Slack.com,A
-xournalpp,Handwriting notetaking software,
-chntpw,Offline NT Password Editor,
-newsboat,is a news aggregator,
-syncthing,private cloud (?),
-lxappearance-gtk3,is used to set gtk themes,
-tree,prints directories in a tree from,
-mc,,
-vifm,extensive terminal file manager,
-python-ueberzug,generates image previews in vifm and other terminal programs,A
-grafana,,
-urlscan,parses URLs in the terminal allowing keyboard-based selection,A
-cydia-impactor,is a GUI tool for working with mobile devices. -cydiaimpactor.com,A
-task-spooler,queues commands or files for download,A
-gparted,is a GUI disc manager,
-pamac-gtk,is a GUI package manager mainly for Manjaro,
-gnucash,,
-multibootusb,,A
-filezilla,,
-pacmanlogviewer,,
-brasero,is a DVD burner program,
-# Hardware things,,
-wattmangtk,,A
-rtl88xxau-aircrack-dkms-git,https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20,A
-brightnessctl,brightness control tool,
-wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html,
-lib32-mesa,needed by Intel and Radeon cards for gaming,
-vulkan-radeon,for Radeon cards,
-vulkan-intel,for Intel cards,
+xcape,gives the special escape/super mappings of LARBS
+xdotool,provides window action utilities on the command line
+xorg-xbacklight,enables changing screen brightness levels
+xssstate,times out the screen if locked
+python-pywal,is used to change X colors to match the wallpaper
+interception-hideaway,hides cursor after some time
+xclip,allows for copying and pasting from the command line
+# Media:,
+pavucontrol,audio controller
+pulseaudio-ctl,
+volumeicon,is the tray icon for volume control
+guvcview,webcam app
+davinci-resolve,a professional A/V post-production software suite from Blackmagic Design
+imagemagick,is a terminal image-manipulator providing some convenient shortcuts and the lockscreen in LARBS
+mpd,is a lightweight music daemon
+mpc,is a terminal interface for mpd
+ncmpcpp,a ncurses interface for music with multiple formats and a powerful tag editor
+lirc,- Linux Infrared Remote Control
+# Fonts,
+ttf-ms-fonts,are Microsoft fonts
+ttf-inconsolata,is the monospace font I used
+noto-fonts,Google Noto TTF fonts
+noto-fonts-emoji,provides unicode symbols and emojis
+ttf-joypixels,is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere
+# LightDM:,
+lightdm-webkit2-greeter,
+lightdm-webkit-theme-litarvan,
+# Dev K,
+unity-editor,
+gitkraken,cross-platform Git client
+npm,is a package manager for javascript
+nodejs,
+semver,
+node-gyp,
+jdk-openjdk,
+jre8-openjdk,
+jre8-openjdk-headless,
+intellij-idea-ultimate-edtion,
+intellij-idea-ultimate-edition-jre,
+mysql-workbench,is a cross-platform visual database design tool developed by MySQL
+clang,C language family frontend for LLVM
+valgrind,a tool to help find memory-management problems in programs
+gcc-objc,Objective-C front-end for GCC
+gdb,is the GNU Debugger
+clion,is a C/C++ IDE
+clion-cmake,
+clion-gdb,
+clion-jre,
+clion-lldb,
+mariadb,
+mariadb-clients,
+mariadb-libs,
+python-pip,
+code,is the Open Source build of Visual Studio Code (vscode) editor
+visual-studio-code-bin,is microsofts code editor
+sublime-text-dev,
+#,
+arduino,IDE for arduino
+arduino-avr-core,archlinux upstream avr-gcc
+arduino-docs,are documents for arduino offline documentation
+#Random,
+bash-completion,is what it sounds like
+skippy-xd-git,A full-screen task-switcher for X11
+zathura-pdf-poppler,PDF plugin for zathura based on poppler
+galculator,simple GUI calculator
+gcolor3,color picker for GNOME
+ansible,Radically simple IT automation platform
+blender,a fully integrated 3D graphics creation suite
+mprime-bin,cpu stress-test (prime95)
+mons,manage 2-monitors display using xrandr
+wee-slack,WeeChat plugin for Slack.com
+xournalpp,Handwriting notetaking software
+chntpw,Offline NT Password Editor
+newsboat,is a news aggregator
+syncthing,private cloud (?)
+lxappearance-gtk3,is used to set gtk themes
+tree,prints directories in a tree from
+mc,
+vifm,extensive terminal file manager
+python-ueberzug,generates image previews in vifm and other terminal programs
+grafana,
+urlscan,parses URLs in the terminal allowing keyboard-based selection
+cydia-impactor,is a GUI tool for working with mobile devices. -cydiaimpactor.com
+task-spooler,queues commands or files for download
+gparted,is a GUI disc manager
+pamac-gtk,is a GUI package manager mainly for Manjaro
+gnucash,
+multibootusb,
+filezilla,
+pacmanlogviewer,
+brasero,is a DVD burner program
+# Hardware things,
+wattmangtk,
+rtl88xxau-aircrack-dkms-git,https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20
+brightnessctl,brightness control tool
+wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html
+lib32-mesa,needed by Intel and Radeon cards for gaming
+vulkan-radeon,for Radeon cards
+vulkan-intel,for Intel cards

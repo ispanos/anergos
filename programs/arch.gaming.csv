@@ -1,9 +1,11 @@
-#NAME,PURPOSE,REPO
-#Gaming,,
-wine,,
-wine-lol,,A
-vulkan-icd-loader,,
-lib32-vulkan-icd-loader,,
-lutris,,
-#steam,,
-lib32-nss,fixes network issue with steam on Arch,
+#NAME,PURPOSE
+#steam,
+#lib32-nss,fixes network issue with steam on Arch
+lutris,
+wine,
+wine-lol,
+vulkan-icd-loader,
+lib32-vulkan-icd-loader,
+# lib32-mesa vulkan-radeon lib32-vulkan-radeon,Radeon drivers for gaming
+# nvidia nvidia-utils lib32-nvidia-utils nvidia-settings,Nvidia drivers for gaming
+# lib32-mesa vulkan-intel lib32-vulkan-intel, Intel drivers for gaming
