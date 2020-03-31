@@ -50,6 +50,7 @@ maim,can take quick screenshots at your request
 xkb-switch,used by i3blocks to display what keyboard layout
 libsecret,library for storing and retrieving passwords and other secrets
 libnotify,desktop notifications
+gnome-themes-extra,Adwaita-dark theme
 gnome-terminal,the GNOME Terminal Emulator
 playerctl,media control for some mediaplayers
 galculator,simple GUI calculator

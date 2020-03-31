@@ -79,6 +79,7 @@ arduino,IDE for arduino
 arduino-avr-core,archlinux upstream avr-gcc
 arduino-docs,are documents for arduino offline documentation
 #Random,
+qt5ct,used for theming qt programs
 bash-completion,is what it sounds like
 skippy-xd-git,A full-screen task-switcher for X11
 zathura-pdf-poppler,PDF plugin for zathura based on poppler

@@ -56,6 +56,7 @@ xorg-xprop,property displayer for X
 xorg-xbacklight,RandR-based backlight control application
 xorg-xdpyinfo,displays information X
 xdotool,window action utilities on the command line (maim)
+xsettingsd,
 dunst,suckless notification system
 numlockx,turns on NumLock when you login
 feh,image viewer that also sets the wallpaper
@@ -65,6 +66,7 @@ libsecret,library for storing and retrieving passwords and other secrets
 libnotify,desktop notifications
 xdg-user-dirs,
 playerctl,media control for some mediaplayers
+gnome-themes-extra,Adwaita-dark theme
 gnome-terminal,the GNOME Terminal Emulator
 gthumb,image viewer
 pcmanfm-gtk3,simple GUI file manager
@@ -91,7 +93,6 @@ ttf-roboto,
 ttf-roboto-mono,
 ttf-font-awesome,font for i3blocks and lsd
 mpv,simple video/gif player
-qt5ct,used for theming qt programs
 popcorntime,a program that I don't use
 g810-led-git,
 #dev,
