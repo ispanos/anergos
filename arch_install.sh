@@ -40,7 +40,7 @@ get_drive() {
 	echo "/dev/${drives[$(("$number" - 1 ))]}"
 }
 
-partition_drive() {
+partition_drive_UEFI() {
 	# Uses fdisk to create an "EFI System" partition  (500M),
 	# a "Linux root" partition and a "linux home" partition.
 	# Obviously it erases all data on the device.
@@ -71,7 +71,7 @@ partition_drive() {
 	EOF
 }
 
-partition_drive_mbr() {
+part_form_mnt_drive_MBR() {
 	local HARD_DRIVE=$1
 
 	cat <<-EOF | fdisk --wipe-partitions always $HARD_DRIVE
@@ -88,6 +88,13 @@ partition_drive_mbr() {
         w
 	EOF
 
+	# Used after partitioning the device, it formats and mounts
+	# the 2 newly created partitions.
+	# Obviously it erases all data on the device.
+
+	# NVME drives have a "p" before the partition number.
+	[[ $HARD_DRIVE == *"nvme"* ]] && HARD_DRIVE="${HARD_DRIVE}p"
+
 	yes | mkfs.ext4 -L "Arch" ${HARD_DRIVE}1
 	mount "${HARD_DRIVE}2" /mnt
 
@@ -96,7 +103,7 @@ partition_drive_mbr() {
 	mount "${HARD_DRIVE}3" /mnt/home
 }
 
-format_mount_parts() {
+format_mount_parts_UEFI() {
 	# Used after partitioning the device, it formats and mounts
 	# the 3 newly created partitions.
 	# Obviously it erases all data on the device.
@@ -116,15 +123,11 @@ format_mount_parts() {
 	mount "${HARD_DRIVE}3" /mnt/home
 }
 
-format_and_mount_partitions(){
-
-	if [ ! -d "/sys/firmware/efi" ]; then
-		read -rep "Please use UEFI mode."
-		exit 1
-	fi
+format_and_mount_partitions_UEFI(){
 
 	if blkid -o list | grep -q "/mnt \|/mnt/boot" ;then
 		cat <<-EOF
+
 			Looks like you have mounted the required partitions [/mnt,/mnt/boot].
 			This script is meant for a clean Archlinux installation, so the new /
 			partition should be formated. If you are dual-booting, make sure you 
@@ -153,6 +156,58 @@ format_and_mount_partitions(){
 			This script provides a quick way to format and partition a drive in to 3
 			partitions [/,/boot,/home]. The newly created partitions are going to be
 			formated and ALL DATA ON THE DRIVE WILL BE LOST.
+			If you continue, you will be prompted to select a drive.
+
+			I recommend this only for testing on a VM.
+
+			To continue type either 'Y' or 'y'. Any other input will terminate
+			the script. NO changes have been made so far.
+		EOF
+		read -rep "[y/N]: " format
+
+		[[ $format =~ ^[Yy]$ ]] || exit 1
+		# Select main drive
+		local HARD_DRIVE
+		HARD_DRIVE=$(get_drive) || exit 1
+
+		partition_drive_UEFI "$HARD_DRIVE"
+		format_mount_parts_UEFI "$HARD_DRIVE"
+	fi
+}
+
+format_and_mount_partitions_MBR(){
+
+	if blkid -o list | grep -q "/mnt " ;then
+		cat <<-EOF
+
+			Looks like you have mounted the required partition [/mnt].
+			This script is meant for a clean Archlinux installation, so the new /
+			partition should be formated. If you are dual-booting, I don't know
+			if this script works. Better exit.
+
+			Please make sure /mnt is formated before you continue:
+			$(du -hx -d 0 /mnt)
+
+			NO changes have been made so far.
+		EOF
+
+		read -rep "Press ENTER to continue or type 'exit' to exit: " warn
+		while [ "$warn" ]; do
+			[[ "$warn" == "exit" ]] && exit 1
+			read -rep "Press ENTER to continue or type 'exit' to exit: " warn
+		done
+
+	else
+		cat <<-EOF
+
+			Looks like you haven't mounted the required partition [/mnt].
+			If you have mounted one or more partitions from the drive you plan to
+			install Archlinux on, please exit ths script and make sure /mnt is
+			mounted properly. Otherwise this script may fail.
+
+			This script provides a quick way to format and partition a drive in to 2
+			partitions [/,/home]. The newly created partitions are going to be
+			formated and ALL DATA ON THE DRIVE WILL BE LOST.
 			If you continue, you will be prompted to select a drive. 
 
 			I recommend this only for testing on a VM. 
@@ -167,11 +222,9 @@ format_and_mount_partitions(){
 		local HARD_DRIVE
 		HARD_DRIVE=$(get_drive) || exit 1
 
-		partition_drive "$HARD_DRIVE"
-		format_mount_parts "$HARD_DRIVE"
+		part_form_mnt_drive_MBR "$HARD_DRIVE"
 	fi
 }
-
 
 get_username() {
 	# Ask for the name of the main user.
@@ -217,7 +270,7 @@ systemd_boot() {
 	local root_id="$(lsblk --list -fs -o MOUNTPOINT,UUID | \
 					grep "^/ " | awk '{print $2}')"
 
-	local kernel_parms="rw quiet" # Default kernel parameters.
+	local kernel_parms="rw quiet vga=current" # Default kernel parameters.
 
 	# I need this to avoid random crashes on my main pc (AMD R5 1600)
 	# https://forum.manjaro.org/t/amd-ryzen-problems-and-fixes/55533
@@ -255,8 +308,8 @@ grub_mbr() {
 	# Avoid using it as is.
 	local grub_path
 	pacman --noconfirm --needed -S grub
-	grub_path=$(
-		lsblk --list -fs -o MOUNTPOINT,PATH | grep "^/ " | awk '{print $2}')
+	echo "Installing Grub:"
+	grub_path=$(get_drive)
 	grub-install --target=i386-pc $grub_path
 	grub-mkconfig -o /boot/grub/grub.cfg
 }
@@ -300,8 +353,7 @@ core_arch_install() {
 		systemd_boot
 		pacman --noconfirm --needed -S efibootmgr
 	else
-		# grub_mbr
-		read -rep "Install Grub manually."
+		grub_mbr
 	fi
 
 	# Set root password
@@ -363,8 +415,11 @@ Would you like to enable multilib (for gaming)?
 timedatectl set-ntp true
 
 # If you have mounted a partition at /mnt, it doens't format it.
-format_and_mount_partitions
-
+if [ -d "/sys/firmware/efi" ]; then
+	format_and_mount_partitions_UEFI
+else
+	format_and_mount_partitions_MBR
+fi
 
 if [[ $multi_lib_bool_ans =~ ^[Yy]$ ]]; then
 	export multi_lib_bool=true
