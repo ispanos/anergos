@@ -149,6 +149,8 @@ install_environment() {
 		Detected Nvidia GPU: $nvidiaGPU
 		Install proprietary Nvidia drivers? [y/N]: " nvdri
 
+	packages="$packages flatpak"
+
 	[ -d "$HOME/.local" ] || mkdir "$HOME/.local"
 
 	case $ID in
