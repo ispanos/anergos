@@ -1,10 +1,9 @@
 # NAME,PURPOSE,REPO
-usbutils,
-git,
-zsh,
-zsh-syntax-highlighting,
 atool,manages and gives information about archives
+bash-completion,
+bash,
 bc,arbitrary precision calculator language
+borg,
 calcurse,lightweight terminal-based calendar
 cronie,daemon that runs specified programs at scheduled times
 dialog,
@@ -13,9 +12,12 @@ dosfstools,allows your computer to access dos-like filesystems
 exfat-utils,allows management of FAT drives
 findutils,basic file searching utilities to search directories and files
 fzf,fuzzy finder tool
+git,
 highlight,highlight code output
 htop,system usage information and displays processes
+inxi,CLI system information tool
 lsd,the modern ls
+lshw,lists all hardware on the system
 mediainfo,shows audio and video information and is used by ranger as well
 nano,text editor
 neofetch,displays basic system information
@@ -25,86 +27,86 @@ ntfs-3g,allows accessing NTFS partitions
 odt2txt,enables .odt file previews in vifm
 openssh,suite of security-related network utilities based on the ssh
 p7zip,tool to (de-)compress archives
+python-llfuse,
+rsync,
+sc-im,terminal spreadsheet manager
+simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
 sshfs,FUSE-based filesystem client for mounting remote directories
 tmux,terminal multiplexer
 tree,lists directory contents like trees
 ufw,netfilter firewall
 unrar,tool to (de-)compress archives
 unzip,tool to (de-)compress archives
-rsync,
-python-llfuse,
-borg,
+usbutils,
 w3m,terminal browser which can also view images
 wireless_tools,tools allowing to manipulate the Wireless Extensions
 wpa_supplicant,a utility providing key negotiation for WPA wireless networks
 youtube-dl,download any YouTube video/playlist/channel) when given the link
-sc-im,terminal spreadsheet manager
-simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
-task-spooler,queues commands or files for download.
-inxi,CLI system information tool
-lshw,lists all hardware on the system
-,
-#i3,
-i3-gaps,window manager
-i3blocks,
-i3lock-color,
-dmenu,generic men for X
-jq,Command-line JSON processor (used in a script)
-xorg-server,graphical server
-xorg-xinit,starts the graphical server
-xorg-xrandr,cli tool for screen adjustments
-xorg-xprop,property displayer for X
-xorg-xbacklight,RandR-based backlight control application
-xorg-xdpyinfo,displays information X
-xdotool,window action utilities on the command line (maim)
-xsettingsd,
-dunst,suckless notification system
-numlockx,turns on NumLock when you login
-feh,image viewer that also sets the wallpaper
-maim,can take quick screenshots at your request
-xkb-switch,used by i3blocks to display what keyboard layout
-libsecret,library for storing and retrieving passwords and other secrets
-libnotify,desktop notifications
-xdg-user-dirs,
-playerctl,media control for some mediaplayers
-gnome-themes-extra,Adwaita-dark theme
-gnome-terminal,the GNOME Terminal Emulator
-gthumb,image viewer
-pcmanfm-gtk3,simple GUI file manager
-gvfs,
-gvfs-afc,
-gvfs-gphoto2,
-gvfs-mtp,MTP backend; Android & media player
-gvfs-smb,SMB/CIFS backend; Windows client
-xarchiver,GUI archive manager used by pcmanfm
-firefox,web browser
-hunspell-en_US,dicttianery
-hunspell-el,Gerek dicttianery
-networkmanager,
-nm-connection-editor,
-pulseaudio-alsa,audio interface for pulseaudio and ALSA
-pulseaudio-bluetooth,
-paprefs,advanced pulseaudio settings
-blueman,
-gnome-keyring,takes care of the user's security credentials
-polkit-gnome,authentication agent
+zsh-syntax-highlighting,
+zsh,
+# Fonts,
 ttf-liberation,Red Hats Liberation fonts
 ttf-droid,
 ttf-roboto,
 ttf-roboto-mono,
 ttf-font-awesome,font for i3blocks and lsd
-mpv,simple video/gif player
-popcorntime,a program that I don't use
+#i3,
+blueman,
+brave-bin,
+dmenu,generic men for X
+dunst,suckless notification system
+feh,image viewer that also sets the wallpaper
+firefox,web browser
 g810-led-git,
+gnome-keyring,takes care of the user's security credentials
+gnome-terminal,the GNOME Terminal Emulator
+gnome-themes-extra,Adwaita-dark theme
+gthumb,image viewer
+gvfs-afc,
+gvfs-gphoto2,
+gvfs-mtp,MTP backend; Android & media player
+gvfs-smb,SMB/CIFS backend; Windows client
+gvfs,
+hunspell-el,Gerek dicttianery
+hunspell-en_US,dicttianery
+i3-gaps,window manager
+i3blocks,
+i3lock-color,
+jq,Command-line JSON processor (used in a script)
+libnotify,desktop notifications
+libsecret,library for storing and retrieving passwords and other secrets
+maim,can take quick screenshots at your request
+mpv,simple video/gif player
+networkmanager,
+nm-connection-editor,
+numlockx,turns on NumLock when you login
+paprefs,advanced pulseaudio settings
+pcmanfm-gtk3,simple GUI file manager
+playerctl,media control for some mediaplayers
+polkit-gnome,authentication agent
+popcorntime,a program that I don't use
+pulseaudio-alsa,audio interface for pulseaudio and ALSA
+pulseaudio-bluetooth,
+xarchiver,GUI archive manager used by pcmanfm
+xdg-user-dirs,
+xdotool,window action utilities on the command line (maim)
+xkb-switch,used by i3blocks to display what keyboard layout
+xorg-server,graphical server
+xorg-xbacklight,RandR-based backlight control application
+xorg-xdpyinfo,displays information X
+xorg-xinit,starts the graphical server
+xorg-xprop,property displayer for X
+xorg-xrandr,cli tool for screen adjustments
+xsettingsd,
 #dev,
-docker,
-docker-compose,
-python-pip,
 autopep8,
-neovim,terminal text editor
-code,
-shellcheck,
-shfmt,
 bash-language-server,
 cmake,cross-platform open-source make system
+code,
 dkms,
+docker-compose,
+docker,
+neovim,terminal text editor
+python-pip,
+shellcheck,
+shfmt,

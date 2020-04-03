@@ -9,8 +9,10 @@ The name Anergos comes from the discontinued Linux distro Antergos and the Greek
 This script is used to install packages and clone my [dotfiles](https://github.com/ispanos/dotfiles) from my github repo, as well as some hardware-specific drivers. 
 The packages have to be in a `.csv` file that has a specific name, according to the distro you are running it on. My `.csv` files are in the [programs folder](https://github.com/ispanos/anergos/tree/master/programs).
 
-The name of the files have to follow this scheme in order to be valid:
-`<distro-ID>.<name-of-the-list>.csv`
+The name of the files have to follow these schemes in order to be valid:
+`<distro-ID>/<name-of-the-list>.csv` or
+`<distro-ID>.<name-of-the-list>.csv` or
+`<name-of-the-list>.csv`
 
 - `<distro-ID>` is the ID set in `/etc/os-release`. 
 	- For [Archlinux](https://www.archlinux.org/) its `arch`

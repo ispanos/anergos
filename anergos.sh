@@ -30,8 +30,14 @@ printLists(){
 			cat "$ID.$file.csv"
 		elif [ -r "programs/$ID.$file.csv" ]; then
 			cat "programs/$ID.$file.csv"
+		elif [ -r "programs/$ID/$file.csv" ]; then
+			cat "programs/$ID/$file.csv"
+		elif [ -r "$ID/$file.csv" ]; then
+			cat "$ID/$file.csv"
+		elif [ -r "$file.csv" ]; then
+			cat "$file.csv"
 		else
-			curl -Ls "$progs_repo/$ID.$file.csv"
+			curl -Ls "$progs_repo/$ID/$file.csv"
 		fi
 	done
 }
@@ -57,6 +63,7 @@ arch_(){
 			packages="$packages lib32-nvidia-utils"
 	fi
 
+	yay --nodiffmenu --needed --removemake --save
 	yay -S --noconfirm --needed --removemake $packages || exit 3
 	
 	[ -f  $HOME/.local/Fresh_pack_list ] || 

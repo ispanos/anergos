@@ -17,6 +17,7 @@ nss-mdns,Not so usefull
 cups,
 hplip,
 # X,
+skippy-xd-git,A full-screen task-switcher for X11
 picom,compton fork
 xcape,gives the special escape/super mappings of LARBS
 xdotool,provides window action utilities on the command line
@@ -26,14 +27,9 @@ python-pywal,is used to change X colors to match the wallpaper
 interception-hideaway,hides cursor after some time
 xclip,allows for copying and pasting from the command line
 # Media:,
-pavucontrol,audio controller
-pulseaudio-ctl,
-volumeicon,is the tray icon for volume control
 guvcview,webcam app
 davinci-resolve,a professional A/V post-production software suite from Blackmagic Design
 imagemagick,is a terminal image-manipulator providing some convenient shortcuts and the lockscreen in LARBS
-mpd,is a lightweight music daemon
-mpc,is a terminal interface for mpd
 ncmpcpp,a ncurses interface for music with multiple formats and a powerful tag editor
 lirc,- Linux Infrared Remote Control
 # Fonts,
@@ -71,32 +67,19 @@ mariadb,
 mariadb-clients,
 mariadb-libs,
 python-pip,
-code,is the Open Source build of Visual Studio Code (vscode) editor
-visual-studio-code-bin,is microsofts code editor
-sublime-text-dev,
-#,
-arduino,IDE for arduino
-arduino-avr-core,archlinux upstream avr-gcc
-arduino-docs,are documents for arduino offline documentation
 #Random,
 qt5ct,used for theming qt programs
-bash-completion,is what it sounds like
-skippy-xd-git,A full-screen task-switcher for X11
 zathura-pdf-poppler,PDF plugin for zathura based on poppler
 galculator,simple GUI calculator
-gcolor3,color picker for GNOME
 ansible,Radically simple IT automation platform
-blender,a fully integrated 3D graphics creation suite
 mprime-bin,cpu stress-test (prime95)
 mons,manage 2-monitors display using xrandr
 wee-slack,WeeChat plugin for Slack.com
-xournalpp,Handwriting notetaking software
 chntpw,Offline NT Password Editor
 newsboat,is a news aggregator
 syncthing,private cloud (?)
 lxappearance-gtk3,is used to set gtk themes
 tree,prints directories in a tree from
-mc,
 vifm,extensive terminal file manager
 python-ueberzug,generates image previews in vifm and other terminal programs
 grafana,
@@ -105,7 +88,6 @@ cydia-impactor,is a GUI tool for working with mobile devices. -cydiaimpactor.com
 task-spooler,queues commands or files for download
 gparted,is a GUI disc manager
 pamac-gtk,is a GUI package manager mainly for Manjaro
-gnucash,
 multibootusb,
 filezilla,
 pacmanlogviewer,
@@ -115,6 +97,3 @@ wattmangtk,
 rtl88xxau-aircrack-dkms-git,https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20
 brightnessctl,brightness control tool
 wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html
-lib32-mesa,needed by Intel and Radeon cards for gaming
-vulkan-radeon,for Radeon cards
-vulkan-intel,for Intel cards
