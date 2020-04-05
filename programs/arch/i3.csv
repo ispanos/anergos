@@ -1,4 +1,4 @@
-# NAME,PURPOSE,REPO
+# NAME,PURPOSE
 atool,manages and gives information about archives
 bash-completion,
 bash,
@@ -51,6 +51,7 @@ ttf-roboto,
 ttf-roboto-mono,
 ttf-font-awesome,font for i3blocks and lsd
 #i3,
+baobab,
 blueman,
 brave-bin,
 dmenu,generic men for X
@@ -58,15 +59,21 @@ dunst,suckless notification system
 feh,image viewer that also sets the wallpaper
 firefox,web browser
 g810-led-git,
+gnome-disk-utility
 gnome-keyring,takes care of the user's security credentials
+gnome-software
+gnome-system-monitor
 gnome-terminal,the GNOME Terminal Emulator
 gnome-themes-extra,Adwaita-dark theme
 gthumb,image viewer
+gvfs,
 gvfs-afc,
+gvfs-goa,
+gvfs-google,
 gvfs-gphoto2,
 gvfs-mtp,MTP backend; Android & media player
+gvfs-nfs,
 gvfs-smb,SMB/CIFS backend; Windows client
-gvfs,
 hunspell-el,Gerek dicttianery
 hunspell-en_US,dicttianery
 i3-gaps,window manager
@@ -87,7 +94,7 @@ polkit-gnome,authentication agent
 popcorntime,a program that I don't use
 pulseaudio-alsa,audio interface for pulseaudio and ALSA
 pulseaudio-bluetooth,
-xarchiver,GUI archive manager used by pcmanfm
+file-roller,GUI archive manager used by pcmanfm
 xdg-user-dirs,
 xdotool,window action utilities on the command line (maim)
 xkb-switch,used by i3blocks to display what keyboard layout

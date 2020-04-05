@@ -1,0 +1,27 @@
+# NAME,PURPOSE
+gdm
+gnome-control-center
+gnome-dictionary
+gnome-font-viewer
+gnome-logs
+gnome-menus
+gnome-remote-desktop
+gnome-screenshot
+gnome-session
+gnome-settings-daemon
+gnome-shell
+gnome-shell-extensions
+gnome-user-share
+gnome-video-effects
+gnome-weather
+grilo-plugins
+mousetweaks
+mutter
+orca
+rygel
+sushi
+tracker
+tracker-miners
+vino
+xdg-user-dirs-gtk
+simple-scan
