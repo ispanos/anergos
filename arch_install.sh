@@ -77,15 +77,15 @@ part_form_mnt_drive_MBR() {
 	cat <<-EOF | fdisk --wipe-partitions always $HARD_DRIVE
 		o
 		n
-        p
+		p
 		1
 
 		+45G
 		n
-        p
+		p
 		2
 
-        w
+		w
 	EOF
 
 	# Used after partitioning the device, it formats and mounts
@@ -234,25 +234,25 @@ get_username() {
 	while ! echo "$get_name" | grep -q "^[a-z_][a-z0-9_-]*$"; do
 		read -rep $'Invalid name. Try again: \n' get_name
 	done
-    echo "$get_name"
+	echo "$get_name"
 }
 
 
 get_pass() {
 	# Pass the name of the user as an argument.
-    local cr le_usr get_pwd_pass check_4_pass
+	local cr le_usr get_pwd_pass check_4_pass
 	cr=$(echo $'\n.'); cr=${cr%.}
 	le_usr="$1"
-    read -rsep $"Enter a password for $le_usr: $cr" get_pwd_pass
-    read -rsep $"Retype ${le_usr}'s password: $cr" check_4_pass
+	read -rsep $"Enter a password for $le_usr: $cr" get_pwd_pass
+	read -rsep $"Retype ${le_usr}'s password: $cr" check_4_pass
 
-    while ! [ "$get_pwd_pass" = "$check_4_pass" ]; do unset check_4_pass
-        read -rsep \
+	while ! [ "$get_pwd_pass" = "$check_4_pass" ]; do unset check_4_pass
+		read -rsep \
 		$"Passwords didn't match. Retype ${le_usr}'s password: " get_pwd_pass
-        read -rsep $"Retype ${le_usr}'s password: " check_4_pass
-    done
+		read -rsep $"Retype ${le_usr}'s password: " check_4_pass
+	done
 
-    echo "$get_pwd_pass"
+	echo "$get_pwd_pass"
 }
 
 
@@ -376,7 +376,7 @@ core_arch_install() {
 	sed -i "s/-j2/-j$(nproc)/;s/^#MAKEFLAGS/MAKEFLAGS/" /etc/makepkg.conf
 	sed -i "s/^#Color/Color/;/Color/a ILoveCandy" /etc/pacman.conf
 
-    printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
+	printf '\ninclude "/usr/share/nano/*.nanorc"\n' >> /etc/nanorc
 
 	echo "blacklist pcspkr" >> /etc/modprobe.d/disablebeep.conf
 
@@ -432,7 +432,7 @@ pacstrap /mnt base base-devel linux linux-headers linux-firmware \
 			  networkmanager openssh flatpak zsh git
 
 genfstab -U /mnt > /mnt/etc/fstab
-export -f systemd_boot grub_mbr core_arch_install
+export -f systemd_boot get_drive grub_mbr core_arch_install
 arch-chroot /mnt bash -c core_arch_install
 
 # TODO
