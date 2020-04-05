@@ -21,6 +21,7 @@ org.gnome.clocks
 org.gnome.Contacts
 org.gnome.Devhelp
 org.gnome.Evince
+org.gnome.font-viewer
 org.gnome.gedit
 org.gnome.gitg
 org.gnome.Podcasts

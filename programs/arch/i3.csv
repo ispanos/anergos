@@ -96,6 +96,7 @@ pulseaudio-alsa,audio interface for pulseaudio and ALSA
 pulseaudio-bluetooth,
 file-roller,GUI archive manager used by pcmanfm
 xdg-user-dirs,
+xdg-user-dirs-gtk,
 xdotool,window action utilities on the command line (maim)
 xkb-switch,used by i3blocks to display what keyboard layout
 xorg-server,graphical server
