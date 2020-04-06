@@ -26,8 +26,8 @@ org.gnome.gedit
 org.gnome.gitg
 org.gnome.Podcasts
 org.gnome.Totem
-org.gnome.Todo
 org.gnucash.GnuCash
+com.github.alainm23.planner
 org.kde.kdenlive
 org.libreoffice.LibreOffice
 org.pulseaudio.pavucontrol
