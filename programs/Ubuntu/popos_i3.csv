@@ -1,0 +1,44 @@
+i3blocks,
+i3,
+flatpak,
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+    procinfo tools to display information from /proc and /sys
+
+atool,list
+    rar, not-in-list suggested by atool
+unrar,list
+bash-completion,list -- installed
+bash,list -- installed
+bc,list --installed
+borgbackup,list --borg
+calcurse,list
+cron,list --cronnie
+dialog,list
+docx2txt,list
+    exfat-fuse,not-in-list --exfat-utils
+findutils,list
+fzf,list
+git,list
+highlight,list
+htop,list
+inxi,list
+    lsd,list https://github.com/Peltoche/lsd#installation
+lshw,list --installed
+mediainfo,list --installed
+nano,list --installed
+neofetch,list
+net-tools,list --installed
+nmap,list --installed
+ntfs-3g,list --installed
+odt2txt,list
+openssh-client,list --openssh --installed
+openssh-server,list --openssh
+        Suggested packages:
+            molly-guard monkeysphere rssh ssh-askpass
+p7zip-full,not-in-list --p7zip suggested by atool
+    p7zip-rar, not-in-list suggested by 7zip-full
+python-llfuse,list
+rsync,list --installed
+sc-im,list https://github.com/andmarti1424/sc-im
+
