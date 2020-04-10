@@ -9,6 +9,7 @@ cronie,daemon that runs specified programs at scheduled times
 dialog,
 docx2txt,enables .docx file previews in vifm
 dosfstools,allows your computer to access dos-like filesystems
+exa,the modern ls
 exfat-utils,allows management of FAT drives
 findutils,basic file searching utilities to search directories and files
 fzf,fuzzy finder tool
@@ -16,7 +17,6 @@ git,
 highlight,highlight code output
 htop,system usage information and displays processes
 inxi,CLI system information tool
-lsd,the modern ls
 lshw,lists all hardware on the system
 mediainfo,shows audio and video information and is used by ranger as well
 nano,text editor
@@ -110,11 +110,9 @@ xsettingsd,
 autopep8,
 bash-language-server,
 cmake,cross-platform open-source make system
-code,
 dkms,
 docker-compose,
 docker,
-neovim,terminal text editor
 python-pip,
 shellcheck,
 shfmt,
