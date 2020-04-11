@@ -17,6 +17,7 @@ nss-mdns,Not so usefull
 cups,
 hplip,
 # X,
+betterlockscreen,
 skippy-xd-git,A full-screen task-switcher for X11
 picom,compton fork
 xcape,gives the special escape/super mappings of LARBS

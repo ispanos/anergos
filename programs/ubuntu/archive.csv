@@ -1,0 +1,118 @@
+atool,list
+unrar,list
+bash-completion,list -- installed
+bash,list -- installed
+bc,list --installed
+borgbackup,list --borg
+calcurse,list
+cron,list --cronnie
+dialog,list
+docx2txt,list
+exfat-fuse,list --exfat-utils
+findutils,list
+fzf,list
+git,list
+highlight,list
+htop,list
+inxi,list
+lshw,list --installed
+mediainfo,list --installed
+nano,list --installed
+neofetch,list
+net-tools,list --installed
+nmap,list --installed
+ntfs-3g,list --installed
+odt2txt,list
+openssh-client,list --openssh --installed
+openssh-server,list --openssh
+molly-guard,protects machines from accidental shutdowns/reboots (via ssh)
+p7zip-full,list --p7zip
+python-llfuse,list
+procinfo,tools to display information from /proc and /sys
+rsync,list --installed
+sshfs,list
+tmux,list
+tree,list
+ufw,list
+unrar,list --installed
+unzip,list
+usbutils,list
+w3m,list
+wireless-tools,list --wireless_tools
+wpasupplicant,list --wpa_supplicant
+youtube-dl,list
+zsh-syntax-highlighting,
+zsh,
+# Fonts,
+fonts-liberation,list --installed --ttf-liberation
+fonts-droid-fallback,list --installed --ttf-droid
+fonts-roboto,list --installed --ttf-roboto
+fonts-roboto,list --installed --ttf-roboto-mono?
+fonts-font-awesome,list --ttf-font-awesome
+#i3,
+baobab,list --installed
+blueman,list
+dmenu,list
+dunst,list
+feh,list
+firefox,list
+g810-led,list --g810-led-git
+gnome-disk-utility,list --installed
+gnome-keyring,list --installed
+gnome-software,list --not-needed
+gnome-system-monitor,list --installed
+gnome-terminal,list --installed
+gnome-themes-extra,list --installed
+gthumb,list
+gvfs,list --installed gvfs-backends gvfs-bin gvfs-common gvfs-daemons gvfs-fuse gvfs-libs
+hunspell-el,list
+hunspell-en-us,list --hunspell-en_US
+i3blocks,
+i3,
+i3lock,instead of https://github.com/Raymo111/i3lock-color https://github.com/pavanjadhaw/betterlockscreen
+jq,list
+libnotify4,list --libnotify
+libsecret-1-0,list --libsecret
+maim,list
+mpv,list --61 deps.? wtf
+network-manager,list --networkmanager
+network-manager-gnome,list nm-connection-editor
+numlockx,list
+paprefs,list
+pcmanfm,list --pcmanfm-gtk3 --maybe gtk2?
+playerctl,list
+policykit-1,list --installed --polkit-gnome
+pulseaudio-module-bluetooth,list --installed pulseaudio-bluetooth
+file-roller,list --installed
+xdg-user-dirs,list --installed
+xdg-user-dirs-gtk,list --installed
+xdotool,list
+xserver-xorg,list --installed --xorg-server
+xbacklight,list --xorg-xbacklight
+x11-utils,list --installed --xorg-xdpyinfo
+xinit,list --installed --xorg-xinit
+x11-utils,list --installed --xorg-xprop
+x11-xserver-utils,list --installed --xorg-xrandr
+xsettingsd,list
+#dev,
+python-autopep8,list --autopep8
+cmake,list --installed
+dkms,list --installed
+shellcheck,
+    #exa,list missing https://github.com/ogham/exa
+    #sc-im,list https://github.com/andmarti1424/sc-im
+    #,not-in-list --simple-mtpfs
+    #brave-bin,list missing
+    #gvfs-afc, not-named-like-that?
+    #gvfs-goa, not-named-like-that?
+    #gvfs-google, not-named-like-that?
+    #gvfs-gphoto2, not-named-like-that?
+    #gvfs-mtp, not-named-like-that?
+    #gvfs-nfs, not-named-like-that?
+    #gvfs-smb, not-named-like-that?
+    #popcorntime,list --missing
+    #pulseaudio-alsa,list --????
+    #gxkb,not-in-list --xkb-switch !!!!!!!
+#    >>>>>>>>docker-compose,https://docs.docker.com/engine/install/ubuntu/
+#    >>>>>>>>docker,https://docs.docker.com/engine/install/ubuntu/
+#    >python-pip, wait#    shfmt,missing https://github.com/tmknom/shfmt

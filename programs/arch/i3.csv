@@ -7,7 +7,7 @@ borg,
 calcurse,lightweight terminal-based calendar
 cronie,daemon that runs specified programs at scheduled times
 dialog,
-docx2txt,enables .docx file previews in vifm
+docx2txt,enables .docx file previews in vifm/terminal
 dosfstools,allows your computer to access dos-like filesystems
 exa,the modern ls
 exfat-utils,allows management of FAT drives
@@ -24,7 +24,7 @@ neofetch,displays basic system information
 net-tools,configuration tools for Linux networking
 nmap,network scanner
 ntfs-3g,allows accessing NTFS partitions
-odt2txt,enables .odt file previews in vifm
+odt2txt,enables .odt file previews in vifm/terminal
 openssh,suite of security-related network utilities based on the ssh
 p7zip,tool to (de-)compress archives
 python-llfuse,
@@ -50,12 +50,12 @@ ttf-liberation,Red Hats Liberation fonts
 ttf-droid,
 ttf-roboto,
 ttf-roboto-mono,
-ttf-font-awesome,font for i3blocks and lsd
+ttf-font-awesome,font for i3blocks
 #i3,
 baobab,
 blueman,
 brave-bin,
-dmenu,generic men for X
+dmenu,generic menu for X
 dunst,suckless notification system
 feh,image viewer that also sets the wallpaper
 firefox,web browser
