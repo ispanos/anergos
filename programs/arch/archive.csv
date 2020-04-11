@@ -68,6 +68,7 @@ mariadb-clients,
 mariadb-libs,
 python-pip,
 #Random,
+bash-language-server,
 qt5ct,used for theming qt programs
 zathura-pdf-poppler,PDF plugin for zathura based on poppler
 galculator,simple GUI calculator

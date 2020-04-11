@@ -28,6 +28,7 @@ odt2txt,enables .odt file previews in vifm
 openssh,suite of security-related network utilities based on the ssh
 p7zip,tool to (de-)compress archives
 python-llfuse,
+procinfo,tools to display information from /proc and /sys
 rsync,
 sc-im,terminal spreadsheet manager
 simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
@@ -108,7 +109,6 @@ xorg-xrandr,cli tool for screen adjustments
 xsettingsd,
 #dev,
 autopep8,
-bash-language-server,
 cmake,cross-platform open-source make system
 dkms,
 docker-compose,
