@@ -1,6 +1,4 @@
 #NAME,PURPOSE
-#steam,
-#lib32-nss,fixes network issue with steam on Arch
 lutris,
 wine,
 wine-lol,
