@@ -65,6 +65,7 @@ gnome-keyring,takes care of the user's security credentials
 gnome-software
 gnome-system-monitor
 gnome-terminal,the GNOME Terminal Emulator
+alacritty,the Terminal Emulator
 gnome-themes-extra,Adwaita-dark theme
 gthumb,image viewer
 gvfs,

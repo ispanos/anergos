@@ -31,6 +31,7 @@ wireless-tools,tools allowing to manipulate the Wireless Extensions
 wpasupplicant,a utility providing key negotiation for WPA wireless networks
 youtube-dl,download any YouTube video/playlist/channel) when given the link
 #i3,
+alacritty,terminal emulator
 fonts-font-awesome,font for i3blocks
 blueman,
 dmenu,generic menu for X
