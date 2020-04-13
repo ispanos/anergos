@@ -287,7 +287,6 @@ progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
 printf "Anergos:\nDistribution -\e[%sm %s \e[0m\n\n" $ANSI_COLOR $ID
 install_environment "$@"
 clone_dotfiles https://github.com/ispanos/dotfiles
-agetty_set
 
 # The following functions are only applied if needed.
 # You may get an error message, but they wont apply any unneeded changes.
