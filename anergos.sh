@@ -96,9 +96,6 @@ ubunctu_(){
 		sudo add-apt-repository ppa:$ppa -y
 	done
 
-	# To do: Install VirtualBox guest utils only on guests.
-	# To do: Install Nvidia drivers
-
 	lspci -k | grep -q "QEMU Virtual Machine" &&
 	packages="$packages qemu-guest-agent"
 
