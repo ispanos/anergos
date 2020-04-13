@@ -191,29 +191,6 @@ clone_dotfiles() {
 	cp -rfT "$dir/" "$HOME/"
 }
 
-agetty_set() {
-	# Doesn't ask for username on the tty for faster logins.
-	# Default user is going to be the user who's running the script.
-
-	local ExexStart log
-	ExexStart="ExecStart=-\/sbin\/agetty --skip-login --login-options"
-	log="$ExexStart $USER --noclear %I \$TERM"
-	sed "s/^Exec.*/$log/" /usr/lib/systemd/system/getty@.service |
-		sudo tee /etc/systemd/system/getty@.service >/dev/null
-	sudo systemctl daemon-reload
-	sudo systemctl reenable getty@tty1.service
-
-	grep -q "Anergos" /etc/issue && return
-	# Edits login screen
-	cat <<-EOF | sudo tee -a /etc/issue >/dev/null
-		\e[0;36m
-		 Anergos Meta-distribution
-		 Website:  github.com/ispanos/anergos
-		 Hostname: \\n
-		\e[0m
-	EOF
-}
-
 it87_driver() {
 	modprobe -R it87 >/dev/null && return
 	# Installs driver for many Ryzen's motherboards temperature sensors
