@@ -99,6 +99,9 @@ ubunctu_(){
 	# To do: Install VirtualBox guest utils only on guests.
 	# To do: Install Nvidia drivers
 
+	lspci -k | grep -q "QEMU Virtual Machine" &&
+	packages="$packages qemu-guest-agent"
+
 	sudo apt install $packages
 	sudo apt-get clean && sudo apt autoremove
 	[ -f  $HOME/.local/Fresh_pack_list ] || 
