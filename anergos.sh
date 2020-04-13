@@ -112,6 +112,26 @@ ubunctu_(){
 	fi
 }
 
+ubuntu_(){
+	# This is actually for Pop!_OS
+	# 20.04 is going to bring a new $ID I think.
+	sudo apt-get update && sudo apt-get -y upgrade
+
+	for ppa in $extra_repos; do
+		sudo add-apt-repository ppa:$ppa -y
+	done
+
+	# To do: Install VirtualBox guest utils only on guests.
+	# To do: Install Nvidia drivers
+
+	lspci -k | grep -q "QEMU Virtual Machine" &&
+	packages="$packages qemu-guest-agent"
+
+	sudo apt-get install $packages -y
+	[ -f  $HOME/.local/Fresh_pack_list ] ||
+		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
+}
+
 fedora_(){
 	srtlnk="https://download1.rpmfusion.org"
 	free="free/fedora/rpmfusion-free-release"
@@ -160,6 +180,7 @@ install_environment() {
 		arch) arch_ ;;
 		# manjaro) manjaro_ ;;
 		# raspbian | ubuntu) ubunctu_ ;;
+		ubuntu) ubuntu_ ;; # This is actually for Pop!_OS
 		# fedora) fedora_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac

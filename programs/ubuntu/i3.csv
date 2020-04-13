@@ -34,10 +34,10 @@ i3blocks,
 i3,window manager
 jq,Command-line JSON processor (used in a script)
 maim,can take quick screenshots at your request
-mpv,simple video/gif player --61 deps.? wtf
+mpv,simple video/gif player
 numlockx,turns on NumLock when you login
 paprefs,advanced pulseaudio settings
-pcmanfm,simple GUI file manager --pcmanfm-gtk3 --maybe gtk2?
+pcmanfm,simple GUI file manager
 playerctl,media control for some mediaplayers
 xdotool,window action utilities on the command line (maim)
 xbacklight,RandR-based backlight control application
