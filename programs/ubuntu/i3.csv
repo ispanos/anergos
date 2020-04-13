@@ -3,13 +3,10 @@ atool,manages and gives information about archives
 unrar,tool to (de-)compress archives
 borgbackup,
 calcurse,lightweight terminal-based calendar
-cron,daemon that runs specified programs at scheduled times
 dialog,
 docx2txt,enables .docx file previews in vifm/terminal
 exfat-fuse,allows management of FAT drives
-findutils,basic file searching utilities to search directories and files
 fzf,fuzzy finder tool
-git,
 highlight,highlight code output
 htop,system usage information and displays processes
 inxi,CLI system information tool
@@ -23,35 +20,21 @@ procinfo,tools to display information from /proc and /sys
 sshfs,FUSE-based filesystem client for mounting remote directories
 tmux,terminal multiplexer
 tree,lists directory contents like trees
-ufw,netfilter firewall
-unzip,tool to (de-)compress archives
-usbutils,
 w3m,terminal browser which can also view images
-wireless-tools,tools allowing to manipulate the Wireless Extensions
-wpasupplicant,a utility providing key negotiation for WPA wireless networks
 youtube-dl,download any YouTube video/playlist/channel) when given the link
 #i3,
 alacritty,terminal emulator
 fonts-font-awesome,font for i3blocks
 blueman,
-dmenu,generic menu for X
-dunst,suckless notification system
 feh,image viewer that also sets the wallpaper
-firefox,web browser
 g810-led,
 gthumb,image viewer
 hunspell-el,Gerek dicttianery
-hunspell-en-us,dicttianery
 i3blocks,
 i3,window manager
-i3lock,
 jq,Command-line JSON processor (used in a script)
-libnotify4,desktop notifications
-libsecret-1-0,library for storing and retrieving passwords and other secrets
 maim,can take quick screenshots at your request
 mpv,simple video/gif player --61 deps.? wtf
-network-manager,
-network-manager-gnome,
 numlockx,turns on NumLock when you login
 paprefs,advanced pulseaudio settings
 pcmanfm,simple GUI file manager --pcmanfm-gtk3 --maybe gtk2?
