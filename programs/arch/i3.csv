@@ -60,6 +60,7 @@ dunst,suckless notification system
 feh,image viewer that also sets the wallpaper
 firefox,web browser
 g810-led-git,
+gdm,
 gnome-disk-utility
 gnome-keyring,takes care of the user's security credentials
 gnome-software
