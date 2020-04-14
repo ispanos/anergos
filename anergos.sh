@@ -15,6 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+if [ "$(id -nu)" == "root" ]; then
+	cat <<-EOF
+		This script changes your users configurations
+		and should thus not be run as root.
+		You may need to enter your password multiple times.
+	EOF
+	exit
+fi
+
 printLists(){
 	# Warning:
 	# The function assumes you give at least one proper package list.
@@ -294,18 +303,10 @@ g810_Led_profile(){
 	EOF
 }
 
-if [ "$(id -nu)" == "root" ]; then
-	cat <<-EOF
-		This script changes your users configurations
-		and should thus not be run as root.
-		You may need to enter your password multiple times.
-	EOF
-	exit
-fi
 
-source /etc/os-release
+
 progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
-
+source /etc/os-release
 printf "Anergos:\nDistribution -\e[%sm %s \e[0m\n\n" $ANSI_COLOR $ID
 install_environment "$@"
 clone_dotfiles https://github.com/ispanos/dotfiles
