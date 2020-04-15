@@ -223,7 +223,6 @@ clone_dotfiles() {
 }
 
 it87_driver() {
-	modprobe -R it87 >/dev/null && return
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	if [ ! "$(command -v git)" ] || [ ! "$(command -v dkms)" ]; then
 		echo "${FUNCNAME[0]} requires git and dkms. Skipping."
