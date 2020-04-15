@@ -1,6 +1,5 @@
 #NAME IN REPO,DESCRIPTION
 atool,manages and gives information about archives
-unrar,tool to (de-)compress archives
 borgbackup,
 calcurse,lightweight terminal-based calendar
 dialog,
@@ -10,28 +9,28 @@ fzf,fuzzy finder tool
 highlight,highlight code output
 htop,system usage information and displays processes
 inxi,CLI system information tool
+molly-guard,protects machines from accidental shutdowns/reboots (via ssh)
 neofetch,displays basic system information
 odt2txt,enables .odt file previews in vifm/terminal
 openssh-server,
-molly-guard,protects machines from accidental shutdowns/reboots (via ssh)
 p7zip-full,tool to (de-)compress archives
-python-llfuse,
 procinfo,tools to display information from /proc and /sys
+python-llfuse,
 sshfs,FUSE-based filesystem client for mounting remote directories
 tmux,terminal multiplexer
 tree,lists directory contents like trees
+unrar,tool to (de-)compress archives
 w3m,terminal browser which can also view images
-youtube-dl,download any YouTube video/playlist/channel) when given the link
 #i3,
 alacritty,terminal emulator
-fonts-font-awesome,font for i3blocks
 blueman,
 feh,image viewer that also sets the wallpaper
+fonts-font-awesome,font for i3blocks
 g810-led,
 gthumb,image viewer
 hunspell-el,Gerek dicttianery
-i3blocks,
 i3,window manager
+i3blocks,
 jq,Command-line JSON processor (used in a script)
 maim,can take quick screenshots at your request
 mpv,simple video/gif player
@@ -39,8 +38,8 @@ numlockx,turns on NumLock when you login
 paprefs,advanced pulseaudio settings
 pcmanfm,simple GUI file manager
 playerctl,media control for some mediaplayers
-xdotool,window action utilities on the command line (maim)
 xbacklight,RandR-based backlight control application
+xdotool,window action utilities on the command line (maim)
 xsettingsd,
 #dev,
 python3-autopep8,
