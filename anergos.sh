@@ -298,7 +298,7 @@ g810_Led_profile(){
 
 progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
 source /etc/os-release
-printf "Anergos:\nDistribution -\e[%sm %s \e[0m\n\n" $ANSI_COLOR $ID
+printf "Anergos:\nDistribution -%s \n\n" $ΝΑΜΕ
 install_environment "$@"
 clone_dotfiles https://github.com/ispanos/dotfiles
 
