@@ -121,13 +121,6 @@ ubuntu_(){
 pop_(){
 	sudo apt-get update && sudo apt-get -y upgrade
 
-	for ppa in $extra_repos; do
-		sudo add-apt-repository ppa:$ppa -y
-	done
-
-	# To do: Install VirtualBox guest utils only on guests.
-	# To do: Install Nvidia drivers
-
 	lspci -k | grep -q "QEMU Virtual Machine" &&
 	packages="$packages qemu-guest-agent"
 
