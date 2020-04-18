@@ -125,6 +125,7 @@ pop_(){
 	packages="$packages qemu-guest-agent"
 
 	sudo apt-get install $packages -y
+	[[ "$?" -eq 100 ]] && echo "Wrong package name." && exit 100
 	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
 }
