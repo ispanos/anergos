@@ -298,7 +298,7 @@ g810_Led_profile(){
 
 progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
 source /etc/os-release
-printf "Anergos:\nDistribution -%s \n\n" $ΝΑΜΕ
+printf "Anergos:\nDistribution -%s \n\n" "$NAME"
 install_environment "$@"
 clone_dotfiles https://github.com/ispanos/dotfiles
 
