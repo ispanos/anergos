@@ -98,7 +98,7 @@ manjaro_(){
 		yay -Qq >$HOME/.local/Fresh_pack_list
 }
 
-ubunctu_(){
+ubuntu_(){
 	sudo apt-get update && sudo apt-get -y upgrade
 
 	for ppa in $extra_repos; do
@@ -118,7 +118,7 @@ ubunctu_(){
 	fi
 }
 
-ubuntu_(){
+pop_(){
 	# This is actually for Pop!_OS
 	# 20.04 is going to bring a new $ID I think.
 	sudo apt-get update && sudo apt-get -y upgrade
@@ -185,8 +185,8 @@ install_environment() {
 	case $ID in
 		arch) arch_ ;;
 		# manjaro) manjaro_ ;;
-		# raspbian | ubuntu) ubunctu_ ;;
-		ubuntu) ubuntu_ ;; # This is actually for Pop!_OS
+		# raspbian | ubuntu) ubuntu_ ;;
+		pop) pop_ ;; # This is actually for Pop!_OS
 		# fedora) fedora_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
