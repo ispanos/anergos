@@ -153,7 +153,7 @@ install_environment() {
 
 	progsFile="/tmp/progs_$(date +%s).csv"
 	printLists "$@" >>"$progsFile"
-	packages=$(sed '/^#/d;/^,/d;s/,.*$//' "$progsFile")
+	packages=$(sed '/#,*$/d;/^,/d;s/,.*$//' "$progsFile")
 	extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile")
 
 	# Rudimentary check to see if there are any packages in the variable.
