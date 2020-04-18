@@ -15,7 +15,7 @@ odt2txt,enables .odt file previews in vifm/terminal
 openssh-server,
 p7zip-full,tool to (de-)compress archives
 procinfo,tools to display information from /proc and /sys
-python-llfuse,
+python3-llfuse,
 sshfs,FUSE-based filesystem client for mounting remote directories
 tmux,terminal multiplexer
 tree,lists directory contents like trees
