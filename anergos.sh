@@ -119,8 +119,6 @@ ubuntu_(){
 }
 
 pop_(){
-	sudo apt-get update && sudo apt-get -y upgrade
-
 	lspci -k | grep -q "QEMU Virtual Machine" &&
 	packages="$packages qemu-guest-agent"
 
@@ -150,7 +148,10 @@ fedora_(){
 }
 
 install_environment() {
-	local packages extra_repos nvidiaGPU progsFile
+	local NAME ID packages extra_repos nvidiaGPU progsFile
+
+	ID=$(. /etc/os-release; echo $ID)
+	NAME=$(. /etc/os-release; echo $NAME)
 
 	progsFile="/tmp/progs_$(date +%s).csv"
 	printLists "$@" >>"$progsFile"
@@ -297,15 +298,10 @@ g810_Led_profile(){
 
 
 progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
-source /etc/os-release
-printf "Anergos:\nDistribution -%s \n\n" "$NAME"
 install_environment "$@"
 clone_dotfiles https://github.com/ispanos/dotfiles
-
 # The following functions are only applied if needed.
 # You may get an error message, but they wont apply any unneeded changes.
 g810_Led_profile
 it87_driver
 mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
-
-echo "Anergos installation is complete. Please log out and log back in."
