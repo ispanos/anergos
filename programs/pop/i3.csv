@@ -4,7 +4,7 @@ borgbackup,
 calcurse,lightweight terminal-based calendar
 dialog,
 docx2txt,enables .docx file previews in vifm/terminal
-exfat-fuse,allows management of FAT drives
+#exfat-fuse,allows management of FAT drives
 fzf,fuzzy finder tool
 highlight,highlight code output
 htop,system usage information and displays processes
@@ -22,35 +22,39 @@ tree,lists directory contents like trees
 unrar,tool to (de-)compress archives
 w3m,terminal browser which can also view images
 #i3,
-alacritty,terminal emulator
 blueman,
 feh,image viewer that also sets the wallpaper
-fonts-font-awesome,font for i3blocks
-g810-led,
-gthumb,image viewer
-hunspell-el,Gerek dicttianery
 i3,window manager
 i3blocks,
 jq,Command-line JSON processor (used in a script)
 maim,can take quick screenshots at your request
-mpv,simple video/gif player
 numlockx,turns on NumLock when you login
-paprefs,advanced pulseaudio settings
-pcmanfm,simple GUI file manager
-playerctl,media control for some mediaplayers
 xbacklight,RandR-based backlight control application
 xdotool,window action utilities on the command line (maim)
 xsettingsd,
+#general,
+alacritty,terminal emulator
+fonts-font-awesome,font for i3blocks
+g810-led,
+gthumb,image viewer
+hunspell-el,Gerek dicttianery
+mpv,simple video/gif player
+paprefs,advanced pulseaudio settings
+pcmanfm,simple GUI file manager
+playerctl,media control for some mediaplayers
 #dev,
+code,
+ebtables,
 python3-autopep8,
 python3-pip,
 shellcheck,
-    #exa,missing https://github.com/ogham/exa
-    #sc-im,https://github.com/andmarti1424/sc-im
-    #simple-mtpfs,missing
-    #brave-bin,missing
-    #popcorntime,missing
-    #xkb-switch,missing
-    #>>>>>>>>docker-compose,https://docs.docker.com/engine/install/ubuntu/
-    #>>>>>>>>docker,https://docs.docker.com/engine/install/ubuntu/
-    #shfmt,missing https://github.com/tmknom/shfmt
+virt-manager,
+# exa,missing https://github.com/ogham/exa
+# sc-im,https://github.com/andmarti1424/sc-im
+# simple-mtpfs,missing
+# brave,missing
+# popcorntime,missing
+# xkb-switch,missing
+# docker-compose,https://docs.docker.com/engine/install/ubuntu/
+# docker,https://docs.docker.com/engine/install/ubuntu/
+# shfmt,missing https://github.com/tmknom/shfmt
