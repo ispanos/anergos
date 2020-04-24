@@ -48,6 +48,7 @@ ebtables,
 python3-autopep8,
 python3-pip,
 shellcheck,
+virt-manager,
 # exa,missing https://github.com/ogham/exa
 # sc-im,https://github.com/andmarti1424/sc-im
 # simple-mtpfs,missing
