@@ -7,7 +7,6 @@ com.obsproject.Studio
 com.spotify.Client
 com.transmissionbt.Transmission
 com.valvesoftware.Steam
-com.visualstudio.code.oss
 io.neovim.nvim
 nl.hjdskes.gcolor3
 org.audacityteam.Audacity

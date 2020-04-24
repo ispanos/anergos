@@ -100,3 +100,8 @@ wattmangtk,
 rtl88xxau-aircrack-dkms-git,https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20
 brightnessctl,brightness control tool
 wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html
+metasploit,
+nessus,
+wireshark,
+xampp,
+scilab,
