@@ -183,7 +183,7 @@ install_environment() {
 		# fedora) fedora_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
-	
+	#pip install i3ipc
 	sudo usermod -aG lp "$USER"
 	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
 	[ "$(command -v docker)" ] && sudo usermod -aG vboxusers "$USER"
