@@ -103,5 +103,7 @@ wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html
 metasploit,
 nessus,
 wireshark,
+whois,
 xampp,
 scilab,
+ddcutil,monitor brightness control for desktops

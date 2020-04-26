@@ -13,7 +13,6 @@ exa,the modern ls
 exfat-utils,allows management of FAT drives
 findutils,basic file searching utilities to search directories and files
 fzf,fuzzy finder tool
-git,
 highlight,highlight code output
 htop,system usage information and displays processes
 inxi,CLI system information tool
@@ -27,8 +26,8 @@ ntfs-3g,allows accessing NTFS partitions
 odt2txt,enables .odt file previews in vifm/terminal
 openssh,suite of security-related network utilities based on the ssh
 p7zip,tool to (de-)compress archives
-python-llfuse,
 procinfo,tools to display information from /proc and /sys
+python-llfuse,
 rsync,
 sc-im,terminal spreadsheet manager
 simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
@@ -44,7 +43,6 @@ wireless_tools,tools allowing to manipulate the Wireless Extensions
 wpa_supplicant,a utility providing key negotiation for WPA wireless networks
 youtube-dl,download any YouTube video/playlist/channel) when given the link
 zsh-syntax-highlighting,
-zsh,
 # Fonts,
 ttf-liberation,Red Hats Liberation fonts
 ttf-droid,
@@ -52,54 +50,16 @@ ttf-roboto,
 ttf-roboto-mono,
 ttf-font-awesome,font for i3blocks
 #i3,
-baobab,
 blueman,
-brave-bin,
 dmenu,generic menu for X
 dunst,suckless notification system
 feh,image viewer that also sets the wallpaper
-firefox,web browser
-g810-led-git,
-gdm,
-gnome-disk-utility
-gnome-keyring,takes care of the user's security credentials
-gnome-software
-gnome-system-monitor
-gnome-terminal,the GNOME Terminal Emulator
-alacritty,the Terminal Emulator
-gnome-themes-extra,Adwaita-dark theme
-gthumb,image viewer
-gvfs,
-gvfs-afc,
-gvfs-goa,
-gvfs-google,
-gvfs-gphoto2,
-gvfs-mtp,MTP backend; Android & media player
-gvfs-nfs,
-gvfs-smb,SMB/CIFS backend; Windows client
-hunspell-el,Gerek dicttianery
-hunspell-en_US,dicttianery
 i3-gaps,window manager
 i3blocks,
 i3lock-color,
-jq,Command-line JSON processor (used in a script)
-libnotify,desktop notifications
-libsecret,library for storing and retrieving passwords and other secrets
 maim,can take quick screenshots at your request
-mpv,simple video/gif player
-networkmanager,
-nm-connection-editor,
 numlockx,turns on NumLock when you login
-paprefs,advanced pulseaudio settings
-pcmanfm-gtk3,simple GUI file manager
-playerctl,media control for some mediaplayers
-polkit-gnome,authentication agent
-popcorntime,a program that I don't use
-pulseaudio-alsa,audio interface for pulseaudio and ALSA
-pulseaudio-bluetooth,
-file-roller,GUI archive manager used by pcmanfm
-xdg-user-dirs,
-xdg-user-dirs-gtk,
+python-i3ipc,
 xdotool,window action utilities on the command line (maim)
 xkb-switch,used by i3blocks to display what keyboard layout
 xorg-server,graphical server
@@ -109,13 +69,59 @@ xorg-xinit,starts the graphical server
 xorg-xprop,property displayer for X
 xorg-xrandr,cli tool for screen adjustments
 xsettingsd,
+#General,
+alacritty,the Terminal Emulator
+baobab,
+brave-bin,
+file-roller,GUI archive manager used by pcmanfm
+firefox,web browser
+g810-led-git,
+gdm,
+gedit,
+gnome-disk-utility,
+gnome-keyring,takes care of the user's security credentials
+gnome-system-monitor,
+gnome-terminal,the GNOME Terminal Emulator
+gnome-themes-extra,Adwaita-dark theme
+gthumb,image viewer
+gvfs-afc,
+gvfs-goa,
+gvfs-google,
+gvfs-gphoto2,
+gvfs-mtp,MTP backend; Android & media player
+gvfs-nfs,
+gvfs-smb,SMB/CIFS backend; Windows client
+gvfs,
+hunspell-el,Gerek dicttianery
+hunspell-en_US,dicttianery
+jq,Command-line JSON processor (used in a script)
+libnotify,desktop notifications
+libsecret,library for storing and retrieving passwords and other secrets
+mpv,simple video/gif player
+networkmanager,
+nm-connection-editor,
+paprefs,advanced pulseaudio settings
+pavucontrol,
+pcmanfm-gtk3,simple GUI file manager
+playerctl,media control for some mediaplayers
+polkit-gnome,authentication agent
+popcorntime,a program that I don't use
+pulseaudio-alsa,audio interface for pulseaudio and ALSA
+pulseaudio-bluetooth,
+xdg-user-dirs-gtk,
+xdg-user-dirs,
 #dev,
 autopep8,
 cmake,cross-platform open-source make system
+code,
 dkms,
 docker-compose,
 docker,
+neovim,
 python-pip,
 shellcheck,
 shfmt,
-code,
+#Virtualization,
+ebtables,
+qemu,
+virt-manager,
