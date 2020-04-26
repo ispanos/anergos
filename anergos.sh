@@ -52,8 +52,11 @@ printLists(){
 }
 
 arch_(){
-	echo "Updating and installing git and base-devel if needed."
-	sudo pacman -Syu --noconfirm --needed git base-devel
+	echo "Updating and installing git if needed."
+	sudo reflector --verbose \
+				   --latest 5 
+				   --sort rate --save /etc/pacman.d/mirrorlist
+	sudo pacman -Syu --noconfirm --needed git
 
 	if [ ! "$(command -v yay)" ]; then
 		git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay

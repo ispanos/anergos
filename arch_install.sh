@@ -429,7 +429,7 @@ export hostname name user_password root_password
 
 pacstrap /mnt base base-devel linux linux-headers linux-firmware \
 			  man-db man-pages pacman-contrib expac arch-audit \
-			  networkmanager openssh flatpak zsh git
+			  reflector networkmanager openssh flatpak zsh git
 
 genfstab -U /mnt > /mnt/etc/fstab
 export -f systemd_boot get_drive grub_mbr core_arch_install
