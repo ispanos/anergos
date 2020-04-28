@@ -1,7 +1,6 @@
 # NAME,PURPOSE
 atool,manages and gives information about archives
 bash-completion,
-bash,
 bc,arbitrary precision calculator language
 borg,
 calcurse,lightweight terminal-based calendar
@@ -34,7 +33,6 @@ simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
 sshfs,FUSE-based filesystem client for mounting remote directories
 tmux,terminal multiplexer
 tree,lists directory contents like trees
-ufw,netfilter firewall
 unrar,tool to (de-)compress archives
 unzip,tool to (de-)compress archives
 usbutils,
@@ -73,17 +71,26 @@ xsettingsd,
 alacritty,the Terminal Emulator
 baobab,
 brave-bin,
+discord,
+evince,
+evolution,
 file-roller,GUI archive manager used by pcmanfm
 firefox,web browser
 g810-led-git,
+gcolor3,
 gdm,
 gedit,
+gnome-calculator,
+gnome-calendar,
+gnome-clocks,
 gnome-disk-utility,
+gnome-font-viewer,
 gnome-keyring,takes care of the user's security credentials
 gnome-system-monitor,
 gnome-terminal,the GNOME Terminal Emulator
 gnome-themes-extra,Adwaita-dark theme
 gthumb,image viewer
+gufw,netfilter firewall
 gvfs-afc,
 gvfs-goa,
 gvfs-google,
@@ -108,15 +115,22 @@ polkit-gnome,authentication agent
 popcorntime,a program that I don't use
 pulseaudio-alsa,audio interface for pulseaudio and ALSA
 pulseaudio-bluetooth,
+spotify,
+transmission-gtk,
 xdg-user-dirs-gtk,
 xdg-user-dirs,
 #dev,
+arduino-avr-core,
+arduino-docs,
+arduino,
 autopep8,
 cmake,cross-platform open-source make system
 code,
 dkms,
 docker-compose,
 docker,
+gitg,
+gnome-builder,
 neovim,
 python-pip,
 shellcheck,

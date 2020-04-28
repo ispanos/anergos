@@ -1,109 +1,234 @@
 #NAME IN REPO,DESCRIPTION
-sway,i3 replacment of wayland
-swaylock,is a screen locker for Wayland
-swayidle,handles sway when its idle
-i3blocks,is the status bar
-bemenu,is like dmenu for wayland
-j4-dmenu-desktop-git,is a rewrite of i3-dmenu-desktop
-xorg-server-xwayland,is a compatibility layer for x11 apps
-qt5-wayland,provides APIs for Wayland
-wl-clipboard,allows copying and pasting from the command line
-mako,is a notification daemon
-grim,is a screenshot utility for Wayland
-slurp,is a region-screenshot utility for Wayland
-imv,is an image viewer for Wayland and X11
+# Gnome- general purpuse, gtk
+gdm,
+gedit,
+gnome-disk-utility,
+gnome-keyring,takes care of the user's security credentials
+gnome-system-monitor,
+gnome-terminal,the GNOME Terminal Emulator
+gnome-themes-extra,Adwaita-dark theme
+# Fonts,
+noto-fonts-emoji,provides unicode symbols and emojis
+noto-fonts,Google Noto TTF fonts
+ttf-droid,
+ttf-font-awesome,font for i3blocks
+ttf-inconsolata,is the monospace font I used
+ttf-joypixels,is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere
+ttf-liberation,Red Hats Liberation fonts
+ttf-ms-fonts,are Microsoft fonts
+ttf-roboto-mono,
+ttf-roboto,
+# Hardware things,
+brightnessctl,brightness control tool
+ddcutil,monitor brightness control for desktops
+g810-led-git,
+rtl88xxau-aircrack-dkms-git,https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20
+wattmangtk,
+wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html
+# LightDM:,
+lightdm-webkit-theme-litarvan,
+lightdm-webkit2-greeter,
+# Media:,
+davinci-resolve,a professional A/V post-production software suite from Blackmagic Design
+guvcview,webcam app
+imagemagick,is a terminal image-manipulator providing some convenient shortcuts and the lockscreen in LARBS
+lirc,- Linux Infrared Remote Control
+ncmpcpp,a ncurses interface for music with multiple formats and a powerful tag editor
 # Printer,
-nss-mdns,Not so usefull
 cups,
 hplip,
+nss-mdns,Not so usefull
+# Swaywm,
+bemenu,is like dmenu for wayland
+grim,is a screenshot utility for Wayland
+i3blocks,is the status bar
+imv,is an image viewer for Wayland and X11
+j4-dmenu-desktop-git,is a rewrite of i3-dmenu-desktop
+mako,is a notification daemon
+qt5-wayland,provides APIs for Wayland
+slurp,is a region-screenshot utility for Wayland
+sway,i3 replacment of wayland
+swayidle,handles sway when its idle
+swaylock,is a screen locker for Wayland
+wl-clipboard,allows copying and pasting from the command line
+xorg-server-xwayland,is a compatibility layer for x11 apps
+# TUI/ CLI,
+atool,manages and gives information about archives
+bash-completion,
+bc,arbitrary precision calculator language
+borg,
+calcurse,lightweight terminal-based calendar
+cronie,daemon that runs specified programs at scheduled times
+dialog,
+docx2txt,enables .docx file previews in vifm/terminal
+dosfstools,allows your computer to access dos-like filesystems
+exa,the modern ls
+exfat-utils,allows management of FAT drives
+findutils,basic file searching utilities to search directories and files
+fzf,fuzzy finder tool
+highlight,highlight code output
+htop,system usage information and displays processes
+inxi,CLI system information tool
+lshw,lists all hardware on the system
+mediainfo,shows audio and video information and is used by ranger as well
+metasploit,
+nano,text editor
+neofetch,displays basic system information
+nessus,
+net-tools,configuration tools for Linux networking
+nmap,network scanner
+ntfs-3g,allows accessing NTFS partitions
+odt2txt,enables .odt file previews in vifm/terminal
+openssh,suite of security-related network utilities based on the ssh
+p7zip,tool to (de-)compress archives
+procinfo,tools to display information from /proc and /sys
+python-llfuse,
+rsync,
+sc-im,terminal spreadsheet manager
+scilab,
+simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
+sshfs,FUSE-based filesystem client for mounting remote directories
+tmux,terminal multiplexer
+tree,lists directory contents like trees
+unrar,tool to (de-)compress archives
+unzip,tool to (de-)compress archives
+usbutils,
+w3m,terminal browser which can also view images
+whois,
+wireless_tools,tools allowing to manipulate the Wireless Extensions
+wireshark,
+wpa_supplicant,a utility providing key negotiation for WPA wireless networks
+xampp,
+youtube-dl,download any YouTube video/playlist/channel) when given the link
+zsh-syntax-highlighting,
 # X,
 betterlockscreen,
-skippy-xd-git,A full-screen task-switcher for X11
+interception-hideaway,hides cursor after some time
 picom,compton fork
+python-pywal,is used to change X colors to match the wallpaper
+skippy-xd-git,A full-screen task-switcher for X11
 xcape,gives the special escape/super mappings of LARBS
+xclip,allows for copying and pasting from the command line
 xdotool,provides window action utilities on the command line
 xorg-xbacklight,enables changing screen brightness levels
 xssstate,times out the screen if locked
-python-pywal,is used to change X colors to match the wallpaper
-interception-hideaway,hides cursor after some time
-xclip,allows for copying and pasting from the command line
-# Media:,
-guvcview,webcam app
-davinci-resolve,a professional A/V post-production software suite from Blackmagic Design
-imagemagick,is a terminal image-manipulator providing some convenient shortcuts and the lockscreen in LARBS
-ncmpcpp,a ncurses interface for music with multiple formats and a powerful tag editor
-lirc,- Linux Infrared Remote Control
-# Fonts,
-ttf-ms-fonts,are Microsoft fonts
-ttf-inconsolata,is the monospace font I used
-noto-fonts,Google Noto TTF fonts
-noto-fonts-emoji,provides unicode symbols and emojis
-ttf-joypixels,is a package that gives the system unicode symbols and emojis used in the status bar and elsewhere
-# LightDM:,
-lightdm-webkit2-greeter,
-lightdm-webkit-theme-litarvan,
-# Dev K,
-unity-editor,
-gitkraken,cross-platform Git client
-npm,is a package manager for javascript
-nodejs,
-semver,
-node-gyp,
-jdk-openjdk,
-jre8-openjdk,
-jre8-openjdk-headless,
-intellij-idea-ultimate-edtion,
-intellij-idea-ultimate-edition-jre,
-mysql-workbench,is a cross-platform visual database design tool developed by MySQL
+# Dev,
+autopep8,
 clang,C language family frontend for LLVM
-valgrind,a tool to help find memory-management problems in programs
-gcc-objc,Objective-C front-end for GCC
-gdb,is the GNU Debugger
-clion,is a C/C++ IDE
 clion-cmake,
 clion-gdb,
 clion-jre,
 clion-lldb,
-mariadb,
+clion,is a C/C++ IDE
+cmake,cross-platform open-source make system
+code,
+dkms,
+docker-compose,
+docker,
+gcc-objc,Objective-C front-end for GCC
+gdb,is the GNU Debugger
+gitkraken,cross-platform Git client
+intellij-idea-ultimate-edition-jre,
+intellij-idea-ultimate-edtion,
+jdk-openjdk,
+jre8-openjdk-headless,
+jre8-openjdk,
 mariadb-clients,
 mariadb-libs,
+mariadb,
+mysql-workbench,is a cross-platform visual database design tool developed by MySQL
+neovim,
+node-gyp,
+nodejs,
+npm,is a package manager for javascript
 python-pip,
+semver,
+shellcheck,
+shfmt,
+unity-editor,
+valgrind,a tool to help find memory-management problems in programs
+#General,
+alacritty,the Terminal Emulator
+baobab,
+brave-bin,
+file-roller,GUI archive manager used by pcmanfm
+firefox,web browser
+gthumb,image viewer
+gufw,netfilter firewall
+gvfs-afc,
+gvfs-goa,
+gvfs-google,
+gvfs-gphoto2,
+gvfs-mtp,MTP backend; Android & media player
+gvfs-nfs,
+gvfs-smb,SMB/CIFS backend; Windows client
+gvfs,
+hunspell-el,Gerek dicttianery
+hunspell-en_US,dicttianery
+jq,Command-line JSON processor (used in a script)
+libnotify,desktop notifications
+libsecret,library for storing and retrieving passwords and other secrets
+mpv,simple video/gif player
+networkmanager,
+nm-connection-editor,
+paprefs,advanced pulseaudio settings
+pavucontrol,
+pcmanfm-gtk3,simple GUI file manager
+playerctl,media control for some mediaplayers
+polkit-gnome,authentication agent
+popcorntime,a program that I don't use
+pulseaudio-alsa,audio interface for pulseaudio and ALSA
+pulseaudio-bluetooth,
+xdg-user-dirs-gtk,
+xdg-user-dirs,
+#i3,
+blueman,
+dmenu,generic menu for X
+dunst,suckless notification system
+feh,image viewer that also sets the wallpaper
+i3-gaps,window manager
+i3blocks,
+i3lock-color,
+maim,can take quick screenshots at your request
+numlockx,turns on NumLock when you login
+python-i3ipc,
+xdotool,window action utilities on the command line (maim)
+xkb-switch,used by i3blocks to display what keyboard layout
+xorg-server,graphical server
+xorg-xbacklight,RandR-based backlight control application
+xorg-xdpyinfo,displays information X
+xorg-xinit,starts the graphical server
+xorg-xprop,property displayer for X
+xorg-xrandr,cli tool for screen adjustments
+xsettingsd,
 #Random,
-zenity,gui dialog
-bash-language-server,
-qt5ct,used for theming qt programs
-zathura-pdf-poppler,PDF plugin for zathura based on poppler
-galculator,simple GUI calculator
 ansible,Radically simple IT automation platform
-mprime-bin,cpu stress-test (prime95)
-mons,manage 2-monitors display using xrandr
-wee-slack,WeeChat plugin for Slack.com
-chntpw,Offline NT Password Editor
-newsboat,is a news aggregator
-syncthing,private cloud (?)
-lxappearance-gtk3,is used to set gtk themes
-tree,prints directories in a tree from
-vifm,extensive terminal file manager
-python-ueberzug,generates image previews in vifm and other terminal programs
-grafana,
-urlscan,parses URLs in the terminal allowing keyboard-based selection
-cydia-impactor,is a GUI tool for working with mobile devices. -cydiaimpactor.com
-task-spooler,queues commands or files for download
-gparted,is a GUI disc manager
-pamac-gtk,is a GUI package manager mainly for Manjaro
-multibootusb,
-filezilla,
-pacmanlogviewer,
+bash-language-server,
 brasero,is a DVD burner program
-# Hardware things,
-wattmangtk,
-rtl88xxau-aircrack-dkms-git,https://github.com/aircrack-ng/rtl8812au#branch=v5.2.20
-brightnessctl,brightness control tool
-wireless_tools,https://hewlettpackard.github.io/wireless-tools/Tools.html
-metasploit,
-nessus,
-wireshark,
-whois,
-xampp,
-scilab,
-ddcutil,monitor brightness control for desktops
+chntpw,Offline NT Password Editor
+cydia-impactor,is a GUI tool for working with mobile devices. -cydiaimpactor.com
+filezilla,
+galculator,simple GUI calculator
+gparted,is a GUI disc manager
+grafana,
+lxappearance-gtk3,is used to set gtk themes
+mons,manage 2-monitors display using xrandr
+mprime-bin,cpu stress-test (prime95)
+multibootusb,
+newsboat,is a news aggregator
+pacmanlogviewer,
+pamac-gtk,is a GUI package manager mainly for Manjaro
+python-ueberzug,generates image previews in vifm and other terminal programs
+qt5ct,used for theming qt programs
+syncthing,private cloud (?)
+task-spooler,queues commands or files for download
+tree,prints directories in a tree from
+urlscan,parses URLs in the terminal allowing keyboard-based selection
+vifm,extensive terminal file manager
+wee-slack,WeeChat plugin for Slack.com
+zathura-pdf-poppler,PDF plugin for zathura based on poppler
+zenity,gui dialog
+#Virtualization,
+ebtables,
+qemu,
+virt-manager,
