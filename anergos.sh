@@ -44,7 +44,7 @@ printLists(){
 arch_(){
 	echo "Updating and installing git if needed."
 	sudo reflector --verbose \
-				   --latest 5 
+				   --latest 5
 				   --sort rate --save /etc/pacman.d/mirrorlist
 	sudo pacman -Syu --noconfirm --needed git
 
@@ -55,7 +55,7 @@ arch_(){
 
 	# Installs VirtualBox guest utils only on guests.
 	if lspci | grep -q VirtualBox; then
-		packages="$packages virtualbox-guest-modules-arch 
+		packages="$packages virtualbox-guest-modules-arch
 		virtualbox-guest-utils xf86-video-vmware"
 	fi
 
@@ -67,7 +67,7 @@ arch_(){
 
 	yay --nodiffmenu --needed --removemake --save
 	yay -S --noconfirm --needed --removemake $packages || exit 3
-	
+
 	[ -f  $HOME/.local/Fresh_pack_list ] || 
 		yay -Qq >$HOME/.local/Fresh_pack_list
 
@@ -87,7 +87,7 @@ manjaro_(){
 	yay --nodiffmenu --save
 	yay -S --noconfirm --needed --removemake $packages
 	yay -Yc --noconfirm
-	[ -f  $HOME/.local/Fresh_pack_list ] || 
+	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		yay -Qq >$HOME/.local/Fresh_pack_list
 }
 
@@ -136,7 +136,7 @@ fedora_(){
 		sudo dnf copr enable "$corp" -y
 	done
 	sudo dnf install -y $packages
-	[ -f  $HOME/.local/Fresh_pack_list ] || 
+	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		dnf list installed >"$HOME/.local/Fresh_pack_list"
 }
 
@@ -248,11 +248,11 @@ it87_driver() {
 }
 
 mount_hhd_uuid() {
-    # Mounts my HHD, provided the UUID, at /media/foo,
-    # where "foo" is the label of the drive.
+	# Mounts my HHD, provided the UUID, at /media/foo,
+	# where "foo" is the label of the drive.
 
 	# Makes sure there is only 1 argument.
-    [ "$#" -ne 1 ] && echo 1>&2 "Invalid UUID" && return 6
+	[ "$#" -ne 1 ] && echo 1>&2 "Invalid UUID" && return 6
 	# Makes sure the UUID isn't already in fstab.
 	grep -q "$1" /etc/fstab && return
 
@@ -263,7 +263,7 @@ mount_hhd_uuid() {
 		echo 1>&2 "UUID doesn't correspond to a label" &&
 		return 6
 
-    [ -d "/media/$label" ] || sudo mkdir -p "/media/$label"
+	[ -d "/media/$label" ] || sudo mkdir -p "/media/$label"
 	mntOpt="ext4 rw,noatime,nofail,user,auto 0 2"
 	printf "\\n%s \t%s \t%s\t\\n" "UUID=$1" "/media/$label" "$mntOpt" |
 		sudo tee -a /etc/fstab >/dev/null
