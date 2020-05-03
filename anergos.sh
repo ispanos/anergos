@@ -25,29 +25,19 @@ if [ "$(id -nu)" == "root" ]; then
 fi
 
 printLists(){
-	# Warning:
-	# The function assumes you give at least one proper package list.
-	if [ "$#" -lt 1 ]; then
-		echo 1>&2 "Missing arguments."
-		exit 1
-	fi
-
+	local list file_loc i
+	[ -z $ID ] && local ID=$(. /etc/os-release; echo $ID)
+	# Warning: the function assumes you give at least one proper package list.
+	[ "$#" -lt 1 ] && echo 1>&2 "${FUNCNAME[0]} - Missing arguments." && exit 1
 	# Prints the content of `.csv` files given as arguments.
 	# Checks for local files first.
-	for file in "$@"; do
-		if [ -r "$ID.$file.csv" ]; then
-			cat "$ID.$file.csv"
-		elif [ -r "programs/$ID.$file.csv" ]; then
-			cat "programs/$ID.$file.csv"
-		elif [ -r "programs/$ID/$file.csv" ]; then
-			cat "programs/$ID/$file.csv"
-		elif [ -r "$ID/$file.csv" ]; then
-			cat "$ID/$file.csv"
-		elif [ -r "$file.csv" ]; then
-			cat "$file.csv"
-		else
-			curl -Ls "$progs_repo/$ID/$file.csv"
-		fi
+	for list in "$@"; do
+		file_loc=("programs/$ID.$list.csv" "programs/$ID/$list.csv" \
+			  "programs/$file.csv" "$ID.$list.csv" "$ID/$file.csv" "$list.csv")
+		for i in ${!file_loc[@]}; do
+			[ -r ${file_loc[$i]} ] && cat ${file_loc[$i]} && echo && break
+		done
+		[ "$?" -ne 0 ] && curl -Ls "$progs_repo/$ID/$list.csv"
 	done
 }
 
