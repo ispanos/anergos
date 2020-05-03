@@ -14,15 +14,27 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-if [ "$(id -nu)" == "root" ]; then
-	cat <<-EOF
-		This script changes your users configurations
-		and should thus not be run as root.
-		You may need to enter your password multiple times.
-	EOF
-	exit
-fi
+set -x
+main(){
+	if [ "$(id -nu)" == "root" ]; then
+		cat <<-EOF
+			This script changes your users configurations
+			and should thus not be run as root.
+			You may need to enter your password multiple times.
+		EOF
+		exit
+	fi
+	
+	local progs_repo
+	progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
+	install_environment "$@"
+	clone_dotfiles https://github.com/ispanos/dotfiles
+	# The following functions are only applied if needed.
+	# You may get an error message, but they wont apply any unneeded changes.
+	g810_Led_profile
+	it87_driver
+	mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
+}
 
 printLists(){
 	local list file_loc i
@@ -44,7 +56,7 @@ printLists(){
 arch_(){
 	echo "Updating and installing git if needed."
 	sudo reflector --verbose \
-				   --latest 5
+				   --latest 5 \
 				   --sort rate --save /etc/pacman.d/mirrorlist
 	sudo pacman -Syu --noconfirm --needed git
 
@@ -288,13 +300,4 @@ g810_Led_profile(){
 	EOF
 }
 
-
-
-progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
-install_environment "$@"
-clone_dotfiles https://github.com/ispanos/dotfiles
-# The following functions are only applied if needed.
-# You may get an error message, but they wont apply any unneeded changes.
-g810_Led_profile
-it87_driver
-mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
+main "$@"
