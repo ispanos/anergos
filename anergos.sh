@@ -14,7 +14,9 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 #set -x
+
 main(){
 	if [ "$(id -nu)" == "root" ]; then
 		cat <<-EOF
@@ -188,10 +190,14 @@ install_environment() {
 		# fedora) fedora_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
+
+	[ "$(command -v lspci)" ] && sudo systemctl enable --now libvirtd &&
+		sudo usermod -aG libvirt "$USER"
+
 	#pip install i3ipc
 	sudo usermod -aG lp "$USER"
 	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
-	[ "$(command -v docker)" ] && sudo usermod -aG vboxusers "$USER"
+	[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
 	[ "$(command -v flatpak)" ] && sudo flatpak remote-add --if-not-exists \
 						flathub https://flathub.org/repo/flathub.flatpakrepo
 }
