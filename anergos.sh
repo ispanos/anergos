@@ -55,6 +55,20 @@ printLists(){
 	done
 }
 
+nvidia_check(){
+    local nvidiaGPU nvdri
+	# Installs proprietery Nvidia drivers for supported distros.
+	# If there is an nvidia GPU, it asks the user to install drivers.
+	[ "$(command -v lspci)" ] &&
+	nvidiaGPU=$(lspci -k | grep -A 2 -E "(VGA|3D)" | grep "NVIDIA" |
+				awk -F'[][]' '{print $2}')
+
+	[ "$nvidiaGPU" ] && read -rep "
+		Detected Nvidia GPU: $nvidiaGPU
+		Install proprietary Nvidia drivers? [y/N]: " nvdri
+    echo nvdri
+}
+
 arch_(){
 	echo "Updating and installing git if needed."
 	sudo reflector --verbose \
@@ -155,7 +169,7 @@ fedora_(){
 }
 
 install_environment() {
-	local NAME ID packages extra_repos nvidiaGPU progsFile
+	local NAME ID packages extra_repos nvdri progsFile
 
 	ID=$(. /etc/os-release; echo $ID)
 	NAME=$(. /etc/os-release; echo $NAME)
@@ -163,43 +177,37 @@ install_environment() {
 	progsFile="/tmp/progs_$(date +%s).csv"
 	printLists "$@" >>"$progsFile"
 	packages=$(sed '/#.*$/d;/^,/d;s/,.*$//' "$progsFile")
-	extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile")
+	#extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile") # Fix with awk.
 
 	# Rudimentary check to see if there are any packages in the variable.
 	[ -z "$packages" ] && echo 1>&2 "Error parsing package lists." && exit 1
 
-	# Installs proprietery Nvidia drivers for supported distros.
-	# If there is an nvidia GPU, it asks the user to install drivers.
-	[ "$(command -v lspci)" ] &&
-	nvidiaGPU=$(lspci -k | grep -A 2 -E "(VGA|3D)" | grep "NVIDIA" |
-				awk -F'[][]' '{print $2}')
-
-	[ "$nvidiaGPU" ] && read -rep "
-		Detected Nvidia GPU: $nvidiaGPU
-		Install proprietary Nvidia drivers? [y/N]: " nvdri
-
+	grep -q "flatpak" <<<$packages || [ "$(command -v flatpak)" ] ||
 	packages="$packages flatpak"
 
 	[ -d "$HOME/.local" ] || mkdir "$HOME/.local"
 
 	case $ID in
-		arch) arch_ ;;
+		arch) 	nvdri=$(nvidia_check)
+				arch_ ;;
+		# fedora) fedora_ ;;
 		# manjaro) manjaro_ ;;
 		# raspbian | ubuntu) ubuntu_ ;;
 		pop) pop_ ;;
-		# fedora) fedora_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
 
 	[ "$(command -v lspci)" ] && sudo systemctl enable --now libvirtd &&
 		sudo usermod -aG libvirt "$USER"
 
+	sudo flatpak remote-add --if-not-exists flathub \
+		https://flathub.org/repo/flathub.flatpakrepo
+
 	#pip install i3ipc
 	sudo usermod -aG lp "$USER"
 	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
 	[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
-	[ "$(command -v flatpak)" ] && sudo flatpak remote-add --if-not-exists \
-						flathub https://flathub.org/repo/flathub.flatpakrepo
+
 }
 
 clone_dotfiles() {
