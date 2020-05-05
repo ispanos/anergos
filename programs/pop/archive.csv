@@ -110,7 +110,6 @@ shellcheck,
     #gvfs-mtp, not-named-like-that?
     #gvfs-nfs, not-named-like-that?
     #gvfs-smb, not-named-like-that?
-    #popcorntime,list --missing
     #pulseaudio-alsa,list --????
     #gxkb,not-in-list --xkb-switch !!!!!!!
 #    >>>>>>>>docker-compose,https://docs.docker.com/engine/install/ubuntu/
