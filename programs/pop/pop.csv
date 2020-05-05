@@ -37,7 +37,7 @@ python3-autopep8,
 python3-pip,
 shellcheck,
 virt-manager,
-# exa,missing https://github.com/ogham/exa
+# exa,https://the.exa.website/#installation
 # sc-im,https://github.com/andmarti1424/sc-im
 # simple-mtpfs,missing
 # brave,missing
