@@ -1,26 +1,4 @@
 #NAME IN REPO,DESCRIPTION
-atool,manages and gives information about archives
-borgbackup,
-calcurse,lightweight terminal-based calendar
-dialog,
-docx2txt,enables .docx file previews in vifm/terminal
-#exfat-fuse,allows management of FAT drives
-fzf,fuzzy finder tool
-highlight,highlight code output
-htop,system usage information and displays processes
-inxi,CLI system information tool
-molly-guard,protects machines from accidental shutdowns/reboots (via ssh)
-neofetch,displays basic system information
-odt2txt,enables .odt file previews in vifm/terminal
-openssh-server,
-p7zip-full,tool to (de-)compress archives
-procinfo,tools to display information from /proc and /sys
-python3-llfuse,
-sshfs,FUSE-based filesystem client for mounting remote directories
-tmux,terminal multiplexer
-tree,lists directory contents like trees
-unrar,tool to (de-)compress archives
-w3m,terminal browser which can also view images
 #i3,
 blueman,
 feh,image viewer that also sets the wallpaper
@@ -32,28 +10,3 @@ numlockx,turns on NumLock when you login
 xbacklight,RandR-based backlight control application
 xdotool,window action utilities on the command line (maim)
 xsettingsd,
-#general,
-alacritty,terminal emulator
-fonts-font-awesome,font for i3blocks
-g810-led,
-gthumb,image viewer
-hunspell-el,Gerek dicttianery
-mpv,simple video/gif player
-paprefs,advanced pulseaudio settings
-pcmanfm,simple GUI file manager
-playerctl,media control for some mediaplayers
-#dev,
-code,
-ebtables,
-python3-autopep8,
-python3-pip,
-shellcheck,
-virt-manager,
-# exa,missing https://github.com/ogham/exa
-# sc-im,https://github.com/andmarti1424/sc-im
-# simple-mtpfs,missing
-# brave,missing
-# xkb-switch,missing
-# docker-compose,https://docs.docker.com/engine/install/ubuntu/
-# docker,https://docs.docker.com/engine/install/ubuntu/
-# shfmt,missing https://github.com/tmknom/shfmt

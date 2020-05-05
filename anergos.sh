@@ -69,6 +69,14 @@ nvidia_check(){
     echo nvdri
 }
 
+change_hostname(){
+	local ans1 hostname
+	echo "Current hostname is $(hostname)"
+	read -rep 'Would you like to change it? [Y/n]: ' ans1
+	[[ $ans1 =~ ^[Yy]$ ]] && read -rep 'New hostname: ' hostname
+	sudo hostnamectl set-hostname "$hostname"
+}
+
 arch_(){
 	echo "Updating and installing git if needed."
 	sudo reflector --verbose \
@@ -143,6 +151,7 @@ pop_(){
 	lspci -k | grep -q "QEMU Virtual Machine" &&
 	packages="$packages qemu-guest-agent"
 
+	change_hostname
 	sudo apt-get install $packages -y
 	[[ "$?" -eq 100 ]] && echo "Wrong package name." && exit 100
 	[ -f  $HOME/.local/Fresh_pack_list ] ||
