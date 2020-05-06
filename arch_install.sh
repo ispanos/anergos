@@ -44,7 +44,7 @@ partition_drive_UEFI() {
 	# Uses fdisk to create an "EFI System" partition  (500M),
 	# a "Linux root" partition and a "linux home" partition.
 	# Obviously it erases all data on the device.
-	# Pass the /dev device name as argument. 
+	# Pass the /dev device name as argument.
 	cat <<-EOF | fdisk --wipe-partitions always $1
 		g
 		n
@@ -107,7 +107,7 @@ format_mount_parts_UEFI() {
 	# Used after partitioning the device, it formats and mounts
 	# the 3 newly created partitions.
 	# Obviously it erases all data on the device.
-	# Pass the /dev device name as argument. 
+	# Pass the /dev device name as argument.
 	local HARD_DRIVE=$1
 
 	# NVME drives have a "p" before the partition number.
@@ -130,7 +130,7 @@ format_and_mount_partitions_UEFI(){
 
 			Looks like you have mounted the required partitions [/mnt,/mnt/boot].
 			This script is meant for a clean Archlinux installation, so the new /
-			partition should be formated. If you are dual-booting, make sure you 
+			partition should be formated. If you are dual-booting, make sure you
 			don't erase the EFI partition of your other OS.
 
 			Please make sure /mnt is formated before you continue:
@@ -208,9 +208,9 @@ format_and_mount_partitions_MBR(){
 			This script provides a quick way to format and partition a drive in to 2
 			partitions [/,/home]. The newly created partitions are going to be
 			formated and ALL DATA ON THE DRIVE WILL BE LOST.
-			If you continue, you will be prompted to select a drive. 
+			If you continue, you will be prompted to select a drive.
 
-			I recommend this only for testing on a VM. 
+			I recommend this only for testing on a VM.
 
 			To continue type either 'Y' or 'y'. Any other input will terminate
 			the script. NO changes have been made so far.
@@ -406,7 +406,7 @@ root_password="$(get_pass root)"
 
 # multilib
 read -rep "
-Would you like to enable multilib (for gaming)? 
+Would you like to enable multilib (for gaming)?
 (defaults to no)[y/N]: " multi_lib_bool_ans
 
 

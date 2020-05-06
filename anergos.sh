@@ -26,7 +26,7 @@ main(){
 		EOF
 		exit
 	fi
-	
+
 	local progs_repo
 	progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
 	install_environment "$@"
@@ -104,7 +104,7 @@ arch_(){
 	yay --nodiffmenu --needed --removemake --save
 	yay -S --noconfirm --needed --removemake $packages || exit 3
 
-	[ -f  $HOME/.local/Fresh_pack_list ] || 
+	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		yay -Qq >$HOME/.local/Fresh_pack_list
 
 	if [ "$(command -v arduino)" ]; then
@@ -139,7 +139,7 @@ ubuntu_(){
 
 	sudo apt install $packages
 	sudo apt-get clean && sudo apt autoremove
-	[ -f  $HOME/.local/Fresh_pack_list ] || 
+	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
 
 	if [ "$(command -v arduino)" ]; then
@@ -216,7 +216,6 @@ install_environment() {
 	sudo usermod -aG lp "$USER"
 	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
 	[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
-
 }
 
 clone_dotfiles() {
