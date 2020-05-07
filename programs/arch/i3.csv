@@ -42,11 +42,11 @@ wpa_supplicant,a utility providing key negotiation for WPA wireless networks
 youtube-dl,download any YouTube video/playlist/channel) when given the link
 zsh-syntax-highlighting,
 # Fonts,
+awesome-terminal-fonts,font for i3blocks and exa
 ttf-liberation,Red Hats Liberation fonts
 ttf-droid,
 ttf-roboto,
 ttf-roboto-mono,
-ttf-font-awesome,font for i3blocks
 #i3,
 autotiling,
 blueman,
