@@ -91,8 +91,7 @@ arch_(){
 
 	# Installs VirtualBox guest utils only on guests.
 	if lspci | grep -q VirtualBox; then
-		packages="$packages virtualbox-guest-modules-arch
-		virtualbox-guest-utils xf86-video-vmware"
+		packages="$packages virtualbox-guest-utils xf86-video-vmware"
 	fi
 
 	if [[ $nvdri =~ ^[Yy]$ ]]; then
