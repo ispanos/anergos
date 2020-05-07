@@ -48,6 +48,7 @@ ttf-roboto,
 ttf-roboto-mono,
 ttf-font-awesome,font for i3blocks
 #i3,
+autotiling,
 blueman,
 dmenu,generic menu for X
 dunst,suckless notification system
