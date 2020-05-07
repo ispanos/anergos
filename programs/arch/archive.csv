@@ -40,6 +40,7 @@ hplip,
 nss-mdns,Not so usefull
 # Swaywm,
 bemenu,is like dmenu for wayland
+bemenu-wlroots,bemenu dep
 grim,is a screenshot utility for Wayland
 i3blocks,is the status bar
 imv,is an image viewer for Wayland and X11
