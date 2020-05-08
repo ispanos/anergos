@@ -36,6 +36,7 @@ main(){
 	g810_Led_profile
 	it87_driver
 	mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
+	finalization
 }
 
 printLists(){
@@ -204,17 +205,6 @@ install_environment() {
 		pop) pop_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
-
-	[ "$(command -v lspci)" ] && sudo systemctl enable --now libvirtd &&
-		sudo usermod -aG libvirt "$USER"
-
-	sudo flatpak remote-add --if-not-exists flathub \
-		https://flathub.org/repo/flathub.flatpakrepo
-
-	#pip install i3ipc
-	sudo usermod -aG lp "$USER"
-	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
-	[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
 }
 
 clone_dotfiles() {
@@ -319,6 +309,25 @@ g810_Led_profile(){
 		g arrows 000030
 		c
 	EOF
+}
+
+finalization(){
+	[ "$(command -v sway)" ] &&
+	sudo sed -i 's/^Exec=sway$/Exec=\/bin\/zsh -l -c sway/' \
+		/usr/share/wayland-sessions/sway.desktop
+
+	sudo systemctl enable --now libvirtd &&
+		sudo usermod -aG libvirt "$USER"
+
+	sudo flatpak remote-add --if-not-exists flathub  --system \
+		https://flathub.org/repo/flathub.flatpakrepo
+	flatpak remote-add --if-not-exists flathub --user \
+		https://flathub.org/repo/flathub.flatpakrepo
+
+	#pip install i3ipc # Add for non-arch distros.
+	sudo usermod -aG lp "$USER"
+	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
+	[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
 }
 
 main "$@"
