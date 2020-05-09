@@ -90,10 +90,10 @@ arch_(){
 		cd /tmp/yay && makepkg -si --noconfirm --needed
 	fi
 
-	# Installs VirtualBox guest utils only on guests.
-	if lspci | grep -q VirtualBox; then
-		packages="$packages virtualbox-guest-utils xf86-video-vmware"
-	fi
+	# # Installs VirtualBox guest utils only on guests.
+	# if lspci | grep -q VirtualBox; then
+	# 	packages="$packages virtualbox-guest-utils xf86-video-vmware"
+	# fi
 
 	if [[ $nvdri =~ ^[Yy]$ ]]; then
 		packages="$packages nvidia nvidia-settings"
