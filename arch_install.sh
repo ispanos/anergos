@@ -396,45 +396,49 @@ core_arch_install() {
 	systemctl enable NetworkManager
 }
 
-# User inputs.
-hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
-name=$(get_username)
-user_password="$(get_pass $name)"
+userinput(){
+	# User inputs.
+	hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
+	name=$(get_username)
+	user_password="$(get_pass $name)"
+	# Without root password, root login should be disabled.
+	root_password="$(get_pass root)"
+	# multilib
+	cat <<-EOF
+		Would you like to enable multilib (for gaming)?
+		(defaults to no)[y/N]:
+	EOF
+	read -re multi_lib_bool_ans
+}
 
-# If root_passwdrd is not set, root login should be disabled.
-root_password="$(get_pass root)"
+main(){
+	# This is where the action starts.
+	timedatectl set-ntp true
 
-# multilib
-read -rep "
-Would you like to enable multilib (for gaming)?
-(defaults to no)[y/N]: " multi_lib_bool_ans
+	# If you have mounted a partition at /mnt, it doens't format it.
+	if [ -d "/sys/firmware/efi" ]; then
+		format_and_mount_partitions_UEFI
+	else
+		format_and_mount_partitions_MBR
+	fi
 
+	if [[ $multi_lib_bool_ans =~ ^[Yy]$ ]]; then
+		export multi_lib_bool=true
+	fi
 
+	export hostname name user_password root_password
 
-# This is where the action starts.
-timedatectl set-ntp true
+	pacstrap /mnt base base-devel linux linux-headers linux-firmware \
+				man-db man-pages pacman-contrib expac arch-audit \
+				reflector networkmanager openssh flatpak zsh git
 
-# If you have mounted a partition at /mnt, it doens't format it.
-if [ -d "/sys/firmware/efi" ]; then
-	format_and_mount_partitions_UEFI
-else
-	format_and_mount_partitions_MBR
-fi
+	genfstab -U /mnt > /mnt/etc/fstab
+	export -f systemd_boot get_drive grub_mbr core_arch_install
+	arch-chroot /mnt bash -c core_arch_install
+}
 
-if [[ $multi_lib_bool_ans =~ ^[Yy]$ ]]; then
-	export multi_lib_bool=true
-fi
-
-export hostname name user_password root_password
-
-pacstrap /mnt base base-devel linux linux-headers linux-firmware \
-			  man-db man-pages pacman-contrib expac arch-audit \
-			  reflector networkmanager openssh flatpak zsh git
-
-genfstab -U /mnt > /mnt/etc/fstab
-export -f systemd_boot get_drive grub_mbr core_arch_install
-arch-chroot /mnt bash -c core_arch_install
-
+userinput
+main
 # TODO
 # Add encryption
 # Add Grub
