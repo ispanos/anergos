@@ -396,7 +396,7 @@ core_arch_install() {
 	systemctl enable NetworkManager
 }
 
-userinput(){
+main(){
 	# User inputs.
 	hostname=$(read -rep $'Enter computer\'s hostname: \n' var; echo $var)
 	name=$(get_username)
@@ -409,9 +409,7 @@ userinput(){
 		(defaults to no)[y/N]:
 	EOF
 	read -re multi_lib_bool_ans
-}
 
-main(){
 	# This is where the action starts.
 	timedatectl set-ntp true
 
@@ -437,7 +435,6 @@ main(){
 	arch-chroot /mnt bash -c core_arch_install
 }
 
-userinput
 main
 # TODO
 # Add encryption
