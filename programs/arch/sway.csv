@@ -1,0 +1,140 @@
+# NAME,PURPOSE
+atool,manages and gives information about archives
+bash-completion,
+bc,arbitrary precision calculator language
+borg,
+calcurse,lightweight terminal-based calendar
+cronie,daemon that runs specified programs at scheduled times
+dialog,
+docx2txt,enables .docx file previews in vifm/terminal
+dosfstools,allows your computer to access dos-like filesystems
+exa,the modern ls
+exfat-utils,allows management of FAT drives
+findutils,basic file searching utilities to search directories and files
+fzf,fuzzy finder tool
+highlight,highlight code output
+htop,system usage information and displays processes
+inxi,CLI system information tool
+lshw,lists all hardware on the system
+mediainfo,shows audio and video information and is used by ranger as well
+nano,text editor
+neofetch,displays basic system information
+net-tools,configuration tools for Linux networking
+nmap,network scanner
+ntfs-3g,allows accessing NTFS partitions
+odt2txt,enables .odt file previews in vifm/terminal
+openssh,suite of security-related network utilities based on the ssh
+p7zip,tool to (de-)compress archives
+procinfo,tools to display information from /proc and /sys
+python-llfuse,
+rsync,
+sc-im,terminal spreadsheet manager
+simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
+sshfs,FUSE-based filesystem client for mounting remote directories
+tmux,terminal multiplexer
+tree,lists directory contents like trees
+ufw,netfilter firewall
+unrar,tool to (de-)compress archives
+unzip,tool to (de-)compress archives
+usbutils,
+w3m,terminal browser which can also view images
+wireless_tools,tools allowing to manipulate the Wireless Extensions
+wpa_supplicant,a utility providing key negotiation for WPA wireless networks
+youtube-dl,download any YouTube video/playlist/channel) when given the link
+zsh-syntax-highlighting,
+# Fonts,
+awesome-terminal-fonts,font for i3blocks and exa
+ttf-liberation,Red Hats Liberation fonts
+ttf-droid,
+ttf-roboto,
+ttf-roboto-mono,
+# Swaywm,
+bemenu,is like dmenu for wayland
+bemenu-wlroots,bemenu dep
+grim,is a screenshot utility for Wayland
+i3blocks,is the status bar
+imv,is an image viewer for Wayland and X11
+j4-dmenu-desktop-git,is a rewrite of i3-dmenu-desktop
+mako,is a notification daemon
+qt5-wayland,provides APIs for Wayland
+slurp,is a region-screenshot utility for Wayland
+sway,i3 replacment of wayland
+swayidle,handles sway when its idle
+swaylock,is a screen locker for Wayland
+wl-clipboard,allows copying and pasting from the command line
+xorg-server-xwayland,is a compatibility layer for x11 apps
+#i3,
+autotiling,
+python-i3ipc,
+#General,
+alacritty,the Terminal Emulator
+baobab,
+brave-bin,
+discord,
+evince,
+evolution,
+file-roller,GUI archive manager used by pcmanfm
+firefox,web browser
+g810-led-git,
+gcolor3,
+gedit,
+gnome-backgrounds,
+gnome-calculator,
+gnome-calendar,
+gnome-clocks,
+gnome-disk-utility,
+gnome-keyring,takes care of the user's security credentials
+gnome-system-monitor,
+gnome-themes-extra,Adwaita-dark theme
+gthumb,image viewer
+gufw,netfilter firewall
+gvfs-afc,
+gvfs-goa,
+gvfs-google,
+gvfs-gphoto2,
+gvfs-mtp,MTP backend; Android & media player
+gvfs-nfs,
+gvfs-smb,SMB/CIFS backend; Windows client
+gvfs,
+hunspell-el,Gerek dicttianery
+hunspell-en_US,dicttianery
+jq,Command-line JSON processor (used in a script)
+libnotify,desktop notifications
+libsecret,library for storing and retrieving passwords and other secrets
+mpv,simple video/gif player
+networkmanager,
+nm-connection-editor,
+paprefs,advanced pulseaudio settings
+pavucontrol,
+pcmanfm-gtk3,simple GUI file manager
+playerctl,media control for some mediaplayers
+polkit-gnome,authentication agent
+pulseaudio-alsa,audio interface for pulseaudio and ALSA
+pulseaudio-bluetooth,
+spotify,
+transmission-gtk,
+xdg-user-dirs-gtk,
+xdg-user-dirs,
+#dev,
+arduino-avr-core,
+arduino-docs,
+arduino,
+autopep8,
+cmake,cross-platform open-source make system
+code,
+dkms,
+docker-compose,
+docker,
+gitg,
+gnome-builder,
+neovim,
+python-pip,
+shellcheck,
+shfmt,
+#Virtualization,
+ebtables,
+qemu,
+virt-manager,
+# themes,
+#pop-gnome-shell-theme-bin,
+pop-icon-theme-git,
