@@ -28,7 +28,6 @@ p7zip,tool to (de-)compress archives
 procinfo,tools to display information from /proc and /sys
 python-llfuse,
 rsync,
-sc-im,terminal spreadsheet manager
 simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
 sshfs,FUSE-based filesystem client for mounting remote directories
 tmux,terminal multiplexer
@@ -116,7 +115,6 @@ playerctl,media control for some mediaplayers
 polkit-gnome,authentication agent
 pulseaudio-alsa,audio interface for pulseaudio and ALSA
 pulseaudio-bluetooth,
-spotify,
 transmission-gtk,
 xdg-user-dirs-gtk,
 xdg-user-dirs,
@@ -142,4 +140,4 @@ qemu,
 virt-manager,
 # themes,
 #pop-gnome-shell-theme-bin,
-#pop-icon-theme-git,
+pop-icon-theme-git,
