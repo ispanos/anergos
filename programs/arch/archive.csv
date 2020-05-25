@@ -228,6 +228,11 @@ vifm,extensive terminal file manager
 wee-slack,WeeChat plugin for Slack.com
 zathura-pdf-poppler,PDF plugin for zathura based on poppler
 zenity,gui dialog
+#sysad,
+ansible,
+pv,
+smartmontools,
+sshpass,
 #Virtualization,
 ebtables,
 qemu,
