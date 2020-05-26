@@ -35,7 +35,7 @@ main(){
 	# You may get an error message, but they wont apply any unneeded changes.
 	g810_Led_profile
 	it87_driver
-	mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
+	#mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
 	finalization
 }
 
