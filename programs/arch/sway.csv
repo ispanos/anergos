@@ -1,4 +1,5 @@
-# NAME,PURPOSEatool,manages and gives information about archives
+# NAME,PURPOSE
+atool,manages and gives information about archives
 bash-completion,
 bc,arbitrary precision calculator language
 borg,
