@@ -153,6 +153,16 @@ pop_(){
 
 	change_hostname
 	sudo apt-get install $packages -y
+
+	pip3 install i3ipc --user
+	curl -Ls https://raw.githubusercontent.com/nwg-piotr/autotiling/master/autotiling.py >.local/bin/wm-scripts/autotiling
+	chmod +x .local/bin/wm-scripts/autotiling
+
+	install_xkb-switch
+
+	pip3 install ansible ansible-lint --user
+
+	chsh -s /bin/usr/zsh
 	[[ "$?" -eq 100 ]] && echo "Wrong package name." && exit 100
 	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
@@ -263,11 +273,29 @@ it87_driver() {
 
 	[[ $needed =~ ^[Yy]$ ]] || return
 
-	workdir=$HOME/.local/sources
+	workdir=$HOME/.local/share/build_sources
 	[ -d "$workdir" ] || mkdir -p "$workdir" && cd "$workdir" || return 2
 	git clone -q https://github.com/bbqlinux/it87 &&
 		cd it87 && sudo make dkms && sudo modprobe it87 &&
 		echo "it87" | sudo tee /etc/modules-load.d/it87.conf >/dev/null
+}
+
+install_xkb-switch() {
+	[ "$(command -v xkb-switch)" ] && return 0
+	# Installs xkb-switch, needed for i3blocks keyboard layout module.
+	if [ ! "$(command -v git)" ] || [ ! "$(command -v cmake)" ]; then
+		echo "${FUNCNAME[0]} requires git and cmake. Skipping."
+		return 1
+	fi
+
+	local workdir
+
+	workdir=$HOME/.local/share/build_sources
+
+	[ -d "$workdir" ] || mkdir -p "$workdir" && cd "$workdir" || return 2
+	git clone -q https://github.com/grwlf/xkb-switch.git &&
+		cd xkb-switch && mkdir build && cd build && cmake .. && make &&
+        sudo make install && sudo ldconfig || return 7
 }
 
 mount_hhd_uuid() {
