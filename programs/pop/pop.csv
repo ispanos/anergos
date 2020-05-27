@@ -20,6 +20,8 @@ tmux,terminal multiplexer
 tree,lists directory contents like trees
 unrar,tool to (de-)compress archives
 w3m,terminal browser which can also view images
+zsh,
+zsh-syntax-highlighting,
 #general,
 alacritty,terminal emulator
 fonts-font-awesome,font for i3blocks
@@ -37,6 +39,11 @@ python3-autopep8,
 python3-pip,
 shellcheck,
 virt-manager,
+#sysad,
+#ansible,
+pv,
+smartmontools,
+ssh-askpass,
 # exa,https://the.exa.website/#installation
 # sc-im,https://github.com/andmarti1424/sc-im
 # simple-mtpfs,missing
