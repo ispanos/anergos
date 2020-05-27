@@ -142,7 +142,7 @@ virt-manager,
 ansible,
 pv,
 smartmontools,
-sshpass,
+seahorse, # for /usr/lib/seahorse/ssh-askpass
 # themes,
 #pop-gnome-shell-theme-bin,
 pop-icon-theme-git,
