@@ -45,20 +45,21 @@ paprefs,advanced pulseaudio settings
 pcmanfm,simple GUI file manager
 playerctl,media control for some mediaplayers
 #dev,
-cmake,cross-platform open-source make system
+cmake,cross-platform open-source make systemt
 code,
-ebtables,
+gitg,
+neovim,
 python3-autopep8,
 python3-pip,
 shellcheck,
+#Virtualization,
+qemu,
+ebtables,
 virt-manager,
 #sysad,
 pv,
 smartmontools,
 # exa,https://the.exa.website/#installation
-# sc-im,https://github.com/andmarti1424/sc-im
-# simple-mtpfs,missing
-# brave,missing
 # docker-compose,https://docs.docker.com/engine/install/ubuntu/
 # docker,https://docs.docker.com/engine/install/ubuntu/
 # shfmt,missing https://github.com/tmknom/shfmt
