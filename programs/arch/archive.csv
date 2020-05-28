@@ -25,6 +25,24 @@ gnome-keyring,takes care of the user's security credentials
 gnome-system-monitor,
 gnome-terminal,the GNOME Terminal Emulator
 gnome-themes-extra,Adwaita-dark theme
+# Gnome- for Gnome desktop
+gnome-backgrounds,
+gnome-control-center,
+gnome-logs,
+gnome-menus,
+gnome-screenshot,
+gnome-shell-extensions,
+#gnome-user-share,
+gnome-video-effects,
+gnome-weather,
+#grilo-plugins,
+mousetweaks,
+nautilus,
+sushi,
+tracker,
+tracker-miners,
+vino,
+simple-scan,
 # Fonts,
 noto-fonts-emoji,provides unicode symbols and emojis
 noto-fonts,Google Noto TTF fonts
