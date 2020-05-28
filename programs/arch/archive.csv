@@ -1,4 +1,22 @@
 #NAME IN REPO,DESCRIPTION
+# Swaywm,
+bemenu,is like dmenu for wayland
+bemenu-wlroots,bemenu dep
+grim,is a screenshot utility for Wayland
+i3blocks,is the status bar
+imv,is an image viewer for Wayland and X11
+j4-dmenu-desktop-git,is a rewrite of i3-dmenu-desktop
+mako,is a notification daemon
+qt5-wayland,provides APIs for Wayland
+slurp,is a region-screenshot utility for Wayland
+sway,i3 replacment of wayland
+swayidle,handles sway when its idle
+swaylock,is a screen locker for Wayland
+wl-clipboard,allows copying and pasting from the command line
+xorg-server-xwayland,is a compatibility layer for x11 apps
+autotiling,
+python-i3ipc,
+jq,Command-line JSON processor (used in a script)
 # Gnome- general purpuse, gtk
 gdm,
 gedit,
