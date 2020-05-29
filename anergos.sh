@@ -76,6 +76,15 @@ change_hostname(){
 	read -rep 'Would you like to change it? [Y/n]: ' ans1
 	[[ $ans1 =~ ^[Yy]$ ]] && read -rep 'New hostname: ' hostname
 	sudo hostnamectl set-hostname "$hostname"
+
+	{
+	cat <<-EOF
+		#<ip-address>  <hostname.domain.org>    <hostname>
+		127.0.0.1      localhost
+		::1            localhost
+		127.0.1.1      ${hostname}.localdomain  $hostname
+	EOF
+	} | sudo tee /etc/hosts >/dev/null
 }
 
 arch_(){
