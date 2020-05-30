@@ -137,23 +137,7 @@ manjaro_(){
 }
 
 ubuntu_(){
-	sudo apt-get update && sudo apt-get -y upgrade
-
-	for ppa in $extra_repos; do
-		sudo add-apt-repository ppa:$ppa -y
-	done
-
-	lspci -k | grep -q "QEMU Virtual Machine" &&
-	packages="$packages qemu-guest-agent"
-
-	sudo apt install $packages
-	sudo apt-get clean && sudo apt autoremove
-	[ -f  $HOME/.local/Fresh_pack_list ] ||
-		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
-
-	if [ "$(command -v arduino)" ]; then
-		sudo usermod -aG dialout "$USER"
-	fi
+	pop_
 }
 
 pop_(){
@@ -161,20 +145,35 @@ pop_(){
 	packages="$packages qemu-guest-agent"
 
 	change_hostname
+
+	for ppa in $extra_repos; do
+		sudo add-apt-repository ppa:$ppa -y
+	done
+
+	sudo apt-get update && sudo apt-get -y upgrade
 	sudo apt-get install $packages -y
+	[[ "$?" -eq 100 ]] && echo "Wrong package name." && exit 100
+	sudo apt-get clean && sudo apt autoremove
 
-	pip3 install i3ipc --user
-	curl -Ls https://raw.githubusercontent.com/nwg-piotr/autotiling/master/autotiling.py >.local/bin/wm-scripts/autotiling
-	chmod +x .local/bin/wm-scripts/autotiling
-
-	install_xkb-switch
-
+	[ "$(command -v pip3)" ] || sudo apt-get install python3-pip -y
 	pip3 install ansible ansible-lint --user
 
+	if [ "$(command -v sway)" ] || [ "$(command -v i3)" ]; then
+		pip3 install i3ipc --user
+		curl -Ls \
+			"https://raw.githubusercontent.com/nwg-piotr/autotiling/master/autotiling.py" \
+			>~/.local/bin/wm-scripts/autotiling
+		chmod +x ~/.local/bin/wm-scripts/autotiling
+		install_xkb-switch
+	fi
+
 	chsh -s /bin/usr/zsh
-	[[ "$?" -eq 100 ]] && echo "Wrong package name." && exit 100
 	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
+
+	if [ "$(command -v arduino)" ]; then
+		sudo usermod -aG dialout "$USER"
+	fi
 }
 
 fedora_(){
