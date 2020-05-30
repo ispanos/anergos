@@ -136,10 +136,6 @@ manjaro_(){
 		yay -Qq >$HOME/.local/Fresh_pack_list
 }
 
-ubuntu_(){
-	pop_
-}
-
 pop_(){
 	lspci -k | grep -q "QEMU Virtual Machine" &&
 	packages="$packages qemu-guest-agent"
@@ -219,8 +215,7 @@ install_environment() {
 				arch_ ;;
 		# fedora) fedora_ ;;
 		# manjaro) manjaro_ ;;
-		# raspbian | ubuntu) ubuntu_ ;;
-		pop) pop_ ;;
+		pop|ubuntu) pop_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
 }
