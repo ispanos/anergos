@@ -27,6 +27,8 @@ blueman,
 feh,image viewer that also sets the wallpaper
 i3,window manager
 i3blocks,
+i3lock-fancy,
+imagemagick,
 jq,Command-line JSON processor (used in a script)
 libnotify-bin,provides notify-send
 maim,can take quick screenshots at your request
