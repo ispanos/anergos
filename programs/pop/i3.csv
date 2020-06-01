@@ -28,8 +28,11 @@ feh,image viewer that also sets the wallpaper
 i3,window manager
 i3blocks,
 jq,Command-line JSON processor (used in a script)
+libnotify-bin,provides notify-send
 maim,can take quick screenshots at your request
 numlockx,turns on NumLock when you login
+pavucontrol,pulseaudio volume control
+policykit-1-gnome,Gnome authentication agent
 xbacklight,RandR-based backlight control application
 xdotool,window action utilities on the command line (maim)
 xsettingsd,
@@ -57,6 +60,7 @@ qemu,
 ebtables,
 virt-manager,
 #sysad,
+etherwake,
 pv,
 smartmontools,
 # exa,https://the.exa.website/#installation
