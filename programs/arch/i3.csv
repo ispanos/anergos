@@ -54,7 +54,7 @@ dunst,suckless notification system
 feh,image viewer that also sets the wallpaper
 i3-gaps,window manager
 i3blocks,
-i3lock-fancy-git,
+i3lock,
 maim,can take quick screenshots at your request
 numlockx,turns on NumLock when you login
 python-i3ipc,
