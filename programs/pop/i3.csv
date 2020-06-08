@@ -64,7 +64,6 @@ virt-manager,
 etherwake,
 pv,
 smartmontools,
-# exa,https://the.exa.website/#installation
+# exa,https://github.com/ogham/exa/releases/
 # docker-compose,https://docs.docker.com/engine/install/ubuntu/
 # docker,https://docs.docker.com/engine/install/ubuntu/
-# shfmt,missing https://github.com/tmknom/shfmt
