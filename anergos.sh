@@ -148,7 +148,7 @@ pop_(){
 
 	sudo apt-get update && sudo apt-get -y upgrade
 	sudo apt-get install $packages -y
-	[[ "$?" -eq 100 ]] && echo "Wrong package name." && exit 100
+	[[ "$?" -eq 100 ]] && echo 1>&2 "Wrong package name." && exit 100
 	sudo apt-get clean && sudo apt autoremove
 
 	[ "$(command -v pip3)" ] || sudo apt-get install python3-pip -y
@@ -225,7 +225,7 @@ clone_dotfiles() {
 	# Use the alias suggested in the following article.
 	# https://www.atlassian.com/git/tutorials/dotfiles
 	if [ ! "$(command -v git)" ]; then
-		echo "${FUNCNAME[0]} requires git. Skipping."
+		echo 1>&2 "${FUNCNAME[0]} requires git. Skipping."
 		return 1
 	fi
 
@@ -247,7 +247,7 @@ clone_dotfiles() {
 it87_driver() {
 	# Installs driver for many Ryzen's motherboards temperature sensors
 	if [ ! "$(command -v git)" ] || [ ! "$(command -v dkms)" ]; then
-		echo "${FUNCNAME[0]} requires git and dkms. Skipping."
+		echo 1>&2 "${FUNCNAME[0]} requires git and dkms. Skipping."
 		return 1
 	fi
 
@@ -269,7 +269,7 @@ it87_driver() {
 			fi
 		done
 	else
-		echo "Automated test for ${FUNCNAME[0]} requires lm_sensors."
+		echo 1>&2 "Automated test for ${FUNCNAME[0]} requires lm_sensors."
 		echo "If you know that you need the driver, type either 'Y' or 'y'"
 		read -rep "to install it. [y/N]:" needed
 	fi
@@ -287,7 +287,7 @@ install_xkb-switch() {
 	[ "$(command -v xkb-switch)" ] && return 0
 	# Installs xkb-switch, needed for i3blocks keyboard layout module.
 	if [ ! "$(command -v git)" ] || [ ! "$(command -v cmake)" ]; then
-		echo "${FUNCNAME[0]} requires git and cmake. Skipping."
+		echo 1>&2 "${FUNCNAME[0]} requires git and cmake. Skipping."
 		return 1
 	fi
 
