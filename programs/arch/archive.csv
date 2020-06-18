@@ -95,7 +95,6 @@ bash-completion,
 bc,arbitrary precision calculator language
 borg,
 calcurse,lightweight terminal-based calendar
-cronie,daemon that runs specified programs at scheduled times
 dialog,
 docx2txt,enables .docx file previews in vifm/terminal
 dosfstools,allows your computer to access dos-like filesystems
