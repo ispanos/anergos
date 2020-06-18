@@ -25,7 +25,7 @@ gnome-keyring,takes care of the user's security credentials
 gnome-system-monitor,
 gnome-terminal,the GNOME Terminal Emulator
 gnome-themes-extra,Adwaita-dark theme
-# Gnome- for Gnome desktop
+# Gnome- for Gnome desktop,
 gnome-backgrounds,
 gnome-control-center,
 gnome-logs,
