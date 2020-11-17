@@ -4,7 +4,7 @@
 As of summer 2020, I'm going to foucus on using Ansible, rather than bash scripts. I will make the playbook public once it's ready.
 
 ## Description:
-The name Anergos comes from the discontinued Linux distro Antergos and the Greek word "unemployed" (άνεργος). The scripts in this repository serve two purposes.
+The name Anergos comes from the discontinued Linux distro **Antergos** and the Greek word "unemployed" (άνεργος). The scripts in this repository serve two purposes.
 1. I want to have an easy way to install all the packages and configurations I need for my workflow, quickly and in a reproducible way.
 2. Provide a blueprint for anyone who wants to do something similar, without having to write everthing from scratch.
 
