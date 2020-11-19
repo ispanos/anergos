@@ -1,7 +1,7 @@
 # Anergos
 
 ## Updates:
-As of summer 2020, I'm going to foucus on using [Ansible](https://github.com/ispanos/ansible_home_setup), rather than bash scripts. I will make the playbook public once it's ready.
+As of summer 2020, I'm going to foucus on using Ansible, rather than bash scripts. The [playbook](https://github.com/ispanos/ansible_home_setup) is public and somewhat ready. This repo is not tested lately. I am currently using Pop!_Os, so I don't know if the scrip to install ArchLinux is up to date.
 
 ## Description:
 The name Anergos comes from the discontinued Linux distro **Antergos** and the Greek word "unemployed" (άνεργος). The scripts in this repository serve two purposes.
