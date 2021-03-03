@@ -366,7 +366,7 @@ core_arch_install() {
 		#passwd -l root
 	fi
 
-	useradd -m -g wheel -G power -s /bin/zsh "$name" # Create user
+	useradd "$name" -Um -G wheel,power -s /bin/zsh # Create user
 	echo "$name:$user_password" | chpasswd 			# Set user password.
 
 	echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
