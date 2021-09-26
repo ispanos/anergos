@@ -205,6 +205,8 @@ fedora_(){
 	# To do: Install VirtualBox guest utils only on guests.
 	# To do: Install Nvidia drivers ?
 
+	# chsh $USER -s /usr/bin/zsh
+
 	for corp in $extra_repos; do
 		sudo dnf copr enable "$corp" -y
 	done
@@ -282,6 +284,9 @@ clone_dotfiles() {
 		--local status.showUntrackedFiles no
 	rm "$dir/.gitignore"
 	cp -rfT "$dir/" "$HOME/"
+
+	ln -s .profile .zprofile
+
 }
 
 it87_driver() {
