@@ -40,8 +40,8 @@ main(){
 }
 
 printLists(){
-	local list file_loc i
-	[ -z $ID ] && local ID=$(. /etc/os-release; echo $ID)
+	local list file_loc i ID
+	[ -z "$ID" ] && ID=$(. /etc/os-release; echo "$ID")
 	# Warning: the function assumes you give at least one proper package list.
 	[ "$#" -lt 1 ] && echo 1>&2 "${FUNCNAME[0]} - Missing arguments." && exit 1
 	# Prints the content of `.csv` files given as arguments.
@@ -49,10 +49,11 @@ printLists(){
 	for list in "$@"; do
 		file_loc=("programs/$ID.$list.csv" "programs/$ID/$list.csv" \
 			  "programs/$file.csv" "$ID.$list.csv" "$ID/$file.csv" "$list.csv")
-		for i in ${!file_loc[@]}; do
-			[ -r ${file_loc[$i]} ] && cat ${file_loc[$i]} && echo && break
+		for i in "${!file_loc[@]}"; do
+			[ -r "${file_loc[$i]}" ] && cat "${file_loc[$i]}" && echo && break
 		done
 		[ "$?" -ne 0 ] && curl -Ls "$progs_repo/$ID/$list.csv"
+		# ^--^ SC2181: Check exit code directly with e.g. 'if mycmd;', not indirectly with $?.
 	done
 }
 
@@ -113,8 +114,8 @@ arch_(){
 	yay --nodiffmenu --needed --removemake --save
 	yay -S --noconfirm --needed --removemake $packages || exit 3
 
-	[ -f  $HOME/.local/Fresh_pack_list ] ||
-		yay -Qq >$HOME/.local/Fresh_pack_list
+	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
+		yay -Qq >"$HOME"/.local/Fresh_pack_list
 
 	if [ "$(command -v arduino)" ]; then
 		sudo usermod -aG uucp "$USER"
@@ -143,7 +144,7 @@ pop_(){
 	change_hostname
 
 	for ppa in $extra_repos; do
-		sudo add-apt-repository ppa:$ppa -y
+		sudo add-apt-repository ppa:"$ppa" -y
 	done
 
 	sudo apt-get update && sudo apt-get -y upgrade
@@ -164,7 +165,7 @@ pop_(){
 	fi
 
 	chsh -s /bin/usr/zsh
-	[ -f  $HOME/.local/Fresh_pack_list ] ||
+	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
 		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
 
 	if [ "$(command -v arduino)" ]; then
@@ -207,10 +208,13 @@ fedora_(){
 	for corp in $extra_repos; do
 		sudo dnf copr enable "$corp" -y
 	done
+
+	# TODO change to array
 	sudo dnf install -y $packages
-	[ -f  $HOME/.local/Fresh_pack_list ] ||
+
+	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
 		dnf list installed >"$HOME/.local/Fresh_pack_list"
-	
+
 	sudo flatpak remote-add --if-not-exists flathub \
 	https://flathub.org/repo/flathub.flatpakrepo
 
@@ -224,14 +228,14 @@ fedora_(){
 		nl.hjdskes.gcolor3
 		com.stremio.Stremio
 	)
-	sudo flatpak install -y ${flatpaks[@]}
+	sudo flatpak install -y "${flatpaks[@]}"
 }
 
 install_environment() {
 	local NAME ID packages extra_repos nvdri progsFile
 
-	ID=$(. /etc/os-release; echo $ID)
-	NAME=$(. /etc/os-release; echo $NAME)
+	ID=$(. /etc/os-release; echo "$ID")
+	NAME=$(. /etc/os-release; echo "$NAME")
 
 	progsFile="/tmp/progs_$(date +%s).csv"
 	printLists "$@" >>"$progsFile"
@@ -241,7 +245,7 @@ install_environment() {
 	# Rudimentary check to see if there are any packages in the variable.
 	[ -z "$packages" ] && echo 1>&2 "Error parsing package lists." && exit 1
 
-	grep -q "flatpak" <<<$packages || [ "$(command -v flatpak)" ] ||
+	grep -q "flatpak" <<<"$packages" || [ "$(command -v flatpak)" ] ||
 	packages="$packages flatpak"
 
 	[ -d "$HOME/.local" ] || mkdir "$HOME/.local"
@@ -349,7 +353,7 @@ mount_hhd_uuid() {
 	local label mntOpt
 	label=$(sudo blkid -o list | grep "$1" | awk '{print $3}')
 	# Makes sure the partition has a label.
-	[ -z "$label" ] && [ "$(wc -w <<< $label)" -ne 1 ] &&
+	[ -z "$label" ] && [ "$(wc -w <<< "$label")" -ne 1 ] &&
 		echo 1>&2 "UUID doesn't correspond to a label" &&
 		return 6
 
@@ -393,7 +397,7 @@ finalization(){
 	# 	https://flathub.org/repo/flathub.flatpakrepo
 
 	# pip install i3ipc # Add for non-arch distros.
-	
+
 	# for printers? why?
 	# sudo usermod -aG lp "$USER"
 	#[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
