@@ -238,6 +238,25 @@ fedora_(){
 		com.github.xournalpp.xournalpp
 	)
 	sudo flatpak install -y "${flatpaks[@]}"
+
+	# Codecs
+
+	sudo dnf install gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
+	sudo dnf install lame\* --exclude=lame-devel
+	sudo dnf group upgrade --with-optional Multimedia
+
+	# G810
+	sudo dnf copr enable lkiesow/g810-led
+	sudo dnf install g810-led
+
+	# Virtualization
+	sudo dnf install @virtualization
+	# sudo sed -i '/#unix_sock_group = "libvirt"/s/^#//' /etc/libvirt/libvirtd.conf
+	sudo usermod -a -G libvirt $(whoami)
+
+	# REMOVE
+	sudo dnf remove -y gnome-tour gnome-photos gnome-maps gnome-help
+
 }
 
 install_environment() {
