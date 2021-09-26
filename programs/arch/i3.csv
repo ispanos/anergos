@@ -2,9 +2,7 @@
 atool,manages and gives information about archives
 bash-completion,
 bc,arbitrary precision calculator language
-borg,
 calcurse,lightweight terminal-based calendar
-cronie,daemon that runs specified programs at scheduled times
 dialog,
 docx2txt,enables .docx file previews in vifm/terminal
 dosfstools,allows your computer to access dos-like filesystems
@@ -26,10 +24,8 @@ odt2txt,enables .odt file previews in vifm/terminal
 openssh,suite of security-related network utilities based on the ssh
 p7zip,tool to (de-)compress archives
 procinfo,tools to display information from /proc and /sys
-python-llfuse,
 rsync,
 simple-mtpfs,enables the mounting of cell phones outside of pcmanfm
-sshfs,FUSE-based filesystem client for mounting remote directories
 tmux,terminal multiplexer
 tree,lists directory contents like trees
 unrar,tool to (de-)compress archives
