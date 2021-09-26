@@ -173,6 +173,19 @@ pop_(){
 }
 
 fedora_(){
+
+	# -- paprefs needs pipewire alternative
+	# Vscode
+
+	sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
+	sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+
+	sudo dnf install -y 'dnf-command(copr)'
+	sudo dnf copr -y enable iucar/cran
+	sudo dnf install -y R-CoprManager
+
+	dnf check-update
+	sudo dnf install -y code
 	srtlnk="https://download1.rpmfusion.org"
 	free="free/fedora/rpmfusion-free-release"
 	nonfree="nonfree/fedora/rpmfusion-nonfree-release"
@@ -180,8 +193,16 @@ fedora_(){
 	sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
 	sudo dnf upgrade -y
 
+	change_hostname
+
+	# Install Third Party Repositories.
+	sudo dnf install fedora-workstation-repositories
+	# Enable the Google Chrome repo:
+	sudo dnf config-manager --set-enabled google-chrome
+	sudo dnf install -y google-chrome-stable
+
 	# To do: Install VirtualBox guest utils only on guests.
-	# To do: Install Nvidia drivers
+	# To do: Install Nvidia drivers ?
 
 	for corp in $extra_repos; do
 		sudo dnf copr enable "$corp" -y
@@ -189,6 +210,21 @@ fedora_(){
 	sudo dnf install -y $packages
 	[ -f  $HOME/.local/Fresh_pack_list ] ||
 		dnf list installed >"$HOME/.local/Fresh_pack_list"
+	
+	sudo flatpak remote-add --if-not-exists flathub \
+	https://flathub.org/repo/flathub.flatpakrepo
+
+
+	flatpaks=(
+		com.microsoft.Teams
+		com.mattermost.Desktop
+		us.zoom.Zoom
+		com.discordapp.Discord
+		org.gnome.gitlab.YaLTeR.VideoTrimmer
+		nl.hjdskes.gcolor3
+		com.stremio.Stremio
+	)
+	sudo flatpak install -y ${flatpaks[@]}
 }
 
 install_environment() {
@@ -200,7 +236,7 @@ install_environment() {
 	progsFile="/tmp/progs_$(date +%s).csv"
 	printLists "$@" >>"$progsFile"
 	packages=$(sed '/#.*$/d;/^,/d;s/,.*$//' "$progsFile")
-	#extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile") # Fix with awk.
+	extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile") # Fix with awk. ?
 
 	# Rudimentary check to see if there are any packages in the variable.
 	[ -z "$packages" ] && echo 1>&2 "Error parsing package lists." && exit 1
@@ -213,7 +249,7 @@ install_environment() {
 	case $ID in
 		arch) 	nvdri=$(nvidia_check)
 				arch_ ;;
-		# fedora) fedora_ ;;
+		fedora) fedora_ ;;
 		# manjaro) manjaro_ ;;
 		pop|ubuntu) pop_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
@@ -347,18 +383,21 @@ finalization(){
 	sudo sed -i 's/^Exec=sway$/Exec=\/bin\/zsh -l -c sway/' \
 		/usr/share/wayland-sessions/sway.desktop
 
+	# Also for Fedora
 	sudo systemctl enable --now libvirtd &&
 		sudo usermod -aG libvirt "$USER"
 
 	sudo flatpak remote-add --if-not-exists flathub  --system \
 		https://flathub.org/repo/flathub.flatpakrepo
-	flatpak remote-add --if-not-exists flathub --user \
-		https://flathub.org/repo/flathub.flatpakrepo
+	# flatpak remote-add --if-not-exists flathub --user \
+	# 	https://flathub.org/repo/flathub.flatpakrepo
 
-	#pip install i3ipc # Add for non-arch distros.
-	sudo usermod -aG lp "$USER"
-	[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
-	[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
+	# pip install i3ipc # Add for non-arch distros.
+	
+	# for printers? why?
+	# sudo usermod -aG lp "$USER"
+	#[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
+	#[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
 }
 
 main "$@"
