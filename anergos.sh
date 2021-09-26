@@ -181,12 +181,14 @@ fedora_(){
 	sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
 	sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
 
+	dnf check-update
+	sudo dnf install -y code
+
+	# R
 	sudo dnf install -y 'dnf-command(copr)'
 	sudo dnf copr -y enable iucar/cran
 	sudo dnf install -y R-CoprManager
 
-	dnf check-update
-	sudo dnf install -y code
 	srtlnk="https://download1.rpmfusion.org"
 	free="free/fedora/rpmfusion-free-release"
 	nonfree="nonfree/fedora/rpmfusion-nonfree-release"
@@ -229,6 +231,11 @@ fedora_(){
 		org.gnome.gitlab.YaLTeR.VideoTrimmer
 		nl.hjdskes.gcolor3
 		com.stremio.Stremio
+		io.dbeaver.DBeaverCommunity
+		io.dbeaver.DBeaverCommunity.Client.mariadb
+		org.gimp.GIMP
+		org.audacityteam.Audacity
+		com.github.xournalpp.xournalpp
 	)
 	sudo flatpak install -y "${flatpaks[@]}"
 }
