@@ -40,7 +40,7 @@ get_drive() {
 	echo "/dev/${drives[$(("$number" - 1 ))]}"
 }
 
-partition_drive_UEFI() {
+partition_drive_UEFI_w_home() {
 	# Uses fdisk to create an "EFI System" partition  (500M),
 	# a "Linux root" partition and a "linux home" partition.
 	# Obviously it erases all data on the device.
@@ -170,7 +170,7 @@ format_and_mount_partitions_UEFI(){
 		local HARD_DRIVE
 		HARD_DRIVE=$(get_drive) || exit 1
 
-		partition_drive_UEFI "$HARD_DRIVE"
+		partition_drive_UEFI_w_home "$HARD_DRIVE"
 		format_mount_parts_UEFI "$HARD_DRIVE"
 	fi
 }
