@@ -30,7 +30,7 @@ main(){
 	local progs_repo
 	progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
 	install_environment "$@"
-	clone_dotfiles https://github.com/ispanos/dotfiles
+	clone_dotfiles git@github.com:ispanos/dotfiles.git
 	# The following functions are only applied if needed.
 	# You may get an error message, but they wont apply any unneeded changes.
 	g810_Led_profile
