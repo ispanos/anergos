@@ -46,9 +46,15 @@ printLists(){
 	[ "$#" -lt 1 ] && echo 1>&2 "${FUNCNAME[0]} - Missing arguments." && exit 1
 	# Prints the content of `.csv` files given as arguments.
 	# Checks for local files first.
+	file_loc=(	"programs/$ID.$list.csv"
+				"programs/$ID/$list.csv"
+				"programs/$file.csv"
+				"$ID.$list.csv"
+				"$ID/$file.csv"
+				"$list.csv"
+			)
+
 	for list in "$@"; do
-		file_loc=("programs/$ID.$list.csv" "programs/$ID/$list.csv" \
-			  "programs/$file.csv" "$ID.$list.csv" "$ID/$file.csv" "$list.csv")
 		for i in "${!file_loc[@]}"; do
 			[ -r "${file_loc[$i]}" ] && cat "${file_loc[$i]}" && echo && break
 		done
@@ -133,8 +139,8 @@ manjaro_(){
 	yay --nodiffmenu --save
 	yay -S --noconfirm --needed --removemake $packages
 	yay -Yc --noconfirm
-	[ -f  $HOME/.local/Fresh_pack_list ] ||
-		yay -Qq >$HOME/.local/Fresh_pack_list
+	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
+		yay -Qq >"$HOME"/.local/Fresh_pack_list
 }
 
 pop_(){
@@ -236,11 +242,12 @@ fedora_(){
 		org.gimp.GIMP
 		org.audacityteam.Audacity
 		com.github.xournalpp.xournalpp
+		com.spotify.Client
+		org.octave.Octave
 	)
 	sudo flatpak install -y "${flatpaks[@]}"
 
 	# Codecs
-
 	sudo dnf install gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
 	sudo dnf install lame\* --exclude=lame-devel
 	sudo dnf group upgrade --with-optional Multimedia
@@ -252,11 +259,10 @@ fedora_(){
 	# Virtualization
 	sudo dnf install @virtualization
 	# sudo sed -i '/#unix_sock_group = "libvirt"/s/^#//' /etc/libvirt/libvirtd.conf
-	sudo usermod -a -G libvirt $(whoami)
+	sudo usermod -a -G libvirt "$(whoami)"
 
 	# REMOVE
 	sudo dnf remove -y gnome-tour gnome-photos gnome-maps gnome-help
-
 }
 
 install_environment() {
@@ -312,7 +318,6 @@ clone_dotfiles() {
 	cp -rfT "$dir/" "$HOME/"
 
 	ln -s .profile .zprofile
-
 }
 
 it87_driver() {
@@ -431,8 +436,11 @@ finalization(){
 
 	# for printers? why?
 	# sudo usermod -aG lp "$USER"
-	#[ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
-	#[ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
+	# [ "$(command -v virtualbox)" ] && sudo usermod -aG vboxusers "$USER"
+	# [ "$(command -v docker)" ] && sudo usermod -aG docker "$USER"
 }
+
+# todo
+# https://stackoverflow.com/questions/35773299/how-can-you-export-the-visual-studio-code-extension-list
 
 main "$@"
