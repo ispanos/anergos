@@ -244,6 +244,7 @@ fedora_(){
 		com.github.xournalpp.xournalpp
 		com.spotify.Client
 		org.octave.Octave
+		com.skype.Client
 	)
 	sudo flatpak install -y "${flatpaks[@]}"
 
@@ -360,6 +361,7 @@ it87_driver() {
 }
 
 install_xkb-switch() {
+	# Pop!_os / Ubuntu
 	[ "$(command -v xkb-switch)" ] && return 0
 	# Installs xkb-switch, needed for i3blocks keyboard layout module.
 	if [ ! "$(command -v git)" ] || [ ! "$(command -v cmake)" ]; then
