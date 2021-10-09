@@ -230,6 +230,7 @@ fedora_(){
 
 
 	flatpaks=(
+		com.dropbox.Client
 		com.microsoft.Teams
 		com.mattermost.Desktop
 		us.zoom.Zoom
