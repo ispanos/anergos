@@ -9,7 +9,7 @@ dialog,
 dosfstools,
 exa,
 #-- exfatprogs (not sure if needed)exfat-utils,
-fd-find
+fd-find,
 findutils,
 fzf,
 highlight,
