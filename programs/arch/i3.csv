@@ -1,4 +1,5 @@
 # NAME,PURPOSE
+# informant
 atool,manages and gives information about archives
 bash-completion,
 bc,arbitrary precision calculator language

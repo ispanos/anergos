@@ -213,8 +213,6 @@ fedora_(){
 	# To do: Install VirtualBox guest utils only on guests.
 	# To do: Install Nvidia drivers ?
 
-	# chsh $USER -s /usr/bin/zsh
-
 	for corp in $extra_repos; do
 		sudo dnf copr enable "$corp" -y
 	done
@@ -246,7 +244,12 @@ fedora_(){
 		com.spotify.Client
 		org.octave.Octave
 		com.skype.Client
+		com.ulduzsoft.Birdtray
+		org.mozilla.Thunderbird
+		com.skype.Client
 	)
+	# com.jetbrains.PyCharm-Community
+
 	sudo flatpak install -y "${flatpaks[@]}"
 
 	# Codecs
@@ -265,6 +268,12 @@ fedora_(){
 
 	# REMOVE
 	sudo dnf remove -y gnome-tour gnome-photos gnome-maps gnome-help
+
+	# Teamviewer
+	# wget -q "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm"
+	# sudo teamviewer –daemon disable
+
+	chsh $USER -s /usr/bin/zsh
 }
 
 install_environment() {
