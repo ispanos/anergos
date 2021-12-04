@@ -1,0 +1,56 @@
+
+install_xkb-switch() {
+	# Pop!_os / Ubuntu
+	[ "$(command -v xkb-switch)" ] && return 0
+	# Installs xkb-switch, needed for i3blocks keyboard layout module.
+	if [ ! "$(command -v git)" ] || [ ! "$(command -v cmake)" ]; then
+		echo 1>&2 "${FUNCNAME[0]} requires git and cmake. Skipping."
+		return 1
+	fi
+
+	local workdir
+
+	workdir=$HOME/.local/share/build_sources
+
+	[ -d "$workdir" ] || mkdir -p "$workdir" && cd "$workdir" || return 2
+	git clone -q https://github.com/grwlf/xkb-switch.git &&
+		cd xkb-switch && mkdir build && cd build && cmake .. && make &&
+        sudo make install && sudo ldconfig || return 7
+}
+
+pop_(){
+	lspci -k | grep -q "QEMU Virtual Machine" &&
+	packages="$packages qemu-guest-agent"
+
+	change_hostname
+
+	for ppa in $extra_repos; do
+		sudo add-apt-repository ppa:"$ppa" -y
+	done
+
+	sudo apt-get update && sudo apt-get -y upgrade
+	sudo apt-get install $packages -y
+	[[ "$?" -eq 100 ]] && echo 1>&2 "Wrong package name." && exit 100
+	sudo apt-get clean && sudo apt autoremove
+
+	[ "$(command -v pip3)" ] || sudo apt-get install python3-pip -y
+	pip3 install ansible ansible-lint --user
+
+	if [ "$(command -v sway)" ] || [ "$(command -v i3)" ]; then
+		pip3 install i3ipc --user
+		curl -Ls \
+			"https://raw.githubusercontent.com/nwg-piotr/autotiling/master/autotiling.py" \
+			>~/.local/bin/wm-scripts/autotiling
+		chmod +x ~/.local/bin/wm-scripts/autotiling
+		install_xkb-switch
+	fi
+
+	chsh -s /bin/usr/zsh
+	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
+		apt list --installed 2>/dev/null >"$HOME/.local/Fresh_pack_list"
+
+	if [ "$(command -v arduino)" ]; then
+		sudo usermod -aG dialout "$USER"
+	fi
+}
+

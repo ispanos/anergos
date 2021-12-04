@@ -1,0 +1,36 @@
+arch_(){
+	echo "Updating and installing git if needed."
+	sudo reflector --verbose \
+				   --latest 5 \
+				   --sort rate --save /etc/pacman.d/mirrorlist
+	sudo pacman -Syu --noconfirm --needed git
+
+	if [ ! "$(command -v yay)" ]; then
+		git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay
+		cd /tmp/yay && makepkg -si --noconfirm --needed
+	fi
+
+	# # Installs VirtualBox guest utils only on guests.
+	# if lspci | grep -q VirtualBox; then
+	# 	packages="$packages virtualbox-guest-utils xf86-video-vmware"
+	# fi
+
+	if [[ $nvdri =~ ^[Yy]$ ]]; then
+		packages="$packages nvidia nvidia-settings"
+		grep -q "^\[multilib\]" /etc/pacman.conf &&
+			packages="$packages lib32-nvidia-utils"
+	fi
+
+	yay --nodiffmenu --needed --removemake --save
+	yay -S --noconfirm --needed --removemake $packages || exit 3
+
+	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
+		yay -Qq >"$HOME"/.local/Fresh_pack_list
+
+	if [ "$(command -v arduino)" ]; then
+		sudo usermod -aG uucp "$USER"
+		sudo usermod -aG lock "$USER"
+		echo cdc_acm |
+			sudo tee /etc/modules-load.d/cdcacm.conf >/dev/null
+	fi
+}
