@@ -1,19 +1,21 @@
+#!/bin/bash
 
 fedora_(){
 
-	# -- paprefs needs pipewire alternative
+	# find paprefs / pipewire alternative
+
 	# Vscode
 
 	sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
 	sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
 
 	dnf check-update
-	sudo dnf install -y code
+	# sudo dnf install -y code
 
 	# R
-	sudo dnf install -y 'dnf-command(copr)'
-	sudo dnf copr -y enable iucar/cran
-	sudo dnf install -y R-CoprManager
+	# sudo dnf install -y 'dnf-command(copr)'
+	# sudo dnf copr -y enable iucar/cran
+	# sudo dnf install -y R-CoprManager
 
 	srtlnk="https://download1.rpmfusion.org"
 	free="free/fedora/rpmfusion-free-release"
@@ -22,13 +24,11 @@ fedora_(){
 	sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
 	sudo dnf upgrade -y
 
-	change_hostname
-
 	# Install Third Party Repositories.
-	sudo dnf install fedora-workstation-repositories
+	# sudo dnf install fedora-workstation-repositories
 	# Enable the Google Chrome repo:
 	sudo dnf config-manager --set-enabled google-chrome
-	sudo dnf install -y google-chrome-stable
+	# sudo dnf install -y google-chrome-stable
 
 	# To do: Install VirtualBox guest utils only on guests.
 	# To do: Install Nvidia drivers ?
@@ -63,12 +63,10 @@ fedora_(){
 		com.github.xournalpp.xournalpp
 		com.spotify.Client
 		org.octave.Octave
-		com.skype.Client
 		com.ulduzsoft.Birdtray
 		org.mozilla.Thunderbird
 		com.skype.Client
 	)
-	# com.jetbrains.PyCharm-Community
 
 	sudo flatpak install -y "${flatpaks[@]}"
 
@@ -78,11 +76,11 @@ fedora_(){
 	sudo dnf group upgrade --with-optional Multimedia
 
 	# G810
-	sudo dnf copr enable lkiesow/g810-led
-	sudo dnf install g810-led
+	# sudo dnf copr enable lkiesow/g810-led
+	# sudo dnf install g810-led
 
 	# Virtualization
-	sudo dnf install @virtualization
+	# sudo dnf install @virtualization
 	# sudo sed -i '/#unix_sock_group = "libvirt"/s/^#//' /etc/libvirt/libvirtd.conf
 	sudo usermod -a -G libvirt "$(whoami)"
 

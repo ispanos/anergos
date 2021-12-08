@@ -27,20 +27,41 @@ main(){
 		exit
 	fi
 
-	local progs_repo
-	progs_repo=https://raw.githubusercontent.com/ispanos/anergos/master/programs
+	nopasswd_sudo
+
+	local progs_repo=https://raw.githubusercontent.com/ispanos/anergos/main/programs
 	install_environment "$@"
 	clone_dotfiles git@github.com:ispanos/dotfiles.git
+	change_hostname
+	#mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
 	# The following functions are only applied if needed.
 	# You may get an error message, but they wont apply any unneeded changes.
 	g810_Led_profile
-	#it87_driver
-	#mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
+	#it87_driver # don't use
 	finalization
+
+	reset_sudo_passwd
 }
 
+
+nopasswd_sudo(){
+	# PLEASE USE WITH CARE
+	# May cause issues on systems with modified
+	# Temporarily disable password to avoid multiple prompts
+	mkdir -p /etc/sudoers.d/
+	echo "yiannisspanos ALL=(ALL) NOPASSWD: ALL" |
+		sudo tee /etc/sudoers.d/anergos >/dev/null
+}
+
+
+reset_sudo_passwd(){
+	# Resets sudoers files to the previous state
+	sudo rm -rf /etc/sudoers.d/anergos
+}
+
+
 printLists(){
-	local list file_loc i ID
+	local list file_loc ID
 	[ -z "$ID" ] && ID=$(. /etc/os-release; echo "$ID")
 	# Warning: the function assumes you give at least one proper package list.
 	[ "$#" -lt 1 ] && echo 1>&2 "${FUNCNAME[0]} - Missing arguments." && exit 1
@@ -48,74 +69,39 @@ printLists(){
 	# Checks for local files first.
 
 	for list in "$@"; do
-        file_loc=(	"programs/$ID.$list.csv"
-                    "programs/$ID/$list.csv"
-                    "programs/$file.csv"
-                    "$ID.$list.csv"
-                    "$ID/$file.csv"
-                    "$list.csv"
-                )
+		file_loc=(	"programs/$ID.$list.csv"
+					"programs/$ID/$list.csv"
+					"programs/$file.csv"
+					"$ID.$list.csv"
+					"$ID/$file.csv"
+					"$list.csv"
+				)
 
+		# TODO add a suc counter to make sure at least one file is valid
 		for location in "${file_loc[@]}"; do
 			[ -r "$location" ] && cat "$location" && echo && break
 		done
-		[ "$?" -ne 0 ] && curl -Ls "$progs_repo/$ID/$list.csv"
-		# ^--^ SC2181: Check exit code directly with e.g. 'if mycmd;', not indirectly with $?.
+		[ "$?" -ne 0 ] && curl -Ls "$progs_repo/$ID/$list.csv" # suc = true
 	done
 }
 
-# nvidia_check(){
-#     local nvidiaGPU nvdri
-# 	# Installs proprietery Nvidia drivers for supported distros.
-# 	# If there is an nvidia GPU, it asks the user to install drivers.
-# 	[ "$(command -v lspci)" ] &&
-# 	nvidiaGPU=$(lspci -k | grep -A 2 -E "(VGA|3D)" | grep "NVIDIA" |
-# 				awk -F'[][]' '{print $2}')
+change_hostname(){
+	local ans1 hostname
+	echo "Current hostname is $(hostname)"
+	read -rep 'Would you like to change it? [Y/n]: ' ans1
+	[[ $ans1 =~ ^[Yy]$ ]] && read -rep 'New hostname: ' hostname
+	sudo hostnamectl set-hostname "$hostname"
 
-# 	[ "$nvidiaGPU" ] && read -rep "
-# 		Detected Nvidia GPU: $nvidiaGPU
-# 		Install proprietary Nvidia drivers? [y/N]: " nvdri
-#     [ ! -z "$nvdriv" ] && echo $nvdri
-# }
+	{
+	cat <<-EOF
+		#<ip-address>  <hostname.domain.org>    <hostname>
+		127.0.0.1      localhost
+		::1            localhost
+		127.0.1.1      ${hostname}.localdomain  $hostname
+	EOF
+	} | sudo tee /etc/hosts >/dev/null
+}
 
-# change_hostname(){
-# 	local ans1 hostname
-# 	echo "Current hostname is $(hostname)"
-# 	read -rep 'Would you like to change it? [Y/n]: ' ans1
-# 	[[ $ans1 =~ ^[Yy]$ ]] && read -rep 'New hostname: ' hostname
-# 	sudo hostnamectl set-hostname "$hostname"
-
-# 	{
-# 	cat <<-EOF
-# 		#<ip-address>  <hostname.domain.org>    <hostname>
-# 		127.0.0.1      localhost
-# 		::1            localhost
-# 		127.0.1.1      ${hostname}.localdomain  $hostname
-# 	EOF
-# 	} | sudo tee /etc/hosts >/dev/null
-# }
-
-# mount_hhd_uuid() {
-# 	# Mounts my HHD, provided the UUID, at /media/foo,
-# 	# where "foo" is the label of the drive.
-
-# 	# Makes sure there is only 1 argument.
-# 	[ "$#" -ne 1 ] && echo 1>&2 "Invalid UUID" && return 6
-# 	# Makes sure the UUID isn't already in fstab.
-# 	grep -q "$1" /etc/fstab && return
-
-# 	local label mntOpt
-# 	label=$(sudo blkid -o list | grep "$1" | awk '{print $3}')
-# 	# Makes sure the partition has a label.
-# 	[ -z "$label" ] && [ "$(wc -w <<< "$label")" -ne 1 ] &&
-# 		echo 1>&2 "UUID doesn't correspond to a label" &&
-# 		return 6
-
-# 	[ -d "/media/$label" ] || sudo mkdir -p "/media/$label"
-# 	mntOpt="ext4 rw,noatime,nofail,user,auto 0 2"
-# 	printf "\\n%s \t%s \t%s\t\\n" "UUID=$1" "/media/$label" "$mntOpt" |
-# 		sudo tee -a /etc/fstab >/dev/null
-# }
 
 clone_dotfiles() {
 	# Clones dotfiles in the home dir in a very specific way.
@@ -143,6 +129,7 @@ clone_dotfiles() {
 	ln -s .profile .zprofile
 }
 
+
 g810_Led_profile(){
 	# https://github.com/MatMoul/g810-led/
 	[ -d /etc/g810-led ] || return 5
@@ -163,12 +150,8 @@ g810_Led_profile(){
 }
 
 
-
-
-
-
 install_environment() {
-	local NAME ID packages extra_repos nvdri progsFile
+	local NAME ID packages extra_repos progsFile # nvdri
 
 	ID=$(. /etc/os-release; echo "$ID")
 	NAME=$(. /etc/os-release; echo "$NAME")
@@ -187,16 +170,15 @@ install_environment() {
 	[ -d "$HOME/.local" ] || mkdir "$HOME/.local"
 
 	case $ID in
-		arch)
-				nvdri=$(nvidia_check)
-				source archlinux
-				arch_ ;;
+		# arch)
+		# 		source archlinux
+		# 		arch_ ;;
 		fedora) 
 				source archlinux
 				fedora_ ;;
-		pop) 	
-				source popos
-				pop_ ;;
+		# pop) 	
+		# 		source popos
+		# 		pop_ ;;
 		*) read -rep "Distro:$NAME is not properly supported yet."; exit 1 ;;
 	esac
 }

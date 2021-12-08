@@ -1,0 +1,103 @@
+
+# gsettings set org.gnome.settings-daemon.plugins.media-keys mic-mute ['']
+# org.gnome.settings-daemon.peripherals.keyboard bell-mode 'on'
+
+
+
+# disable existing keybindings for <Super>+[number]
+gsettings set org.gnome.shell.keybindings switch-to-application-1 []
+gsettings set org.gnome.shell.keybindings switch-to-application-2 []
+gsettings set org.gnome.shell.keybindings switch-to-application-3 []
+gsettings set org.gnome.shell.keybindings switch-to-application-4 []
+gsettings set org.gnome.shell.keybindings switch-to-application-5 []
+gsettings set org.gnome.shell.keybindings switch-to-application-6 []
+gsettings set org.gnome.shell.keybindings switch-to-application-7 []
+gsettings set org.gnome.shell.keybindings switch-to-application-8 []
+gsettings set org.gnome.shell.keybindings switch-to-application-9 []
+#gsettings set org.gnome.shell.keybindings switch-to-application-10 []
+
+# set new keybindings
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Super>1']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Super>2']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Super>3']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-4 "['<Super>4']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-5 "['<Super>5']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-6 "['<Super>6']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-7 "['<Super>7']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-8 "['<Super>8']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-9 "['<Super>9']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-10 "['<Super>0']"
+
+
+gsettings set org.gnome.desktop.wm.keybindings close ['<Super>q']
+
+
+### 
+exit
+
+# Terminal
+gsettings set org.gnome.settings-daemon.plugins.media-keys terminal "<Super>t"
+
+# Power settings
+gsettings set org.gnome.settings-daemon.plugins.power lid-close-battery-action blank
+gsettings set org.gnome.settings-daemon.plugins.power lid-close-ac-action blank
+gsettings set org.gnome.settings-daemon.plugins.power idle-dim false
+gsettings set org.gnome.settings-daemon.plugins.power lid-close-suspend-with-external-monitor false
+
+# Window management
+gsettings set org.gnome.shell.overrides attach-modal-dialogs false
+#gsettings set org.gnome.shell.overrides button-layout :minimize,maximize,close
+gsettings set org.gnome.desktop.wm.preferences button-layout ":minimize,maximize,close"
+gsettings set org.gnome.shell.overrides dynamic-workspaces false
+gsettings set org.gnome.shell.overrides edge-tiling false
+gsettings set org.gnome.desktop.wm.preferences num-workspaces 6
+
+# Keybindings
+gsettings set org.gnome.shell.keybindings toggle-overview "[]"
+gsettings set org.gnome.mutter.keybindings toggle-tiled-left "['<Super>Left']"
+gsettings set org.gnome.mutter.keybindings toggle-tiled-right "['<Super>Right']"
+gsettings set org.gnome.desktop.wm.keybindings unmaximize "['<Alt>F5']"
+gsettings set org.gnome.desktop.wm.keybindings always-on-top "['<Alt>F6']"
+gsettings set org.gnome.desktop.wm.keybindings toggle-shaded "[]"
+gsettings set org.gnome.desktop.wm.keybindings minimize "['<Alt>F9']"
+gsettings set org.gnome.desktop.wm.keybindings maximize-vertically "['<Alt>F11']"
+gsettings set org.gnome.desktop.wm.keybindings maximize-horizontally "['<Alt>F12']"
+gsettings set org.gnome.desktop.wm.keybindings maximize "[]"
+gsettings set org.gnome.desktop.wm.keybindings toggle-maximized "['<Alt>F10']"
+
+
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-up "['<Super>Up']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-down "['<Super>Down']"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "[]"
+gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "[]"
+
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-up "['<Super><Shift>Up']"
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-down "['<Super><Shift>Down']"
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "[]"
+
+gsettings set org.gnome.desktop.wm.keybindings switch-panels "['<Super>Tab']"
+gsettings set org.gnome.desktop.wm.keybindings switch-group "[]"
+gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Alt>Tab']"
+gsettings set org.gnome.desktop.wm.keybindings switch-input-source-backward "[]"
+gsettings set org.gnome.desktop.wm.keybindings cycle-panels "[]"
+gsettings set org.gnome.desktop.wm.keybindings cycle-group "[]"
+gsettings set org.gnome.desktop.wm.keybindings cycle-windows "['<Alt>Above_Tab']"
+gsettings set org.gnome.desktop.wm.keybindings show-desktop "['<Super>d']"
+gsettings set org.gnome.desktop.wm.keybindings panel-main-menu "[]"
+
+gsettings set org.gnome.desktop.wm.keybindings move-to-corner-ne "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-corner-nw "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-corner-se "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-corner-sw "[]"
+
+gsettings set org.gnome.desktop.wm.keybindings move-to-side-e "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-side-w "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-side-s "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-side-n "[]"
+
+gsettings set org.gnome.desktop.wm.keybindings move-to-monitor-up "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-monitor-down "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-monitor-left "[]"
+gsettings set org.gnome.desktop.wm.keybindings move-to-monitor-right "[]"
+
