@@ -31,7 +31,8 @@ main(){
 
 	local progs_repo=https://raw.githubusercontent.com/ispanos/anergos/main/programs
 	install_environment "$@"
-	clone_dotfiles git@github.com:ispanos/dotfiles.git
+	# clone_dotfiles git@github.com:ispanos/dotfiles.git
+	clone_dotfiles https://github.com/ispanos/anergos
 	change_hostname
 	#mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
 	# The following functions are only applied if needed.

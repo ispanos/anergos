@@ -6,7 +6,7 @@ fedora_(){
 
 	# Vscode
 	sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
-	cat <<-EOF | sudo tee /etc/yum.repos.d/vscode.repo' >/dev/null
+	cat <<-EOF | sudo tee /etc/yum.repos.d/vscode.repo >/dev/null
 		[code]
 		name=Visual Studio Code
 		baseurl=https://packages.microsoft.com/yumrepos/vscode
@@ -70,8 +70,13 @@ fedora_(){
 	sudo flatpak install -y "${flatpaks[@]}"
 
 	# Codecs
-	sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
+	sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} \
+						gstreamer1-plugin-openh264 \
+						gstreamer1-libav \
+						--exclude=gstreamer1-plugins-bad-free-devel
+
 	sudo dnf install -y lame\* --exclude=lame-devel
+
 	sudo dnf group upgrade --with-optional Multimedia -y
 
 	# Virtualization
