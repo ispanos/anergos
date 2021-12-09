@@ -7,14 +7,16 @@ fedora_(){
 	# Vscode
 
 	sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
-	sudo sh -c 'echo -e "[code]\nname=Visual Studio Code\nbaseurl=https://packages.microsoft.com/yumrepos/vscode\nenabled=1\ngpgcheck=1\ngpgkey=https://packages.microsoft.com/keys/microsoft.asc" > /etc/yum.repos.d/vscode.repo'
+	cat <<-EOF | sudo tee /etc/yum.repos.d/vscode.repo' >/dev/null
+		[code]
+		name=Visual Studio Code
+		baseurl=https://packages.microsoft.com/yumrepos/vscode
+		enabled=1
+		gpgcheck=1
+		gpgkey=https://packages.microsoft.com/keys/microsoft.asc
+	EOF
 
 	dnf check-update
-	# sudo dnf install -y code
-
-	# R
-	# sudo dnf copr -y enable iucar/cran
-	# sudo dnf install -y R-CoprManager
 
 	srtlnk="https://download1.rpmfusion.org"
 	free="free/fedora/rpmfusion-free-release"
@@ -24,28 +26,24 @@ fedora_(){
 	sudo dnf upgrade -y
 
 	# Install Third Party Repositories.
-	# sudo dnf install fedora-workstation-repositories
+	sudo dnf install -y fedora-workstation-repositories
+
 	# Enable the Google Chrome repo:
 	sudo dnf config-manager --set-enabled google-chrome
-	# sudo dnf install -y google-chrome-stable
-
-	# To do: Install VirtualBox guest utils only on guests.
-	# To do: Install Nvidia drivers ?
 
 	# copr
 	sudo dnf install -y 'dnf-command(copr)'
-	for corp in $extra_repos; do
+	for corp in "${extra_repos[@]}"; do
 		sudo dnf copr enable "$corp" -y
 	done
 
-	# TODO change to array
-	sudo dnf install -y $packages
+	sudo dnf install -y "${packages[@]}"
 
 	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
 		dnf list installed >"$HOME/.local/Fresh_pack_list"
 
 	sudo flatpak remote-add --if-not-exists flathub \
-	https://flathub.org/repo/flathub.flatpakrepo
+		https://flathub.org/repo/flathub.flatpakrepo
 
 
 	flatpaks=(
@@ -72,16 +70,11 @@ fedora_(){
 	sudo flatpak install -y "${flatpaks[@]}"
 
 	# Codecs
-	sudo dnf install gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
-	sudo dnf install lame\* --exclude=lame-devel
-	sudo dnf group upgrade --with-optional Multimedia
-
-	# G810
-	# sudo dnf copr enable lkiesow/g810-led
-	# sudo dnf install g810-led
+	sudo dnf install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-libav --exclude=gstreamer1-plugins-bad-free-devel
+	sudo dnf install -y lame\* --exclude=lame-devel
+	sudo dnf group upgrade --with-optional Multimedia -y
 
 	# Virtualization
-	# sudo dnf install @virtualization
 	# sudo sed -i '/#unix_sock_group = "libvirt"/s/^#//' /etc/libvirt/libvirtd.conf
 	sudo usermod -a -G libvirt "$(whoami)"
 

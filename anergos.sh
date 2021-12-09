@@ -49,7 +49,7 @@ nopasswd_sudo(){
 	# May cause issues on systems with modified
 	# Temporarily disable password to avoid multiple prompts
 	mkdir -p /etc/sudoers.d/
-	echo "yiannisspanos ALL=(ALL) NOPASSWD: ALL" |
+	echo "${USER} ALL=(ALL) NOPASSWD: ALL" |
 		sudo tee /etc/sudoers.d/anergos >/dev/null
 }
 
@@ -158,8 +158,10 @@ install_environment() {
 
 	progsFile="/tmp/progs_$(date +%s).csv"
 	printLists "$@" >>"$progsFile"
-	packages=$(sed '/#.*$/d;/^,/d;s/,.*$//' "$progsFile")
-	extra_repos=$(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile") # Fix with awk. ?
+
+	# TODO Better parser
+	packages=($(sed '/#.*$/d;/^,/d;s/,.*$//' "$progsFile"))
+	extra_repos=($(sed '/^#/d;/^,/d;s/^.*,//' "$progsFile"))
 
 	# Rudimentary check to see if there are any packages in the variable.
 	[ -z "$packages" ] && echo 1>&2 "Error parsing package lists." && exit 1
