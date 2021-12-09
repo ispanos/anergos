@@ -5,7 +5,6 @@ fedora_(){
 	# find paprefs / pipewire alternative
 
 	# Vscode
-
 	sudo rpm --import https://packages.microsoft.com/keys/microsoft.asc &&
 	cat <<-EOF | sudo tee /etc/yum.repos.d/vscode.repo' >/dev/null
 		[code]
@@ -23,6 +22,7 @@ fedora_(){
 	nonfree="nonfree/fedora/rpmfusion-nonfree-release"
 	sudo dnf install -y "$srtlnk/$free-$(rpm -E %fedora).noarch.rpm"
 	sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
+	sudo dnf group update core
 	sudo dnf upgrade -y
 
 	# Install Third Party Repositories.

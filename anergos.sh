@@ -166,6 +166,7 @@ install_environment() {
 	# Rudimentary check to see if there are any packages in the variable.
 	[ -z "$packages" ] && echo 1>&2 "Error parsing package lists." && exit 1
 
+	# Add flatpak to package list
 	grep -q "flatpak" <<<"$packages" || [ "$(command -v flatpak)" ] ||
 	packages="$packages flatpak"
 
@@ -176,7 +177,7 @@ install_environment() {
 		# 		source archlinux
 		# 		arch_ ;;
 		fedora) 
-				source archlinux
+				source fedora
 				fedora_ ;;
 		# pop) 	
 		# 		source popos
