@@ -13,7 +13,6 @@ fedora_(){
 	# sudo dnf install -y code
 
 	# R
-	# sudo dnf install -y 'dnf-command(copr)'
 	# sudo dnf copr -y enable iucar/cran
 	# sudo dnf install -y R-CoprManager
 
@@ -33,6 +32,8 @@ fedora_(){
 	# To do: Install VirtualBox guest utils only on guests.
 	# To do: Install Nvidia drivers ?
 
+	# copr
+	sudo dnf install -y 'dnf-command(copr)'
 	for corp in $extra_repos; do
 		sudo dnf copr enable "$corp" -y
 	done
