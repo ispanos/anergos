@@ -42,6 +42,5 @@ tree,,
 @virtualization,,
 w3m,,
 youtube-dl,,
-'dnf-command(copr)',quotes are needed - copr manager,
 R-CoprManager,,iucar/cran
 google-chrome-stable,,
