@@ -32,7 +32,7 @@ main(){
 	local progs_repo=https://raw.githubusercontent.com/ispanos/anergos/main/programs
 	install_environment "$@"
 	# clone_dotfiles git@github.com:ispanos/dotfiles.git
-	clone_dotfiles https://github.com/ispanos/anergos
+	clone_dotfiles https://github.com/ispanos/dotfiles
 	change_hostname
 	#mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
 	# The following functions are only applied if needed.
@@ -89,7 +89,7 @@ printLists(){
 change_hostname(){
 	local ans1 hostname
 	echo "Current hostname is $(hostname)"
-	read -rep 'Would you like to change it? [Y/n]: ' ans1
+	read -rep 'Would you like to change it? [y/N]: ' ans1
 	[[ $ans1 =~ ^[Yy]$ ]] && read -rep 'New hostname: ' hostname
 	sudo hostnamectl set-hostname "$hostname"
 
@@ -173,6 +173,7 @@ install_environment() {
 
 	[ -d "$HOME/.local" ] || mkdir "$HOME/.local"
 
+	# TODO https://askubuntu.com/questions/674333/how-to-pass-an-array-as-function-argument
 	case $ID in
 		# arch)
 		# 		source archlinux
