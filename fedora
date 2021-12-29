@@ -2,6 +2,7 @@
 
 fedora_(){
 
+	#Add defaultyes=True to /etc/dnf/dnf.conf
 	# find paprefs / pipewire alternative
 
 	# Vscode
@@ -22,14 +23,13 @@ fedora_(){
 	nonfree="nonfree/fedora/rpmfusion-nonfree-release"
 	sudo dnf install -y "$srtlnk/$free-$(rpm -E %fedora).noarch.rpm"
 	sudo dnf install -y "$srtlnk/$nonfree-$(rpm -E %fedora).noarch.rpm"
-	sudo dnf group update core
 	sudo dnf upgrade -y
 
 	# Install Third Party Repositories.
 	sudo dnf install -y fedora-workstation-repositories
 
 	# Enable the Google Chrome repo:
-	sudo dnf config-manager --set-enabled google-chrome
+	sudo dnf config-manager --set-enabled google-chrome -y
 
 	# copr
 	sudo dnf install -y 'dnf-command(copr)'
@@ -84,7 +84,7 @@ fedora_(){
 	sudo usermod -a -G libvirt "$(whoami)"
 
 	# REMOVE
-	sudo dnf remove -y gnome-tour gnome-photos gnome-maps gnome-help
+	sudo dnf remove -y gnome-tour gnome-photos gnome-maps gnome-help abiword
 
 	# Teamviewer
 	# wget -q "https://download.teamviewer.com/download/linux/teamviewer.x86_64.rpm"
