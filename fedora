@@ -59,12 +59,13 @@ fedora_(){
 		io.dbeaver.DBeaverCommunity.Client.mariadb
 		org.gimp.GIMP
 		org.audacityteam.Audacity
-		com.github.xournalpp.xournalpp
 		com.spotify.Client
 		org.octave.Octave
 		com.ulduzsoft.Birdtray
 		org.mozilla.Thunderbird
 		com.skype.Client
+		com.mattjakeman.ExtensionManager
+		org.gnome.TextEditor
 	)
 
 	sudo flatpak install -y "${flatpaks[@]}"
