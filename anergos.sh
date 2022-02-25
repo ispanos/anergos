@@ -127,6 +127,7 @@ clone_dotfiles() {
 	rm "$dir/.gitignore"
 	cp -rfT "$dir/" "$HOME/"
 
+	cd ~
 	ln -s .profile .zprofile
 }
 
