@@ -34,11 +34,9 @@ main(){
 	# clone_dotfiles git@github.com:ispanos/dotfiles.git
 	clone_dotfiles https://github.com/ispanos/dotfiles
 	change_hostname
-	#mount_hhd_uuid fe8b7dcf-3bae-4441-a4f3-a3111fee8ca4
 	# The following functions are only applied if needed.
 	# You may get an error message, but they wont apply any unneeded changes.
 	g810_Led_profile
-	#it87_driver # don't use
 	finalization
 
 	reset_sudo_passwd
@@ -79,7 +77,9 @@ printLists(){
 				)
 
 		# TODO add a suc counter to make sure at least one file is valid
+		# found=0
 		for location in "${file_loc[@]}"; do
+			#[[ $found == 0]] && [ -r "$location" ] && cat "$location" && echo && found=1
 			[ -r "$location" ] && cat "$location" && echo && break
 		done
 		[ "$?" -ne 0 ] && curl -Ls "$progs_repo/$ID/$list.csv" # suc = true
@@ -87,6 +87,7 @@ printLists(){
 }
 
 change_hostname(){
+	#TODO
 	local ans1 hostname
 	echo "Current hostname is $(hostname)"
 	read -rep 'Would you like to change it? [y/N]: ' ans1
