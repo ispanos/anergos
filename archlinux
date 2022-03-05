@@ -5,9 +5,9 @@ arch_(){
 				   --sort rate --save /etc/pacman.d/mirrorlist
 	sudo pacman -Syu --noconfirm --needed git
 
-	if [ ! "$(command -v yay)" ]; then
-		git clone -q https://aur.archlinux.org/yay-bin.git /tmp/yay
-		cd /tmp/yay && makepkg -si --noconfirm --needed
+	if [ ! "$(command -v paru)" ]; then
+		git clone -q https://aur.archlinux.org/paru-bin.git /tmp/paru
+		cd /tmp/paru && makepkg -si --noconfirm --needed
 	fi
 
 	# # Installs VirtualBox guest utils only on guests.
@@ -21,11 +21,11 @@ arch_(){
 			packages="$packages lib32-nvidia-utils"
 	fi
 
-	yay --nodiffmenu --needed --removemake --save
-	yay -S --noconfirm --needed --removemake $packages || exit 3
+	paru --nodiffmenu --needed --removemake --save
+	paru -S --noconfirm --needed --removemake $packages || exit 3
 
 	[ -f  "$HOME"/.local/Fresh_pack_list ] ||
-		yay -Qq >"$HOME"/.local/Fresh_pack_list
+		paru -Qq >"$HOME"/.local/Fresh_pack_list
 
 	if [ "$(command -v arduino)" ]; then
 		sudo usermod -aG uucp "$USER"
