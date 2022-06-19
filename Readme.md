@@ -1,3 +1,5 @@
+This script has been replaced by [ptinopedila](https://github.com/ispanos/ptinopedila) (The birds of Mercury)
+
 # Anergos
 
 ## Description
